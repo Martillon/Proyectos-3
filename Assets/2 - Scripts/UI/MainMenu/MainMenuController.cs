@@ -8,7 +8,6 @@ namespace Scripts.UI.MainMenu
     {
         [Header("UI Panels")]
         [SerializeField] private GameObject pnl_MainMenu;
-        [SerializeField] private GameObject pnl_SaveSelection;
         [SerializeField] private GameObject pnl_Options;
         [SerializeField] private GameObject pnl_Credits;
 
@@ -47,7 +46,7 @@ namespace Scripts.UI.MainMenu
         {
             Debug.Log("Play pressed. Opening save selection panel.");
             pnl_MainMenu.SetActive(false);
-            pnl_SaveSelection.SetActive(true);
+            Debug.Log("Opening save selection panel. Or starting a new game.");
         }
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace Scripts.UI.MainMenu
             UnityEditor.EditorApplication.isPlaying = false;
                 #else
             Application.Quit();
-            #endif
+                #endif
         }
 
         /// <summary>
@@ -95,7 +94,6 @@ namespace Scripts.UI.MainMenu
         private void ShowMainMenu()
         {
             pnl_MainMenu.SetActive(true);
-            pnl_SaveSelection.SetActive(false);
             pnl_Options.SetActive(false);
             pnl_Credits.SetActive(false);
 

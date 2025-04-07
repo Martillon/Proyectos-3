@@ -1,14 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using Scripts.Core;
+using TMPro;
 
 namespace Scripts.UI.Options
 {
     public class VideoSettingsPanel : MonoBehaviour
     {
         [Header("UI Elements")]
-        [SerializeField] private Dropdown drp_Resolution;
-        [SerializeField] private Dropdown drp_DisplayMode;
+        [SerializeField] private TMP_Dropdown drp_Resolution;
+        [SerializeField] private TMP_Dropdown drp_DisplayMode;
         [SerializeField] private Toggle tgl_VSync;
         [SerializeField] private Button btn_Apply;
 
@@ -140,6 +142,12 @@ namespace Scripts.UI.Options
             Screen.SetResolution(selectedResolution.width, selectedResolution.height, selectedMode);
 
             Debug.Log($"Applied: {selectedResolution.width}x{selectedResolution.height}, Mode: {selectedMode}, VSync: {tgl_VSync.isOn}");
+            
+            // Save settings to PlayerPrefs
+            
+            SettingsManager.Instance.SetResolution(selectedResolution.width, selectedResolution.height);
+            SettingsManager.Instance.SetVSync(tgl_VSync.isOn);
+            SettingsManager.Instance.SetDisplayMode(drp_DisplayMode.value);
         }
     }
 }

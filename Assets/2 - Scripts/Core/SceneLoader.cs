@@ -5,6 +5,19 @@ using UnityEngine.SceneManagement;
 
 namespace Scripts.Core
 {
+    
+    /// <summary>
+    /// SceneLoader
+    /// 
+    /// Manages scene transitions using additive loading.
+    /// Features:
+    /// - Loads main menu or specific levels by name or index.
+    /// - Removes unwanted scenes while preserving essential ones (like Program).
+    /// - Optional loading screen display while unloading scenes.
+    /// 
+    /// This is a singleton used across the entire project to centralize scene management.
+    /// </summary>
+    
     public class SceneLoader : MonoBehaviour
     {
         // Public static instance for global access

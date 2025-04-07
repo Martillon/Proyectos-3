@@ -1,79 +1,58 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
-using Scripts.Player.Inputs;
 
 
 namespace Scripts.UI.Options
 {
+    /// <summary>
+    /// OptionsMenuController
+    /// 
+    /// Manages the visibility and navigation between video and audio settings panels.
+    /// Allows switching via UI buttons (no input system shoulder navigation).
+    /// </summary>
     public class OptionsMenuController : MonoBehaviour
     {
-        [Header("Settings Panels")]
-        [SerializeField] private GameObject gp_VideoOptions;
-        [SerializeField] private GameObject gp_AudioOptions;
+        [Header("Option Panels")]
+        [SerializeField] private GameObject gp_01_VideoOptions;
+        [SerializeField] private GameObject gp_02_AudioOptions;
 
-        [Header("Navigation")]
+        [Header("Tab Buttons")]
+        [SerializeField] private Button bt_video;
+        [SerializeField] private Button bt_audio;
+
+        [Header("First Selectable Elements")]
         [SerializeField] private Button firstVideoOptionButton;
         [SerializeField] private Button firstAudioOptionButton;
 
-        private PlayerControls controls;
-
-        private int currentTabIndex = 0;
-        private const int totalTabs = 2;
-
-        private void Awake()
-        {
-            controls = new PlayerControls();
-        }
+        private int currentTabIndex = 0; // 0 = video, 1 = audio
 
         private void Start()
         {
-            // Set initial tab to Video
-            currentTabIndex = 0;
-            UpdateTab();
-        }
+            bt_video.onClick.AddListener(() => SwitchToTab(0));
+            bt_audio.onClick.AddListener(() => SwitchToTab(1));
 
-        private void OnEnable()
-        {
-            controls.UI.Enable();
-            controls.UI.NextTab.performed += OnNextTab;
-            controls.UI.PreviousTab.performed += OnPreviousTab;
-        }
-
-        private void OnDisable()
-        {
-            controls.UI.NextTab.performed -= OnNextTab;
-            controls.UI.PreviousTab.performed -= OnPreviousTab;
-            controls.UI.Disable();
+            SwitchToTab(0); // Default to video tab
         }
 
         /// <summary>
-        /// Handles input for moving to the next tab (Right Shoulder).
+        /// Switches to the specified tab index.
+        /// 0 = Video, 1 = Audio.
         /// </summary>
-        private void OnNextTab(InputAction.CallbackContext ctx)
+        private void SwitchToTab(int index)
         {
-            currentTabIndex = (currentTabIndex + 1) % totalTabs;
+            currentTabIndex = index;
             UpdateTab();
         }
 
         /// <summary>
-        /// Handles input for moving to the previous tab (Left Shoulder).
-        /// </summary>
-        private void OnPreviousTab(InputAction.CallbackContext ctx)
-        {
-            currentTabIndex = (currentTabIndex - 1 + totalTabs) % totalTabs;
-            UpdateTab();
-        }
-
-        /// <summary>
-        /// Updates the currently active tab based on the currentTabIndex value.
+        /// Activates the correct panel and selects the first element.
         /// </summary>
         private void UpdateTab()
         {
             bool videoActive = currentTabIndex == 0;
 
-            gp_VideoOptions.SetActive(videoActive);
-            gp_AudioOptions.SetActive(!videoActive);
+            gp_01_VideoOptions.SetActive(videoActive);
+            gp_02_AudioOptions.SetActive(!videoActive);
 
             if (videoActive && firstVideoOptionButton != null)
                 firstVideoOptionButton.Select();
