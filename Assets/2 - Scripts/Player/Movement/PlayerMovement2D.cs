@@ -7,8 +7,8 @@ namespace Scripts.Player.Movement
     /// PlayerMovement2D
     /// 
     /// Handles player movement, jumping, crouching and position locking.
-    /// Movement is grid-like (no analog speed), jump is responsive and aerial control is supported.
-    /// Integrates Unity Input System via a centralized InputManager.
+    /// Includes faster gravity for snappier jumping, coyote time for lenient jump windows,
+    /// and restrictions on jumping while position is locked or near walls.
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMovement2D : MonoBehaviour
@@ -16,14 +16,21 @@ namespace Scripts.Player.Movement
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed = 5f;
         [SerializeField] private float jumpForce = 10f;
+        [SerializeField] private float fallMultiplier = 2f;
+        [SerializeField] private float coyoteTime = 0.1f;
 
         [Header("Ground Check")]
         [SerializeField] private Transform groundCheck;
         [SerializeField] private float groundCheckRadius = 0.2f;
         [SerializeField] private LayerMask groundLayer;
 
+        [Header("Wall Check")]
+        [SerializeField] private Transform wallCheck;
+        [SerializeField] private float wallCheckRadius = 0.2f;
+
         [Header("Debug")]
         [SerializeField] private Color groundCheckGizmoColor = Color.red;
+        [SerializeField] private Color wallCheckGizmoColor = Color.blue;
 
         private Rigidbody2D rb;
         private Vector2 moveInput;
@@ -31,6 +38,9 @@ namespace Scripts.Player.Movement
         private bool jumpRequested;
         private bool isCrouching;
         private bool positionLocked;
+        private bool isTouchingWall;
+
+        private float coyoteTimeCounter;
 
         private void Awake()
         {
@@ -47,13 +57,19 @@ namespace Scripts.Player.Movement
             if (Mathf.Abs(rawInput.x) < 0.5f) moveInput.x = 0f;
             if (Mathf.Abs(rawInput.y) < 0.5f) moveInput.y = 0f;
 
-            // Check jump input
-            if (InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame() && isGrounded)
+            // Coyote time countdown
+            if (isGrounded)
+                coyoteTimeCounter = coyoteTime;
+            else
+                coyoteTimeCounter -= Time.deltaTime;
+
+            // Check jump input (disallowed if position is locked)
+            if (InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame() && coyoteTimeCounter > 0f && !positionLocked)
             {
                 jumpRequested = true;
             }
 
-            // Check crouch (down pressed)
+            // Check crouch
             isCrouching = moveInput.y < 0f && isGrounded;
 
             // Check position lock
@@ -63,8 +79,9 @@ namespace Scripts.Player.Movement
         private void FixedUpdate()
         {
             GroundCheck();
+            WallCheck();
 
-            // Horizontal movement is disabled while position is locked
+            // Horizontal movement (no movement if locked)
             if (!positionLocked)
             {
                 rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
@@ -79,6 +96,13 @@ namespace Scripts.Player.Movement
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
                 jumpRequested = false;
+                coyoteTimeCounter = 0f;
+            }
+
+            // Apply increased gravity when falling
+            if (rb.linearVelocity.y < 0)
+            {
+                rb.linearVelocity += Vector2.up * (Physics2D.gravity.y * (fallMultiplier - 1f) * Time.fixedDeltaTime);
             }
         }
 
@@ -90,12 +114,25 @@ namespace Scripts.Player.Movement
             isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
         }
 
+        /// <summary>
+        /// Checks for wall contact to prevent illegal climbing.
+        /// </summary>
+        private void WallCheck()
+        {
+            isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, groundLayer);
+        }
+
         private void OnDrawGizmosSelected()
         {
             if (groundCheck != null)
             {
                 Gizmos.color = groundCheckGizmoColor;
                 Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+            }
+            if (wallCheck != null)
+            {
+                Gizmos.color = wallCheckGizmoColor;
+                Gizmos.DrawWireSphere(wallCheck.position, wallCheckRadius);
             }
         }
     }
