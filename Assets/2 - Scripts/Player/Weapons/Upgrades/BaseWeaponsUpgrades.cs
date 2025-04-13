@@ -14,7 +14,7 @@ namespace Scripts.Player.Weapons.Upgrades
     /// </summary>
     public abstract class BaseWeaponUpgrade : MonoBehaviour, IWeaponUpgrade
     {
-        public enum FiringMode
+        protected enum FiringMode
         {
             Raycast,
             Projectile
@@ -59,14 +59,14 @@ namespace Scripts.Player.Weapons.Upgrades
         {
             RaycastHit2D hit = Physics2D.Raycast(firePoint.position, direction.normalized, maxDistance, hitMask);
 
-            if (hit.collider != null)
+            if (hit.collider)
             {
                 if (hit.collider.TryGetComponent(out IDamageable target))
                 {
                     target.TakeDamage(damage);
                 }
 
-                if (hitVFX != null)
+                if (hitVFX)
                 {
                     Instantiate(hitVFX, hit.point, Quaternion.identity);
                 }

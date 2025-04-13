@@ -1,4 +1,5 @@
 using Scripts.Core;
+using System.Collections;
 using UnityEngine;
 
 namespace Scripts.Player.Movement
@@ -7,7 +8,7 @@ namespace Scripts.Player.Movement
     /// PlayerMovement2D
     /// 
     /// Handles 2D player movement, jumping, crouching, gravity control, and wall detection.
-    /// Includes coyote time, position lock, and directional input handling.
+    /// Includes coyote time, position lock, directional input handling, and platform drop-through.
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMovement2D : MonoBehaviour
@@ -45,6 +46,10 @@ namespace Scripts.Player.Movement
         [Tooltip("Layer mask used to detect walls.")]
         [SerializeField] private LayerMask wallLayer;
 
+        [Header("Platform Drop Settings")]
+        [Tooltip("Time to disable player collider when dropping through platform.")]
+        [SerializeField] private float dropThroughTime = 0.2f;
+
         [Header("Debug")]
         [Tooltip("Color of the gizmo drawn for ground check radius.")]
         [SerializeField] private Color groundCheckGizmoColor = Color.red;
@@ -53,18 +58,21 @@ namespace Scripts.Player.Movement
         [SerializeField] private Color wallCheckGizmoColor = Color.blue;
 
         private Rigidbody2D rb;
+        private Collider2D playerCollider;
         private Vector2 moveInput;
         private bool isGrounded;
         private bool jumpRequested;
         private bool isCrouching;
         private bool positionLocked;
         private bool isTouchingWall;
+        private bool isDropping = false;
 
         private float coyoteTimeCounter;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+            playerCollider = GetComponent<Collider2D>();
         }
 
         private void Update()
@@ -86,6 +94,14 @@ namespace Scripts.Player.Movement
             if (InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame() && coyoteTimeCounter > 0f && !positionLocked && !isTouchingWall)
             {
                 jumpRequested = true;
+            }
+
+            // Drop through platform: down + jump while on tagged platform
+            if (!isDropping && moveInput.y < -0.5f &&
+                InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame() &&
+                IsOnTaggedPlatform("Platform"))
+            {
+                StartCoroutine(DropThroughPlatform());
             }
 
             // Handle crouching state
@@ -148,6 +164,27 @@ namespace Scripts.Player.Movement
             bool rightWall = Physics2D.Raycast(origin, Vector2.right, wallCheckDistance, wallLayer);
 
             isTouchingWall = leftWall || rightWall;
+        }
+
+        /// <summary>
+        /// Checks whether the ground check is currently detecting a platform with the given tag.
+        /// </summary>
+        private bool IsOnTaggedPlatform(string tag)
+        {
+            Collider2D hit = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+            return hit != null && hit.CompareTag(tag);
+        }
+
+        /// <summary>
+        /// Temporarily disables the player's collider to allow dropping through a platform.
+        /// </summary>
+        private IEnumerator DropThroughPlatform()
+        {
+            isDropping = true;
+            playerCollider.enabled = false;
+            yield return new WaitForSeconds(dropThroughTime);
+            playerCollider.enabled = true;
+            isDropping = false;
         }
 
         private void OnDrawGizmosSelected()
