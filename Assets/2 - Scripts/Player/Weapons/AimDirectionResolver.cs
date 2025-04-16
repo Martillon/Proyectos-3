@@ -22,6 +22,14 @@ namespace Scripts.Player.Weapons
         private Vector2 currentDirection = Vector2.right;
 
         public Vector2 CurrentDirection => currentDirection;
+        
+        private void Awake()
+        {
+            if (movement == null)
+            {
+                movement = GetComponent<PlayerMovement2D>();
+            }
+        }
 
         private void Update()
         {

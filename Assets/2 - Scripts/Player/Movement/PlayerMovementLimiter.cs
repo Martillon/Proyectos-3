@@ -15,6 +15,14 @@ namespace Scripts.Player.Movement
         private void Awake()
         {
             playerTransform = transform;
+            if (!cameraLimiter)
+            {
+                cameraLimiter = FindFirstObjectByType<CameraLimiter2D>();
+                if (!cameraLimiter)
+                {
+                    Debug.LogError("PlayerMovementLimiter requires a CameraLimiter2D reference or to be in the scene.");
+                }
+            }
         }
 
         private void LateUpdate()
