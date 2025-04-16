@@ -4,43 +4,34 @@ using Unity.Cinemachine;
 namespace Scripts.Camera
 {
     /// <summary>
-    /// Limits the horizontal movement of the camera to only follow the player forward (one direction).
-    /// Allows slight movement backwards for visual buffer, but blocks full retraction.
+    /// Prevents the camera from moving backwards past the furthest position reached by the player.
+    /// Can be used for side-scrolling games where the camera only advances forward.
     /// </summary>
-    [RequireComponent(typeof(CinemachineCamera))]
     public class CameraLimiter2D : MonoBehaviour
     {
         [Header("Target")]
         [SerializeField] private Transform player;
 
         [Header("Settings")]
-        [Tooltip("Axis to limit (true = horizontal, false = vertical)")]
-        [SerializeField] private bool limitX = true;
-
-        [Tooltip("Allow slight camera movement backwards when player retreats")]
-        [SerializeField] private float backwardMargin = 2f;
+        [SerializeField] private float backwardMargin = 1.5f;
 
         private float furthestX;
+
+        public float CurrentLimit => furthestX - backwardMargin;
 
         private void LateUpdate()
         {
             if (!player) return;
 
-            Vector3 cameraPos = transform.position;
+            Vector3 current = transform.position;
             float playerX = player.position.x;
 
-            if (limitX)
-            {
-                if (playerX > furthestX)
-                {
-                    furthestX = playerX;
-                }
+            if (playerX > furthestX)
+                furthestX = playerX;
 
-                float targetX = Mathf.Max(furthestX - backwardMargin, playerX);
-                cameraPos.x = targetX;
-            }
-
-            transform.position = new Vector3(cameraPos.x, player.position.y, cameraPos.z);
+            // Forcing the camera to stay at least at this position
+            float minX = furthestX - backwardMargin;
+            transform.position = new Vector3(Mathf.Max(minX, playerX), current.y, current.z);
         }
     }
 }

@@ -1,61 +1,83 @@
 using UnityEngine;
 using Scripts.Core;
+using Scripts.Player.Movement;
 
 namespace Scripts.Player.Weapons
 {
     /// <summary>
     /// AimDirectionResolver
     /// 
-    /// Resolves raw input into one of 8 cardinal or diagonal aim directions.
-    /// Automatically reads from InputManager and exposes current direction.
-    /// Includes optional Gizmos drawing for debugging.
-    /// Implements special handling: when down + lateral is pressed, aim only lateral.
+    /// Interprets player input into directional aiming based on movement, jump state and lock state.
+    /// Applies game-specific logic for crouch, jump + down, and diagonal aiming.
     /// </summary>
     public class AimDirectionResolver : MonoBehaviour
     {
+        [Header("References")]
+        [SerializeField] private PlayerMovement2D movement;
+
         [Header("Debug")]
         [SerializeField] private float gizmoLength = 1f;
         [SerializeField] private Color gizmoColor = Color.green;
 
-        private Vector2 currentDirection = Vector2.right; // Default facing right
+        private Vector2 currentDirection = Vector2.right;
 
-        /// <summary>
-        /// Public getter for the current aim direction.
-        /// </summary>
         public Vector2 CurrentDirection => currentDirection;
 
         private void Update()
         {
             Vector2 input = InputManager.Instance.Controls.Player.Move.ReadValue<Vector2>();
-            currentDirection = ResolveDirection(input);
+            bool isGrounded = movement.IsGrounded;
+            bool isLocked = InputManager.Instance.Controls.Player.PositionLock.IsPressed();
+            bool isJumping = !isGrounded;
+
+            currentDirection = ResolveDirection(input, isGrounded, isLocked, isJumping);
         }
 
-        /// <summary>
-        /// Converts a raw input vector into a normalized direction with discrete 8-way resolution.
-        /// If down + left/right are pressed together, returns only horizontal aiming.
-        /// </summary>
-        /// <param name="input">The raw input from stick, D-Pad or keys</param>
-        /// <returns>A normalized Vector2 representing direction, or previous direction if input is zero</returns>
-        private Vector2 ResolveDirection(Vector2 input)
+        private Vector2 ResolveDirection(Vector2 input, bool isGrounded, bool isLocked, bool isJumping)
         {
-            Vector2 dir = Vector2.zero;
+            Vector2 direction = Vector2.zero;
 
-            if (input.y < -0.5f && Mathf.Abs(input.x) > 0.5f)
+            // Sides only
+            if (Mathf.Abs(input.x) > 0.5f && Mathf.Abs(input.y) < 0.5f)
             {
-                // Down + side = crouch and shoot forward
-                dir.x = Mathf.Sign(input.x);
-                dir.y = 0;
-            }
-            else
-            {
-                if (input.x > 0.5f) dir.x = 1;
-                else if (input.x < -0.5f) dir.x = -1;
-
-                if (input.y > 0.5f) dir.y = 1;
-                else if (input.y < -0.5f) dir.y = -1;
+                direction = new Vector2(Mathf.Sign(input.x), 0f);
             }
 
-            return dir != Vector2.zero ? dir.normalized : currentDirection;
+            // Jumping + down = shoot down
+            else if (isJumping && input.y < -0.5f)
+            {
+                direction = Vector2.down;
+            }
+
+            // On ground + down + locked = shoot down
+            else if (isGrounded && input.y < -0.5f && isLocked)
+            {
+                direction = Vector2.down;
+            }
+
+            // On ground + down = crouch, aim defaults
+            else if (isGrounded && input.y < -0.5f)
+            {
+                // Retain current lateral direction, default to right
+                if (currentDirection.x != 0)
+                    direction = new Vector2(Mathf.Sign(currentDirection.x), 0f);
+                else
+                    direction = Vector2.right;
+            }
+
+            // Up only
+            else if (input.y > 0.5f && Mathf.Abs(input.x) < 0.5f)
+            {
+                direction = Vector2.up;
+            }
+
+            // Diagonal
+            else if (Mathf.Abs(input.x) > 0.5f && Mathf.Abs(input.y) > 0.5f)
+            {
+                direction = new Vector2(Mathf.Sign(input.x), Mathf.Sign(input.y));
+            }
+
+            return direction != Vector2.zero ? direction.normalized : currentDirection;
         }
 
         private void OnDrawGizmosSelected()

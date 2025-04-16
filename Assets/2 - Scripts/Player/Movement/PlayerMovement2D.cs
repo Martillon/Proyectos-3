@@ -61,6 +61,7 @@ namespace Scripts.Player.Movement
         private Collider2D playerCollider;
         private Vector2 moveInput;
         private bool isGrounded;
+        public bool IsGrounded => isGrounded;
         private bool jumpRequested;
         private bool isCrouching;
         private bool positionLocked;
