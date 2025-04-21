@@ -50,6 +50,13 @@ namespace Scripts.Player.Movement
         [Tooltip("Time to disable player collider when dropping through platform.")]
         [SerializeField] private float dropThroughTime = 0.2f;
 
+        [Header("Crouch Settings")]
+        [Tooltip("Ratio of collider size when crouching.")]
+        [SerializeField] private float crouchHeightMultiplier = 0.5f;
+
+        [Tooltip("Reference to the fire point that should move with crouch.")]
+        [SerializeField] private Transform firePoint;
+        
         [Header("Debug")]
         [Tooltip("Color of the gizmo drawn for ground check radius.")]
         [SerializeField] private Color groundCheckGizmoColor = Color.red;
@@ -61,6 +68,12 @@ namespace Scripts.Player.Movement
         private Collider2D playerCollider;
         private Vector2 moveInput;
         private bool isGrounded;
+        
+        private Vector2 originalColliderSize;
+        private Vector2 originalColliderOffset;
+        private Vector3 originalFirePointLocalPosition;
+        private bool isCrouchStateApplied = false;
+        
         public bool IsGrounded => isGrounded;
         private bool jumpRequested;
         private bool isCrouching;
@@ -74,6 +87,12 @@ namespace Scripts.Player.Movement
         {
             rb = GetComponent<Rigidbody2D>();
             playerCollider = GetComponent<Collider2D>();
+            
+            originalColliderSize = playerCollider.bounds.size;
+            originalColliderOffset = playerCollider.offset;
+
+            if (firePoint != null)
+                originalFirePointLocalPosition = firePoint.localPosition;
         }
 
         private void Update()
@@ -91,22 +110,22 @@ namespace Scripts.Player.Movement
             else
                 coyoteTimeCounter -= Time.deltaTime;
 
-            // Request jump if conditions are met
-            if (InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame() && coyoteTimeCounter > 0f && !positionLocked && !isTouchingWall)
-            {
-                jumpRequested = true;
-            }
+            bool jumpPressed = InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame();
 
-            // Drop through platform: down + jump while on tagged platform
-            if (!isDropping && moveInput.y < -0.5f &&
-                InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame() &&
-                IsOnTaggedPlatform("Platform"))
+            switch (jumpPressed)
             {
-                StartCoroutine(DropThroughPlatform());
+                // Priority check for dropping through platforms
+                case true when isGrounded && moveInput.y < -0.5f && IsOnTaggedPlatform("Platform") && !isDropping:
+                    StartCoroutine(DropThroughPlatform());
+                    break;
+                case true when coyoteTimeCounter > 0f && !positionLocked && !isTouchingWall:
+                    jumpRequested = true;
+                    break;
             }
 
             // Handle crouching state
             isCrouching = moveInput.y < 0f && isGrounded;
+            HandleCrouchState();
 
             // Check for position lock input
             positionLocked = InputManager.Instance.Controls.Player.PositionLock.IsPressed();
@@ -174,6 +193,47 @@ namespace Scripts.Player.Movement
         {
             Collider2D hit = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
             return hit != null && hit.CompareTag(tag);
+        }
+        
+        private void HandleCrouchState()
+        {
+            if (isCrouching && !isCrouchStateApplied)
+            {
+                isCrouchStateApplied = true;
+
+                if (playerCollider is CapsuleCollider2D capsule)
+                {
+                    capsule.size = new Vector2(capsule.size.x, capsule.size.y * crouchHeightMultiplier);
+                    capsule.offset = new Vector2(capsule.offset.x, capsule.offset.y * crouchHeightMultiplier);
+                }
+
+                if (firePoint != null)
+                {
+                    firePoint.localPosition = new Vector3(
+                        originalFirePointLocalPosition.x,
+                        originalFirePointLocalPosition.y * crouchHeightMultiplier,
+                        originalFirePointLocalPosition.z
+                    );
+                }
+                
+                Debug.Log("Crouching.");
+                
+            }
+            else if (!isCrouching && isCrouchStateApplied)
+            {
+                isCrouchStateApplied = false;
+
+                if (playerCollider is CapsuleCollider2D capsule)
+                {
+                    capsule.size = originalColliderSize;
+                    capsule.offset = originalColliderOffset;
+                }
+
+                if (firePoint != null)
+                {
+                    firePoint.localPosition = originalFirePointLocalPosition;
+                }
+            }
         }
 
         /// <summary>
