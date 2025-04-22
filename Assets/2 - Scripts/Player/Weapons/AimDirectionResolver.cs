@@ -5,10 +5,8 @@ using Scripts.Player.Movement;
 namespace Scripts.Player.Weapons
 {
     /// <summary>
-    /// AimDirectionResolver
-    /// 
-    /// Interprets player input into directional aiming based on movement, jump state and lock state.
-    /// Applies game-specific logic for crouch, jump + down, and diagonal aiming.
+    /// Resolves player aim direction based on input and player state.
+    /// Handles 8-directional aiming including special rules for crouching, jumping and locking.
     /// </summary>
     public class AimDirectionResolver : MonoBehaviour
     {
@@ -22,14 +20,6 @@ namespace Scripts.Player.Weapons
         private Vector2 currentDirection = Vector2.right;
 
         public Vector2 CurrentDirection => currentDirection;
-        
-        private void Awake()
-        {
-            if (movement == null)
-            {
-                movement = GetComponent<PlayerMovement2D>();
-            }
-        }
 
         private void Update()
         {
@@ -45,44 +35,46 @@ namespace Scripts.Player.Weapons
         {
             Vector2 direction = Vector2.zero;
 
-            // Sides only
-            if (Mathf.Abs(input.x) > 0.5f && Mathf.Abs(input.y) < 0.5f)
-            {
-                direction = new Vector2(Mathf.Sign(input.x), 0f);
-            }
+            bool hasHorizontal = Mathf.Abs(input.x) > 0.5f;
+            bool hasVertical = Mathf.Abs(input.y) > 0.5f;
 
-            // Jumping + down = shoot down
+            // ↑ Only up
+            if (input.y > 0.5f && !hasHorizontal)
+            {
+                direction = Vector2.up;
+            }
+            // ↓ Jumping + down
             else if (isJumping && input.y < -0.5f)
             {
                 direction = Vector2.down;
             }
-
-            // On ground + down + locked = shoot down
+            // ↓ Grounded + down + locked
             else if (isGrounded && input.y < -0.5f && isLocked)
             {
                 direction = Vector2.down;
             }
-
-            // On ground + down = crouch, aim defaults
+            // ↘↙ Diagonal down allowed only if jumping or locked
+            else if (input.y < -0.5f && hasHorizontal && (isJumping || isLocked))
+            {
+                direction = new Vector2(Mathf.Sign(input.x), -1f).normalized;
+            }
+            // ↓ Grounded + down = crouch, aim forward
             else if (isGrounded && input.y < -0.5f)
             {
-                // Retain current lateral direction, default to right
                 if (currentDirection.x != 0)
                     direction = new Vector2(Mathf.Sign(currentDirection.x), 0f);
                 else
                     direction = Vector2.right;
             }
-
-            // Up only
-            else if (input.y > 0.5f && Mathf.Abs(input.x) < 0.5f)
+            // ↗↖ Diagonals upward
+            else if (input.y > 0.5f && hasHorizontal)
             {
-                direction = Vector2.up;
+                direction = new Vector2(Mathf.Sign(input.x), 1f).normalized;
             }
-
-            // Diagonal
-            else if (Mathf.Abs(input.x) > 0.5f && Mathf.Abs(input.y) > 0.5f)
+            // →← Lateral only
+            else if (hasHorizontal)
             {
-                direction = new Vector2(Mathf.Sign(input.x), Mathf.Sign(input.y));
+                direction = new Vector2(Mathf.Sign(input.x), 0f);
             }
 
             return direction != Vector2.zero ? direction.normalized : currentDirection;

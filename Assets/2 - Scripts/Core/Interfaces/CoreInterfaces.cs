@@ -26,4 +26,22 @@ namespace Scripts.Core.Interfaces
         /// </summary>
         float GetDamage();
     }
+    
+    /// <summary>
+    /// Interface for objects that can restore life completely.
+    /// Typically used by life pickups or checkpoints.
+    /// </summary>
+    public interface IHealLife
+    {
+        void HealLife(int amount);
+    }
+    
+    /// <summary>
+    /// Interface for objects that can restore partial protection (armor).
+    /// Used by pickups that recover 1 or more hits.
+    /// </summary>
+    public interface IHealArmor
+    {
+        void HealArmor(int amount);
+    }
 }

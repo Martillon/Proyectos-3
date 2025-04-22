@@ -27,5 +27,27 @@ namespace Scripts.Core.Audio
         [Tooltip("Enable random volume variation")]
         public bool randomVolume = false;
         [Range(0.3f, 3f)] public float volume = 1f;
+        
+        /// <summary>
+        /// Applies the sound configuration and plays it using the given AudioSource.
+        /// </summary>
+        /// <param name="source">The AudioSource to play the sound through.</param>
+        public void Play(AudioSource source)
+        {
+            if (clip == null || source == null) return;
+
+            source.clip = clip;
+            source.loop = loop;
+
+            source.pitch = randomPitch
+                ? Random.Range(0.95f * pitch, 1.05f * pitch)
+                : pitch;
+
+            source.volume = randomVolume
+                ? Random.Range(0.9f * volume, 1.1f * volume)
+                : volume;
+
+            source.Play();
+        }
     }
 }
