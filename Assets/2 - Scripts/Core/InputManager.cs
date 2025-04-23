@@ -47,5 +47,10 @@ namespace Scripts.Core
             Controls.UI.Enable();
             Controls.Player.Disable();
         }
+        
+        public void DisableAllControls()
+        {
+            Controls.Disable();
+        }
     }
 }

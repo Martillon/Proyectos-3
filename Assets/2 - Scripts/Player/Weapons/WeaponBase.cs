@@ -1,6 +1,7 @@
 using UnityEngine;
 using Scripts.Player.Weapons.Interfaces;
 using Scripts.Core;
+using Scripts.Player.Weapons.Upgrades;
 
 namespace Scripts.Player.Weapons
 {
@@ -46,6 +47,14 @@ namespace Scripts.Player.Weapons
                 currentUpgrade.Fire(firePoint, direction);
                 fireTimer = fireCooldown;
             }
+        }
+        
+        /// <summary>
+        /// Returns the current weapon upgrade (casted as BaseWeaponUpgrade if possible).
+        /// </summary>
+        public BaseWeaponUpgrade CurrentUpgrade
+        {
+            get => currentUpgrade as BaseWeaponUpgrade;
         }
 
         /// <summary>

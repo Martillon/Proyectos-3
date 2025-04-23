@@ -34,6 +34,10 @@ namespace Scripts.Player.Weapons.Upgrades
         [Header("Projectile Settings")]
         [SerializeField] protected GameObject projectilePrefab;
         [SerializeField] protected float projectileSpeed = 10f;
+        
+        [Header("UI")]
+        [SerializeField] private Sprite icon;
+        public Sprite Icon => icon;
 
         public virtual bool CanFire() => true;
 
