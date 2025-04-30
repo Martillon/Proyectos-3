@@ -128,6 +128,15 @@ namespace Scripts.InputSystem
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PauseMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""d2705d35-bca3-4596-a426-c6f6db21bb39"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -304,6 +313,28 @@ namespace Scripts.InputSystem
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""PositionLock"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""afeaeb54-0c95-4ae8-85cb-f4cbcb60b85f"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""PauseMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""91d8a637-26f7-457d-b5f8-b97ddeed71c0"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""PauseMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -767,6 +798,7 @@ namespace Scripts.InputSystem
             m_Player_Shoot = m_Player.FindAction("Shoot", throwIfNotFound: true);
             m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
             m_Player_PositionLock = m_Player.FindAction("PositionLock", throwIfNotFound: true);
+            m_Player_PauseMenu = m_Player.FindAction("PauseMenu", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -862,6 +894,7 @@ namespace Scripts.InputSystem
         private readonly InputAction m_Player_Shoot;
         private readonly InputAction m_Player_Jump;
         private readonly InputAction m_Player_PositionLock;
+        private readonly InputAction m_Player_PauseMenu;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -889,6 +922,10 @@ namespace Scripts.InputSystem
             /// Provides access to the underlying input action "Player/PositionLock".
             /// </summary>
             public InputAction @PositionLock => m_Wrapper.m_Player_PositionLock;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/PauseMenu".
+            /// </summary>
+            public InputAction @PauseMenu => m_Wrapper.m_Player_PauseMenu;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -927,6 +964,9 @@ namespace Scripts.InputSystem
                 @PositionLock.started += instance.OnPositionLock;
                 @PositionLock.performed += instance.OnPositionLock;
                 @PositionLock.canceled += instance.OnPositionLock;
+                @PauseMenu.started += instance.OnPauseMenu;
+                @PauseMenu.performed += instance.OnPauseMenu;
+                @PauseMenu.canceled += instance.OnPauseMenu;
             }
 
             /// <summary>
@@ -950,6 +990,9 @@ namespace Scripts.InputSystem
                 @PositionLock.started -= instance.OnPositionLock;
                 @PositionLock.performed -= instance.OnPositionLock;
                 @PositionLock.canceled -= instance.OnPositionLock;
+                @PauseMenu.started -= instance.OnPauseMenu;
+                @PauseMenu.performed -= instance.OnPauseMenu;
+                @PauseMenu.canceled -= instance.OnPauseMenu;
             }
 
             /// <summary>
@@ -1256,6 +1299,13 @@ namespace Scripts.InputSystem
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnPositionLock(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "PauseMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnPauseMenu(InputAction.CallbackContext context);
         }
         /// <summary>
         /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
