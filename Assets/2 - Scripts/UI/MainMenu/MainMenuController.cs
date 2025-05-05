@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Scripts.Core;
+using Scripts.Core.Audio;
 
 namespace Scripts.UI.MainMenu
 {
@@ -8,6 +9,7 @@ namespace Scripts.UI.MainMenu
     {
         [Header("UI Panels")]
         [SerializeField] private GameObject pnl_MainMenu;
+        [SerializeField] private GameObject pnl_LevelSelection;
         [SerializeField] private GameObject pnl_Options;
         [SerializeField] private GameObject pnl_Credits;
 
@@ -24,15 +26,18 @@ namespace Scripts.UI.MainMenu
         [Header("Options")]
         [SerializeField] private Button firstOptionsButton;
 
+        [Header("UI Sounds")]
+        [SerializeField] private UIAudioFeedback uiSoundPlayer;
+
         private void Start()
         {
             // Bind button events
-            btn_Play.onClick.AddListener(OnPlayPressed);
-            btn_Options.onClick.AddListener(OnOptionsPressed);
-            btn_Credits.onClick.AddListener(OnCreditsPressed);
-            btn_Quit.onClick.AddListener(OnQuitPressed);
-            btn_ReturnFromOptions.onClick.AddListener(ShowMainMenu);
-            btn_ReturnFromCredits.onClick.AddListener(ShowMainMenu);
+            btn_Play.onClick.AddListener(() => { uiSoundPlayer?.PlayClick(); OnPlayPressed(); });
+            btn_Options.onClick.AddListener(() => { uiSoundPlayer?.PlayClick(); OnOptionsPressed(); });
+            btn_Credits.onClick.AddListener(() => { uiSoundPlayer?.PlayClick(); OnCreditsPressed(); });
+            btn_Quit.onClick.AddListener(() => { uiSoundPlayer?.PlayClick(); OnQuitPressed(); });
+            btn_ReturnFromOptions.onClick.AddListener(() => { uiSoundPlayer?.PlayClick(); ShowMainMenu(); });
+            btn_ReturnFromCredits.onClick.AddListener(() => { uiSoundPlayer?.PlayClick(); ShowMainMenu(); });
 
             // Start in main menu
             ShowMainMenu();
@@ -40,13 +45,13 @@ namespace Scripts.UI.MainMenu
 
         /// <summary>
         /// Called when the Play button is pressed.
-        /// Opens the save selection interface.
+        /// Opens the level selection interface.
         /// </summary>
         private void OnPlayPressed()
         {
-            Debug.Log("Play pressed. Opening save selection panel.");
+            Debug.Log("Play pressed. Opening level selection panel.");
             pnl_MainMenu.SetActive(false);
-            Debug.Log("Opening save selection panel. Or starting a new game.");
+            pnl_LevelSelection.SetActive(true);
         }
 
         /// <summary>
@@ -72,6 +77,7 @@ namespace Scripts.UI.MainMenu
             Debug.Log("Credits pressed. Opening credits panel.");
             pnl_MainMenu.SetActive(false);
             pnl_Credits.SetActive(true);
+            btn_ReturnFromCredits.Select();
         }
 
         /// <summary>
@@ -81,11 +87,11 @@ namespace Scripts.UI.MainMenu
         private void OnQuitPressed()
         {
             Debug.Log("Quit pressed. Exiting application.");
-                #if UNITY_EDITOR
+    #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
-                #else
+    #else
             Application.Quit();
-                #endif
+    #endif
         }
 
         /// <summary>
@@ -94,6 +100,7 @@ namespace Scripts.UI.MainMenu
         private void ShowMainMenu()
         {
             pnl_MainMenu.SetActive(true);
+            pnl_LevelSelection.SetActive(false);
             pnl_Options.SetActive(false);
             pnl_Credits.SetActive(false);
 
@@ -101,3 +108,4 @@ namespace Scripts.UI.MainMenu
         }
     }
 }
+

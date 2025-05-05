@@ -40,6 +40,11 @@ namespace Scripts.Enemies
                 }
             }
         }
+        
+        public bool IsInAttackRange(Transform target)
+        {
+            return Vector2.Distance(transform.position, target.position) <= attackRange;
+        }
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()

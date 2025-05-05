@@ -1676,12 +1676,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f317be8c28a8c1341a438247de65e200, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gp_01_VideoOptions: {fileID: 1526381499}
-  gp_02_AudioOptions: {fileID: 1781327598}
-  bt_video: {fileID: 1394394651}
-  bt_audio: {fileID: 1349359762}
-  firstVideoOptionButton: {fileID: 0}
-  firstAudioOptionButton: {fileID: 0}
+  pnl_Video: {fileID: 0}
+  pnl_Audio: {fileID: 0}
+  btn_Video: {fileID: 0}
+  btn_Audio: {fileID: 0}
+  firstVideoButton: {fileID: 0}
+  firstAudioButton: {fileID: 0}
+  uiSoundPlayer: {fileID: 0}
 --- !u!4 &357860882
 Transform:
   m_ObjectHideFlags: 0
@@ -3080,6 +3081,7 @@ GameObject:
   - component: {fileID: 1023937660}
   - component: {fileID: 1023937659}
   - component: {fileID: 1023937658}
+  - component: {fileID: 1023937662}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -3172,6 +3174,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1023937662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023937657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
 --- !u!1 &1055291556
 GameObject:
   m_ObjectHideFlags: 0
@@ -6879,7 +6896,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pnl_MainMenu: {fileID: 90048359}
-  pnl_SaveSelection: {fileID: 0}
+  pnl_LevelSelection: {fileID: 0}
   pnl_Options: {fileID: 474405384}
   pnl_Credits: {fileID: 24167587}
   btn_Play: {fileID: 2080987554}
@@ -6889,6 +6906,7 @@ MonoBehaviour:
   btn_ReturnFromOptions: {fileID: 1243504826}
   btn_ReturnFromCredits: {fileID: 351762658}
   firstOptionsButton: {fileID: 1394394651}
+  uiSoundPlayer: {fileID: 0}
 --- !u!4 &1885263697
 Transform:
   m_ObjectHideFlags: 0

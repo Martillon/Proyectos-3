@@ -3,9 +3,14 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Scripts.Core;
 using TMPro;
+using Scripts.Core.Audio;
 
 namespace Scripts.UI.Options
 {
+    /// <summary>
+    /// Handles the video settings UI, including resolution, display mode, VSync toggle, and apply button.
+    /// Plays audio feedback when settings are interacted with.
+    /// </summary>
     public class VideoSettingsPanel : MonoBehaviour
     {
         [Header("UI Elements")]
@@ -13,6 +18,9 @@ namespace Scripts.UI.Options
         [SerializeField] private TMP_Dropdown drp_DisplayMode;
         [SerializeField] private Toggle tgl_VSync;
         [SerializeField] private Button btn_Apply;
+
+        [Header("UI Sounds")]
+        [SerializeField] private UIAudioFeedback uiSoundFeedback;
 
         private Resolution[] availableResolutions;
         private int currentResolutionIndex;
@@ -23,7 +31,15 @@ namespace Scripts.UI.Options
             PopulateDisplayModeDropdown();
             LoadCurrentSettings();
 
-            btn_Apply.onClick.AddListener(ApplyVideoSettings);
+            btn_Apply.onClick.AddListener(() =>
+            {
+                uiSoundFeedback?.PlayClick();
+                ApplyVideoSettings();
+            });
+
+            drp_Resolution.onValueChanged.AddListener(_ => uiSoundFeedback?.PlayClick());
+            drp_DisplayMode.onValueChanged.AddListener(_ => uiSoundFeedback?.PlayClick());
+            tgl_VSync.onValueChanged.AddListener(_ => uiSoundFeedback?.PlayClick());
         }
 
         /// <summary>
@@ -36,7 +52,7 @@ namespace Scripts.UI.Options
 
             float currentAspect = (float)Screen.currentResolution.width / Screen.currentResolution.height;
             const float aspectTolerance = 0.05f;
-            const int minWidth = 800;   // Ignore very low resolutions
+            const int minWidth = 800;
             const int minHeight = 600;
 
             HashSet<string> seen = new HashSet<string>();
@@ -49,16 +65,13 @@ namespace Scripts.UI.Options
             {
                 Resolution res = availableResolutions[i];
 
-                // Filter by minimum size
                 if (res.width < minWidth || res.height < minHeight)
                     continue;
 
-                // Filter by aspect ratio
                 float aspect = (float)res.width / res.height;
                 if (Mathf.Abs(aspect - currentAspect) > aspectTolerance)
                     continue;
 
-                // Remove near-duplicate resolutions (e.g. 1280x720 vs 1280x719)
                 string key = res.width + "x" + res.height;
                 if (!seen.Add(key))
                     continue;
@@ -66,9 +79,7 @@ namespace Scripts.UI.Options
                 filteredResolutions.Add(res);
                 options.Add(key);
 
-                // Mark current resolution index
-                if (res.width == Screen.currentResolution.width &&
-                    res.height == Screen.currentResolution.height)
+                if (res.width == Screen.currentResolution.width && res.height == Screen.currentResolution.height)
                 {
                     currentResolutionIndex = filteredResolutions.Count - 1;
                 }
@@ -142,9 +153,7 @@ namespace Scripts.UI.Options
             Screen.SetResolution(selectedResolution.width, selectedResolution.height, selectedMode);
 
             Debug.Log($"Applied: {selectedResolution.width}x{selectedResolution.height}, Mode: {selectedMode}, VSync: {tgl_VSync.isOn}");
-            
-            // Save settings to PlayerPrefs
-            
+
             SettingsManager.Instance.SetResolution(selectedResolution.width, selectedResolution.height);
             SettingsManager.Instance.SetVSync(tgl_VSync.isOn);
             SettingsManager.Instance.SetDisplayMode(drp_DisplayMode.value);

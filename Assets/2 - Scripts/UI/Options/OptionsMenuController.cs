@@ -1,63 +1,94 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Scripts.Core;
+using Scripts.Core.Audio;
 
-
-namespace Scripts.UI.Options
+namespace Scripts.UI.MainMenu
 {
-    /// <summary>
-    /// OptionsMenuController
-    /// 
-    /// Manages the visibility and navigation between video and audio settings panels.
-    /// Allows switching via UI buttons (no input system shoulder navigation).
-    /// </summary>
     public class OptionsMenuController : MonoBehaviour
     {
-        [Header("Option Panels")]
-        [SerializeField] private GameObject gp_01_VideoOptions;
-        [SerializeField] private GameObject gp_02_AudioOptions;
+        [Header("Panels")]
+        [SerializeField] private GameObject pnl_Video;
+        [SerializeField] private GameObject pnl_Audio;
 
-        [Header("Tab Buttons")]
-        [SerializeField] private Button bt_video;
-        [SerializeField] private Button bt_audio;
+        [Header("Navigation")]
+        [SerializeField] private Button btn_Video;
+        [SerializeField] private Button btn_Audio;
+        [SerializeField] private Button firstVideoButton;
+        [SerializeField] private Button firstAudioButton;
 
-        [Header("First Selectable Elements")]
-        [SerializeField] private Button firstVideoOptionButton;
-        [SerializeField] private Button firstAudioOptionButton;
+        [Header("UI Sounds")]
+        [SerializeField] private UIAudioFeedback uiSoundFeedback;
 
-        private int currentTabIndex = 0; // 0 = video, 1 = audio
+        private enum Tab { Video, Audio }
+        private Tab currentTab = Tab.Video;
+
+        private void OnEnable()
+        {
+            InputManager.Instance.Controls.UI.NextTab.performed += ctx => NavigateToNextTab();
+            InputManager.Instance.Controls.UI.PreviousTab.performed += ctx => NavigateToPreviousTab();
+        }
+
+        private void OnDisable()
+        {
+            InputManager.Instance.Controls.UI.NextTab.performed -= ctx => NavigateToNextTab();
+            InputManager.Instance.Controls.UI.PreviousTab.performed -= ctx => NavigateToPreviousTab();
+        }
 
         private void Start()
         {
-            bt_video.onClick.AddListener(() => SwitchToTab(0));
-            bt_audio.onClick.AddListener(() => SwitchToTab(1));
+            ShowVideoPanel();
 
-            SwitchToTab(0); // Default to video tab
+            btn_Video.onClick.AddListener(() =>
+            {
+                uiSoundFeedback?.PlayClick();
+                ShowVideoPanel();
+            });
+
+            btn_Audio.onClick.AddListener(() =>
+            {
+                uiSoundFeedback?.PlayClick();
+                ShowAudioPanel();
+            });
         }
 
-        /// <summary>
-        /// Switches to the specified tab index.
-        /// 0 = Video, 1 = Audio.
-        /// </summary>
-        private void SwitchToTab(int index)
+        private void NavigateToNextTab()
         {
-            currentTabIndex = index;
-            UpdateTab();
+            if (currentTab == Tab.Video)
+            {
+                uiSoundFeedback?.PlayClick();
+                ShowAudioPanel();
+            }
         }
 
-        /// <summary>
-        /// Activates the correct panel and selects the first element.
-        /// </summary>
-        private void UpdateTab()
+        private void NavigateToPreviousTab()
         {
-            bool videoActive = currentTabIndex == 0;
+            if (currentTab == Tab.Audio)
+            {
+                uiSoundFeedback?.PlayClick();
+                ShowVideoPanel();
+            }
+        }
 
-            gp_01_VideoOptions.SetActive(videoActive);
-            gp_02_AudioOptions.SetActive(!videoActive);
+        private void ShowVideoPanel()
+        {
+            pnl_Video.SetActive(true);
+            pnl_Audio.SetActive(false);
+            currentTab = Tab.Video;
 
-            if (videoActive && firstVideoOptionButton != null)
-                firstVideoOptionButton.Select();
-            else if (!videoActive && firstAudioOptionButton != null)
-                firstAudioOptionButton.Select();
+            if (firstVideoButton != null)
+                firstVideoButton.Select();
+        }
+
+        private void ShowAudioPanel()
+        {
+            pnl_Video.SetActive(false);
+            pnl_Audio.SetActive(true);
+            currentTab = Tab.Audio;
+
+            if (firstAudioButton != null)
+                firstAudioButton.Select();
         }
     }
 }
+

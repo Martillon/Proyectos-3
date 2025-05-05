@@ -59,6 +59,11 @@ namespace Scripts.Enemies
 
             return new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
         }
+        
+        public bool IsInAttackRange(Transform target)
+        {
+            return Vector2.Distance(transform.position, target.position) <= attackRange;
+        }
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()

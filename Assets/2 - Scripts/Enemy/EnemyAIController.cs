@@ -65,10 +65,18 @@ namespace Scripts.Enemies
             if (!IsGroundAhead()) return;
             if (meleeAttack == null) return;
 
-            Vector2 direction = (player.position - transform.position).normalized;
-            direction.y = 0;
-
-            transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+            bool inRange = meleeAttack.IsInAttackRange(player);
+            if (!inRange)
+            {
+                Vector2 direction = (player.position - transform.position).normalized;
+                direction.y = 0;
+                transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+            }
+            else
+            {
+                // Si está en rango, frena el movimiento
+                // Opcional: ajustar velocidad a cero si usas Rigidbody
+            }
 
             meleeAttack.TryAttack(player);
         }
@@ -78,7 +86,16 @@ namespace Scripts.Enemies
         /// </summary>
         private void HandleRangedBehavior()
         {
+            if (!IsGroundAhead()) return;
             if (rangedAttack == null) return;
+
+            bool inRange = rangedAttack.IsInAttackRange(player);
+            if (!inRange)
+            {
+                Vector2 direction = (player.position - transform.position).normalized;
+                direction.y = 0;
+                transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+            }
 
             rangedAttack.TryAttack(player);
         }
