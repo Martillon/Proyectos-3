@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Scripts.Core.Audio
 {
@@ -8,10 +9,11 @@ namespace Scripts.Core.Audio
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private Sounds clickSound;
         [SerializeField] private Sounds selectSound;
-        [SerializeField] private Sounds disabledSound;
+        [SerializeField] private Sounds highlightSound;
 
         public void PlayClick() => clickSound?.Play(audioSource);
         public void PlaySelect() => selectSound?.Play(audioSource);
+        public void PlayHighlight() => highlightSound?.Play(audioSource);
     }
 }
 

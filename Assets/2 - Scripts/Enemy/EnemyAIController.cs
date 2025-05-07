@@ -5,8 +5,9 @@ namespace Scripts.Enemies
     /// <summary>
     /// Controls enemy behavior depending on the assigned type (melee or ranged).
     /// Manages player detection, movement, and attack.
-    /// Stops movement if no ground is detected ahead to prevent falling.
+    /// Uses "cat whiskers" to detect ground and prevent falling.
     /// </summary>
+    [RequireComponent(typeof(Rigidbody2D))]
     public class EnemyAIController : MonoBehaviour
     {
         public enum EnemyType { Melee, Ranged }
@@ -15,10 +16,12 @@ namespace Scripts.Enemies
         [SerializeField] private EnemyType enemyType = EnemyType.Melee;
         [SerializeField] private float detectionRange = 8f;
         [SerializeField] private float moveSpeed = 2f;
+        [SerializeField] private PhysicsMaterial2D noFrictionMaterial;
 
         [Header("Ground Detection")]
-        [SerializeField] private Transform groundCheckOrigin;
-        [SerializeField] private float groundCheckDistance = 1f;
+        [SerializeField] private Transform leftWhisker;
+        [SerializeField] private Transform rightWhisker;
+        [SerializeField] private float whiskerLength = 0.5f;
         [SerializeField] private LayerMask groundLayer;
 
         [Header("Player Detection")]
@@ -26,6 +29,9 @@ namespace Scripts.Enemies
 
         private EnemyAttackMelee meleeAttack;
         private EnemyAttackRanged rangedAttack;
+        private Rigidbody2D rb;
+        private bool isGroundedLeft;
+        private bool isGroundedRight;
 
         private void Awake()
         {
@@ -37,14 +43,23 @@ namespace Scripts.Enemies
 
             meleeAttack = GetComponent<EnemyAttackMelee>();
             rangedAttack = GetComponent<EnemyAttackRanged>();
+            rb = GetComponent<Rigidbody2D>();
+
+            if (noFrictionMaterial != null)
+                rb.sharedMaterial = noFrictionMaterial;
+
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+            rb.freezeRotation = true;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (player == null) return;
 
             float distance = Vector2.Distance(transform.position, player.position);
             if (distance > detectionRange) return;
+
+            CheckGround();
 
             switch (enemyType)
             {
@@ -57,65 +72,58 @@ namespace Scripts.Enemies
             }
         }
 
-        /// <summary>
-        /// Moves toward the player and attacks in close range.
-        /// </summary>
+        private void CheckGround()
+        {
+            // Cat Whiskers
+            isGroundedLeft = Physics2D.Raycast(leftWhisker.position, Vector2.down, whiskerLength, groundLayer);
+            isGroundedRight = Physics2D.Raycast(rightWhisker.position, Vector2.down, whiskerLength, groundLayer);
+
+            Debug.DrawRay(leftWhisker.position, Vector2.down * whiskerLength, isGroundedLeft ? Color.green : Color.red);
+            Debug.DrawRay(rightWhisker.position, Vector2.down * whiskerLength, isGroundedRight ? Color.green : Color.red);
+        }
+
         private void HandleMeleeBehavior()
         {
-            if (!IsGroundAhead()) return;
-            if (meleeAttack == null) return;
+            if (!(isGroundedLeft || isGroundedRight) || meleeAttack == null) return;
 
             bool inRange = meleeAttack.IsInAttackRange(player);
+
             if (!inRange)
             {
                 Vector2 direction = (player.position - transform.position).normalized;
                 direction.y = 0;
-                transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+
+                // Movimiento instantáneo
+                rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
             }
             else
             {
-                // Si está en rango, frena el movimiento
-                // Opcional: ajustar velocidad a cero si usas Rigidbody
+                rb.linearVelocity = Vector2.zero;
             }
 
             meleeAttack.TryAttack(player);
         }
 
-        /// <summary>
-        /// Ranged enemies stay in place and attack from a distance.
-        /// </summary>
         private void HandleRangedBehavior()
         {
-            if (!IsGroundAhead()) return;
-            if (rangedAttack == null) return;
+            if (!(isGroundedLeft || isGroundedRight) || rangedAttack == null) return;
 
             bool inRange = rangedAttack.IsInAttackRange(player);
+
             if (!inRange)
             {
                 Vector2 direction = (player.position - transform.position).normalized;
                 direction.y = 0;
-                transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+
+                // Movimiento instantáneo
+                rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
+            }
+            else
+            {
+                rb.linearVelocity = Vector2.zero;
             }
 
             rangedAttack.TryAttack(player);
-        }
-
-        /// <summary>
-        /// Checks if there is ground ahead using a downward-diagonal raycast.
-        /// Prevents movement if no ground is found.
-        /// </summary>
-        private bool IsGroundAhead()
-        {
-            if (groundCheckOrigin == null) return true;
-
-            float directionX = transform.localScale.x >= 0 ? 1f : -1f;
-            Vector2 rayDirection = new Vector2(directionX, -1f).normalized;
-
-            RaycastHit2D hit = Physics2D.Raycast(groundCheckOrigin.position, rayDirection, groundCheckDistance, groundLayer);
-
-            Debug.DrawRay(groundCheckOrigin.position, rayDirection * groundCheckDistance, Color.magenta);
-
-            return hit.collider != null;
         }
 
 #if UNITY_EDITOR
@@ -124,12 +132,16 @@ namespace Scripts.Enemies
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-            if (groundCheckOrigin != null)
+            if (leftWhisker != null)
             {
-                float directionX = transform.localScale.x >= 0 ? 1f : -1f;
-                Vector2 rayDirection = new Vector2(directionX, -1f).normalized;
                 Gizmos.color = Color.magenta;
-                Gizmos.DrawRay(groundCheckOrigin.position, rayDirection * groundCheckDistance);
+                Gizmos.DrawLine(leftWhisker.position, leftWhisker.position + Vector3.down * whiskerLength);
+            }
+
+            if (rightWhisker != null)
+            {
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawLine(rightWhisker.position, rightWhisker.position + Vector3.down * whiskerLength);
             }
         }
 #endif
