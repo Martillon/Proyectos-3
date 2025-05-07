@@ -1,4 +1,5 @@
-using Scripts.Core;
+// --- START OF FILE AudioSettingsPanel.cs ---
+using Scripts.Core; // For GameConstants, SettingsManager
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
@@ -6,10 +7,6 @@ using Scripts.Core.Audio;
 
 namespace Scripts.UI.Options
 {
-    /// <summary>
-    /// Handles real-time audio settings via sliders, applies changes to the AudioMixer,
-    /// and plays feedback sounds on interaction.
-    /// </summary>
     public class AudioSettingsPanel : MonoBehaviour
     {
         [Header("Audio Sliders")]
@@ -18,49 +15,80 @@ namespace Scripts.UI.Options
         [SerializeField] private Slider sld_SFX;
 
         [Header("Audio Mixer")]
-        [SerializeField] private AudioMixer audioMixer;
+        [SerializeField] private AudioMixer gameAudioMixer;
 
         [Header("Sound Feedback")]
-        [SerializeField] private UIAudioFeedback audioFeedback;
+        [SerializeField] private UIAudioFeedback uiInteractionSoundFeedback;
 
-        private const string PARAM_MASTER = "MasterVolume";
-        private const string PARAM_MUSIC = "MusicVolume";
-        private const string PARAM_SFX = "SFXVolume";
+        private bool isInitialized = false;
 
         private void Start()
         {
-            sld_Master.onValueChanged.AddListener((value) =>
-            {
-                ApplyVolume(PARAM_MASTER, value);
-                audioFeedback?.PlayClick();
-            });
+            if (gameAudioMixer == null) Debug.LogError("AudioSettingsPanel: GameAudioMixer is not assigned!", this);
+            if (SettingsManager.Instance == null) Debug.LogError("AudioSettingsPanel: SettingsManager.Instance is null!", this);
 
-            sld_Music.onValueChanged.AddListener((value) =>
-            {
-                ApplyVolume(PARAM_MUSIC, value);
-                audioFeedback?.PlayClick();
-            });
+            LoadAndApplyInitialAudioSettings();
 
-            sld_SFX.onValueChanged.AddListener((value) =>
-            {
-                ApplyVolume(PARAM_SFX, value);
-                audioFeedback?.PlayClick();
-            });
-
-            sld_Master.value = 1.0f;
-            sld_Music.value = 1.0f;
-            sld_SFX.value = 1.0f;
+            sld_Master?.onValueChanged.AddListener(OnMasterVolumeChanged);
+            sld_Music?.onValueChanged.AddListener(OnMusicVolumeChanged);
+            sld_SFX?.onValueChanged.AddListener(OnSFXVolumeChanged);
+            
+            isInitialized = true;
         }
 
-        /// <summary>
-        /// Converts a linear volume [0–1] to decibels and applies it to the AudioMixer.
-        /// </summary>
-        private void ApplyVolume(string parameter, float value)
+        private void LoadAndApplyInitialAudioSettings()
         {
-            float dB = Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f;
-            audioMixer.SetFloat(parameter, dB);
+            if (SettingsManager.Instance == null || gameAudioMixer == null) return;
 
-            SettingsManager.Instance.SetVolume(parameter, value);
+            float masterVol = SettingsManager.Instance.GetVolume(GameConstants.PrefsMasterVolume, 1f);
+            float musicVol = SettingsManager.Instance.GetVolume(GameConstants.PrefsMusicVolume, 1f);
+            float sfxVol = SettingsManager.Instance.GetVolume(GameConstants.PrefsSfxVolume, 1f);
+
+            if (sld_Master != null) sld_Master.SetValueWithoutNotify(masterVol);
+            if (sld_Music != null) sld_Music.SetValueWithoutNotify(musicVol);
+            if (sld_SFX != null) sld_SFX.SetValueWithoutNotify(sfxVol);
+
+            ApplyVolumeToMixer(GameConstants.MixerMasterVolume, masterVol);
+            ApplyVolumeToMixer(GameConstants.MixerMusicVolume, musicVol);
+            ApplyVolumeToMixer(GameConstants.MixerSfxVolume, sfxVol);
+        }
+
+        private void OnMasterVolumeChanged(float value)
+        {
+            if (!isInitialized) return;
+            ApplyVolumeToMixerAndSave(GameConstants.MixerMasterVolume, GameConstants.PrefsMasterVolume, value);
+            uiInteractionSoundFeedback?.PlayClick();
+        }
+
+        private void OnMusicVolumeChanged(float value)
+        {
+            if (!isInitialized) return;
+            ApplyVolumeToMixerAndSave(GameConstants.MixerMusicVolume, GameConstants.PrefsMusicVolume, value);
+            uiInteractionSoundFeedback?.PlayClick();
+        }
+
+        private void OnSFXVolumeChanged(float value)
+        {
+            if (!isInitialized) return;
+            ApplyVolumeToMixerAndSave(GameConstants.MixerSfxVolume, GameConstants.PrefsSfxVolume, value);
+            uiInteractionSoundFeedback?.PlayClick();
+        }
+
+        private void ApplyVolumeToMixerAndSave(string mixerParameter, string prefsKey, float linearValue)
+        {
+            if (SettingsManager.Instance == null) return;
+            ApplyVolumeToMixer(mixerParameter, linearValue);
+            SettingsManager.Instance.SetVolume(prefsKey, linearValue);
+            SettingsManager.Instance.SaveAll(); // Save immediately when audio slider changes
+        }
+
+        private void ApplyVolumeToMixer(string mixerParameter, float linearValue)
+        {
+            if (gameAudioMixer == null) return;
+            float clampedValue = Mathf.Max(linearValue, 0.0001f);
+            float dBValue = Mathf.Log10(clampedValue) * 20f;
+            gameAudioMixer.SetFloat(mixerParameter, dBValue);
         }
     }
 }
+// --- END OF FILE AudioSettingsPanel.cs ---

@@ -1,162 +1,154 @@
+// --- START OF FILE VideoSettingsPanel.cs ---
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using Scripts.Core;
+using System.Linq;
+using Scripts.Core; // For GameConstants, SettingsManager
 using TMPro;
 using Scripts.Core.Audio;
 
 namespace Scripts.UI.Options
 {
-    /// <summary>
-    /// Handles the video settings UI, including resolution, display mode, VSync toggle, and apply button.
-    /// Plays audio feedback when settings are interacted with.
-    /// </summary>
     public class VideoSettingsPanel : MonoBehaviour
     {
         [Header("UI Elements")]
         [SerializeField] private TMP_Dropdown drp_Resolution;
         [SerializeField] private TMP_Dropdown drp_DisplayMode;
         [SerializeField] private Toggle tgl_VSync;
-        [SerializeField] private Button btn_Apply;
+        [SerializeField] private Button btn_ApplyVideoSettings;
 
         [Header("UI Sounds")]
-        [SerializeField] private UIAudioFeedback uiSoundFeedback;
+        [SerializeField] private UIAudioFeedback uiInteractionSoundFeedback;
 
-        private Resolution[] availableResolutions;
-        private int currentResolutionIndex;
+        private List<Resolution> availableFilteredResolutions;
+        private bool isInitialized = false;
 
         private void Start()
         {
+            if (SettingsManager.Instance == null) Debug.LogError("VideoSettingsPanel: SettingsManager.Instance is null!", this);
+
             PopulateResolutionDropdown();
             PopulateDisplayModeDropdown();
-            LoadCurrentSettings();
+            LoadAndApplyInitialVideoSettings();
 
-            btn_Apply.onClick.AddListener(() =>
-            {
-                uiSoundFeedback?.PlayClick();
-                ApplyVideoSettings();
-            });
-
-            drp_Resolution.onValueChanged.AddListener(_ => uiSoundFeedback?.PlayClick());
-            drp_DisplayMode.onValueChanged.AddListener(_ => uiSoundFeedback?.PlayClick());
-            tgl_VSync.onValueChanged.AddListener(_ => uiSoundFeedback?.PlayClick());
+            btn_ApplyVideoSettings?.onClick.AddListener(OnApplySettingsClicked);
+            drp_Resolution?.onValueChanged.AddListener(OnDropdownValueChanged);
+            drp_DisplayMode?.onValueChanged.AddListener(OnDropdownValueChanged);
+            tgl_VSync?.onValueChanged.AddListener(OnToggleValueChanged);
+            
+            isInitialized = true;
+        }
+        
+        private void OnDropdownValueChanged(int index)
+        {
+            if (!isInitialized) return;
+            uiInteractionSoundFeedback?.PlayClick();
+            // Note: Changes here are only applied when Apply button is clicked.
         }
 
-        /// <summary>
-        /// Loads compatible and clean resolutions into the dropdown.
-        /// Filters by current aspect ratio, eliminates duplicates, and ignores very small resolutions.
-        /// </summary>
+        private void OnToggleValueChanged(bool value)
+        {
+            if (!isInitialized) return;
+            uiInteractionSoundFeedback?.PlayClick();
+            // Note: Changes here are only applied when Apply button is clicked.
+        }
+
         private void PopulateResolutionDropdown()
         {
-            availableResolutions = Screen.resolutions;
-
+            // ... (Lógica de PopulateResolutionDropdown sin cambios significativos, ya era buena) ...
+            Resolution[] allResolutions = Screen.resolutions;
+            availableFilteredResolutions = new List<Resolution>();
+            List<string> resolutionOptions = new List<string>();
             float currentAspect = (float)Screen.currentResolution.width / Screen.currentResolution.height;
             const float aspectTolerance = 0.05f;
             const int minWidth = 800;
             const int minHeight = 600;
 
-            HashSet<string> seen = new HashSet<string>();
-            List<string> options = new List<string>();
-            List<Resolution> filteredResolutions = new List<Resolution>();
-
-            currentResolutionIndex = 0;
-
-            for (int i = 0; i < availableResolutions.Length; i++)
+            foreach (Resolution res in allResolutions
+                .Where(r => r.width >= minWidth && r.height >= minHeight)
+                .Where(r => Mathf.Abs(((float)r.width / r.height) - currentAspect) <= aspectTolerance)
+                .OrderByDescending(r => r.width * r.height)
+                .ThenByDescending(r => r.refreshRateRatio.value)
+                .GroupBy(r => new { r.width, r.height }) // Group by unique width/height combinations
+                .Select(g => g.First())) // Select the first one from each group (which has the highest refresh rate due to prior sorting)
             {
-                Resolution res = availableResolutions[i];
-
-                if (res.width < minWidth || res.height < minHeight)
-                    continue;
-
-                float aspect = (float)res.width / res.height;
-                if (Mathf.Abs(aspect - currentAspect) > aspectTolerance)
-                    continue;
-
-                string key = res.width + "x" + res.height;
-                if (!seen.Add(key))
-                    continue;
-
-                filteredResolutions.Add(res);
-                options.Add(key);
-
-                if (res.width == Screen.currentResolution.width && res.height == Screen.currentResolution.height)
-                {
-                    currentResolutionIndex = filteredResolutions.Count - 1;
-                }
+                availableFilteredResolutions.Add(res);
+                resolutionOptions.Add($"{res.width} x {res.height}");
             }
-
-            availableResolutions = filteredResolutions.ToArray();
-
+            
             drp_Resolution.ClearOptions();
-            drp_Resolution.AddOptions(options);
-            drp_Resolution.value = currentResolutionIndex;
-            drp_Resolution.RefreshShownValue();
+            if (resolutionOptions.Count > 0) drp_Resolution.AddOptions(resolutionOptions);
+            else // Fallback
+            {
+                resolutionOptions.Add($"{Screen.currentResolution.width} x {Screen.currentResolution.height}");
+                availableFilteredResolutions.Add(Screen.currentResolution);
+                drp_Resolution.AddOptions(resolutionOptions);
+            }
         }
 
-        /// <summary>
-        /// Loads available display modes into the dropdown.
-        /// </summary>
         private void PopulateDisplayModeDropdown()
         {
+            // ... (Sin cambios) ...
             drp_DisplayMode.ClearOptions();
-
-            List<string> modes = new List<string>
-            {
-                "Fullscreen",
-                "Windowed",
-                "Borderless"
-            };
-
+            List<string> modes = new List<string> { "Fullscreen", "Windowed", "Borderless Fullscreen" };
             drp_DisplayMode.AddOptions(modes);
         }
 
-        /// <summary>
-        /// Loads the current system settings into the UI elements.
-        /// </summary>
-        private void LoadCurrentSettings()
+        private void LoadAndApplyInitialVideoSettings()
         {
-            tgl_VSync.isOn = QualitySettings.vSyncCount > 0;
+            if (SettingsManager.Instance == null) return;
 
-            switch (Screen.fullScreenMode)
+            (int savedWidth, int savedHeight) = SettingsManager.Instance.GetResolution();
+            bool savedVSync = SettingsManager.Instance.GetVSync();
+            int savedDisplayModeIndex = SettingsManager.Instance.GetDisplayMode();
+
+            if (tgl_VSync != null) tgl_VSync.SetIsOnWithoutNotify(savedVSync);
+            if (drp_DisplayMode != null) drp_DisplayMode.SetValueWithoutNotify(savedDisplayModeIndex);
+            
+            if (drp_Resolution != null && availableFilteredResolutions != null)
             {
-                case FullScreenMode.ExclusiveFullScreen:
-                    drp_DisplayMode.value = 0;
-                    break;
-                case FullScreenMode.Windowed:
-                    drp_DisplayMode.value = 1;
-                    break;
-                case FullScreenMode.FullScreenWindow:
-                    drp_DisplayMode.value = 2;
-                    break;
+                int resolutionIndexToSelect = -1;
+                for (int i = 0; i < availableFilteredResolutions.Count; i++)
+                {
+                    if (availableFilteredResolutions[i].width == savedWidth && availableFilteredResolutions[i].height == savedHeight)
+                    {
+                        resolutionIndexToSelect = i; break;
+                    }
+                }
+                if (resolutionIndexToSelect != -1) drp_Resolution.SetValueWithoutNotify(resolutionIndexToSelect);
+                else if (availableFilteredResolutions.Count > 0) drp_Resolution.SetValueWithoutNotify(0);
             }
-
-            drp_DisplayMode.RefreshShownValue();
+            drp_Resolution?.RefreshShownValue();
+            drp_DisplayMode?.RefreshShownValue();
         }
 
-        /// <summary>
-        /// Applies the selected video settings to the system.
-        /// </summary>
-        private void ApplyVideoSettings()
+        private void OnApplySettingsClicked()
         {
-            Resolution selectedResolution = availableResolutions[drp_Resolution.value];
+            if (!isInitialized) return;
+            uiInteractionSoundFeedback?.PlayClick();
+            ApplyAndSaveChanges();
+        }
 
-            FullScreenMode selectedMode = FullScreenMode.ExclusiveFullScreen;
-            switch (drp_DisplayMode.value)
-            {
-                case 0: selectedMode = FullScreenMode.ExclusiveFullScreen; break;
-                case 1: selectedMode = FullScreenMode.Windowed; break;
-                case 2: selectedMode = FullScreenMode.FullScreenWindow; break;
-            }
+        private void ApplyAndSaveChanges()
+        {
+             if (SettingsManager.Instance == null || availableFilteredResolutions == null || availableFilteredResolutions.Count == 0) return;
 
-            QualitySettings.vSyncCount = tgl_VSync.isOn ? 1 : 0;
+            Resolution selectedResolution = availableFilteredResolutions[drp_Resolution.value];
+            bool selectedVSync = tgl_VSync.isOn;
+            int selectedDisplayModeIndex = drp_DisplayMode.value;
 
-            Screen.SetResolution(selectedResolution.width, selectedResolution.height, selectedMode);
+            FullScreenMode targetFullScreenMode = FullScreenMode.ExclusiveFullScreen;
+            if (selectedDisplayModeIndex == 1) targetFullScreenMode = FullScreenMode.Windowed;
+            else if (selectedDisplayModeIndex == 2) targetFullScreenMode = FullScreenMode.FullScreenWindow;
 
-            Debug.Log($"Applied: {selectedResolution.width}x{selectedResolution.height}, Mode: {selectedMode}, VSync: {tgl_VSync.isOn}");
+            QualitySettings.vSyncCount = selectedVSync ? 1 : 0;
+            Screen.SetResolution(selectedResolution.width, selectedResolution.height, targetFullScreenMode);
 
             SettingsManager.Instance.SetResolution(selectedResolution.width, selectedResolution.height);
-            SettingsManager.Instance.SetVSync(tgl_VSync.isOn);
-            SettingsManager.Instance.SetDisplayMode(drp_DisplayMode.value);
+            SettingsManager.Instance.SetVSync(selectedVSync);
+            SettingsManager.Instance.SetDisplayMode(selectedDisplayModeIndex);
+            SettingsManager.Instance.SaveAll(); // Save to PlayerPrefs immediately upon applying video changes
         }
     }
 }
+// --- END OF FILE VideoSettingsPanel.cs ---

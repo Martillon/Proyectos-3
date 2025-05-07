@@ -1,204 +1,247 @@
+// --- START OF FILE PlayerHealthSystem.cs ---
 using System.Collections;
 using Scripts.Core;
 using Scripts.Core.Interfaces;
+using Scripts.Items.Checkpoint; // For CheckpointManager
 using Unity.Cinemachine;
 using UnityEngine;
+using Scripts.Player.Movement; // For PlayerEvents
 
 namespace Scripts.Player.Core
 {
-    /// <summary>
-    /// Manages the player's lives and armor.
-    /// Each life allows a defined number of hits (armor).
-    /// Healing can restore armor or full lives, with limits.
-    /// </summary>
+    [RequireComponent(typeof(SpriteRenderer))] // Needed for sprite flashing
     public class PlayerHealthSystem : MonoBehaviour, IHealLife, IHealArmor, IDamageable
     {
-        [Header("Configuration")]
+        [Header("Health Configuration")]
         [SerializeField] private int maxLives = 3;
         [SerializeField] private int maxArmorPerLife = 3;
+        [SerializeField] private float invulnerabilityDuration = 1.5f;
 
-        [Header("Debug")]
-        [SerializeField] private bool destroyOnDeath = true;
-        
-        [Header("Death Sequence")]
-        [SerializeField] private Animator animator;
-        [SerializeField] private string deathTrigger = "Die";
-        [SerializeField] private float buttonDelay = 1.5f;
-        [SerializeField] private GameObject deathScreen;
-        [SerializeField] private GameObject deathButtons;
-        [SerializeField] private CinemachineCamera cameraToZoom;
-        [SerializeField] private float zoomAmount = 3f;
-        [SerializeField] private float zoomDuration = 1f;
+        [Header("Visual Feedback")]
+        [Tooltip("SpriteRenderer for the player. Used for flashing effect during invulnerability.")]
+        [SerializeField] private SpriteRenderer playerSpriteRenderer;
+        [Tooltip("Interval (in seconds) for sprite flashing during invulnerability.")]
+        [SerializeField] private float invulnerabilityFlashInterval = 0.1f;
 
-        private float originalZoom;
+
+        [Header("Death & Respawn")]
+        [SerializeField] private Animator playerAnimator;
+        [SerializeField] private string deathAnimationTrigger = "Die";
+        [SerializeField] private string respawnAnimationTrigger = "Respawn";
+        [SerializeField] private CinemachineCamera playerFocusedCamera;
+        [SerializeField] private float deathCameraZoomSize = 3f;
+        [SerializeField] private float deathCameraZoomDuration = 1.5f;
 
         private int currentLives;
         private int currentArmor;
+        private bool isInvulnerable = false;
+        private bool isDead = false;
+        private float initialCameraOrthographicSize;
+
+        private PlayerMovement2D playerMovement;
+        private Coroutine invulnerabilityFlashCoroutine;
+
 
         private void Awake()
         {
-            currentLives = maxLives;
-            currentArmor = maxArmorPerLife;
-            
-            if (cameraToZoom != null)
+            playerMovement = GetComponent<PlayerMovement2D>();
+            if (playerSpriteRenderer == null) playerSpriteRenderer = GetComponent<SpriteRenderer>();
+            if (playerSpriteRenderer == null) Debug.LogError("PlayerHealthSystem: Player SpriteRenderer not found or assigned. Flashing will not work.", this);
+
+
+            if (playerFocusedCamera != null)
             {
-                originalZoom = cameraToZoom.Lens.OrthographicSize;
+                initialCameraOrthographicSize = playerFocusedCamera.Lens.OrthographicSize;
             }
         }
 
-        /// <summary>
-        /// Applies 1 hit to the player. If armor is depleted, a life is lost.
-        /// </summary>
-        public void TakeDamage(float damage)
+        private void Start()
         {
-            if (currentLives <= 0) return;
+            currentLives = maxLives;
+            currentArmor = maxArmorPerLife;
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
 
-            if (currentArmor > 0)
+            CheckpointManager.SetInitialLevelSpawnPoint(transform.position);
+            // CheckpointManager.ResetCheckpointData(); // Called by GameOverUI or SceneLoader now
+        }
+
+        public void TakeDamage(float damageAmount)
+        {
+            if (isInvulnerable || isDead) return;
+
+            currentArmor--;
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor < 0 ? 0 : currentArmor);
+
+            if (currentArmor < 0)
             {
-                currentArmor--;
-                // Debug.Log($"Damage taken. Armor reduced to {currentArmor}.");
+                currentLives--;
+                // PlayerEvents.RaiseHealthChanged(currentLives, 0); // Health change already sent above for armor, this updates life
+                
+                if (currentLives < 0)
+                {
+                    currentLives = 0; // Clamp for UI
+                    PlayerEvents.RaiseHealthChanged(currentLives, 0); // Final update before death sequence
+                    StartCoroutine(FinalDeathSequence());
+                }
+                else
+                {
+                    PlayerEvents.RaiseHealthChanged(currentLives, currentArmor < 0 ? maxArmorPerLife : currentArmor); // Update lives, armor will be reset
+                    StartCoroutine(LoseLifeAndRespawnSequence());
+                }
             }
             else
             {
-                currentLives--;
-                currentArmor = maxArmorPerLife;
+                StartCoroutine(BeginInvulnerability());
+                // playerAnimator?.SetTrigger("Hit"); 
+            }
+        }
 
-                // Debug.Log($"Armor broken. Life lost. Lives left: {currentLives}.");
+        private IEnumerator LoseLifeAndRespawnSequence()
+        {
+            isDead = true;
+            isInvulnerable = true; // Implicitly handled by isDead check, but good for clarity
 
-                if (currentLives <= 0)
-                {
-                    HandleDeath();
-                }
+            InputManager.Instance?.DisableAllControls();
+            if (playerMovement != null) playerMovement.enabled = false;
+
+            if (playerAnimator != null && !string.IsNullOrEmpty(deathAnimationTrigger))
+            {
+                playerAnimator.SetTrigger(deathAnimationTrigger);
+                yield return new WaitForSeconds(0.75f); // Adjust based on actual animation length
             }
             
-            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
-        }
+            if (playerSpriteRenderer != null) playerSpriteRenderer.enabled = false; // Hide player during "teleport"
+            yield return new WaitForSeconds(0.25f); // Brief delay before reappearing
 
-        /// <summary>
-        /// Heals armor up to its maximum, but does not restore lives.
-        /// </summary>
-        public void HealArmor(int amount)
-        {
-            if (amount <= 0 || currentLives <= 0) return;
-
-            currentArmor = Mathf.Min(currentArmor + amount, maxArmorPerLife);
-            // Debug.Log($"Armor healed. New armor: {currentArmor}");
+            transform.position = CheckpointManager.GetCurrentRespawnPosition();
             
-            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
+            if (playerSpriteRenderer != null) playerSpriteRenderer.enabled = true; // Show player
+
+            currentArmor = maxArmorPerLife;
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); // Update HUD after armor reset
+
+            if (playerAnimator != null && !string.IsNullOrEmpty(respawnAnimationTrigger))
+            {
+                 playerAnimator.SetTrigger(respawnAnimationTrigger);
+                 yield return new WaitForSeconds(0.5f); // Adjust based on respawn animation
+            }
+
+            if (playerMovement != null) playerMovement.enabled = true;
+            InputManager.Instance?.EnablePlayerControls();
+            
+            isDead = false;
+            StartCoroutine(BeginInvulnerability());
         }
 
-        /// <summary>
-        /// Restores life and fully restores armor. Limited by maxLives.
-        /// </summary>
+        private IEnumerator FinalDeathSequence()
+        {
+            isDead = true;
+            isInvulnerable = true;
+
+            InputManager.Instance?.DisableAllControls();
+            if (playerMovement != null) playerMovement.enabled = false;
+
+            if (playerAnimator != null && !string.IsNullOrEmpty(deathAnimationTrigger))
+            {
+                playerAnimator.SetTrigger(deathAnimationTrigger);
+            }
+            
+            PlayerEvents.RaisePlayerDeath(); 
+
+            if (playerFocusedCamera != null)
+            {
+                float startTime = Time.unscaledTime; 
+                float currentSize = playerFocusedCamera.Lens.OrthographicSize;
+                while (Time.unscaledTime < startTime + deathCameraZoomDuration)
+                {
+                    float t = (Time.unscaledTime - startTime) / deathCameraZoomDuration;
+                    playerFocusedCamera.Lens.OrthographicSize = Mathf.Lerp(currentSize, deathCameraZoomSize, t);
+                    yield return null; 
+                }
+                playerFocusedCamera.Lens.OrthographicSize = deathCameraZoomSize; 
+            }
+            else
+            {
+                yield return new WaitForSecondsRealtime(1.0f); 
+            }
+        }
+
+        private IEnumerator BeginInvulnerability()
+        {
+            isInvulnerable = true;
+            if (invulnerabilityFlashCoroutine != null) StopCoroutine(invulnerabilityFlashCoroutine); // Stop existing flash if any
+            if (playerSpriteRenderer != null && gameObject.activeInHierarchy) // Check if GO is active for coroutine
+            {
+                 invulnerabilityFlashCoroutine = StartCoroutine(FlashSpriteCoroutine(playerSpriteRenderer, invulnerabilityDuration, invulnerabilityFlashInterval));
+            }
+           
+            yield return new WaitForSeconds(invulnerabilityDuration); // Actual invulnerability timer
+            
+            isInvulnerable = false;
+            if (invulnerabilityFlashCoroutine != null) // Stop flashing if it's still running (duration might be shorter than flash sequence)
+            {
+                StopCoroutine(invulnerabilityFlashCoroutine);
+                if(playerSpriteRenderer != null) playerSpriteRenderer.enabled = true; // Ensure sprite is visible
+            }
+        }
+
+        private IEnumerator FlashSpriteCoroutine(SpriteRenderer sprite, float duration, float flashInterval)
+        {
+            if (sprite == null) yield break;
+            float endTime = Time.time + duration;
+            bool originalState = sprite.enabled; // Store original state in case it was already hidden for some reason
+
+            try
+            {
+                while (Time.time < endTime)
+                {
+                    sprite.enabled = !sprite.enabled;
+                    yield return new WaitForSeconds(flashInterval);
+                }
+            }
+            finally // Ensure sprite is visible at the end, regardless of how coroutine exits
+            {
+                 sprite.enabled = originalState; // Or always true: sprite.enabled = true;
+            }
+        }
+
         public void HealLife(int amount)
         {
-            if (amount <= 0) return;
-
+            if (isDead || amount <= 0) return;
+            int previousLives = currentLives;
             currentLives = Mathf.Min(currentLives + amount, maxLives);
-            currentArmor = maxArmorPerLife;
             
+            // Only restore armor fully if a life was actually gained, or if it's a heal call.
+            // Checkpoint logic for armor is separate via HealArmor.
+            if(currentLives > previousLives || amount > 0) // Or just always restore armor on HealLife call.
+            {
+                currentArmor = maxArmorPerLife;
+            }
             PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
-
-            // Debug.Log($"Life healed. Lives: {currentLives}, Armor reset to: {currentArmor}");
         }
 
-        /// <summary>
-        /// Called when player runs out of lives.
-        /// </summary>
-        private void HandleDeath()
+        public void HealArmor(int amount)
         {
-            PlayerEvents.RaisePlayerDeath();
-
-            if (destroyOnDeath)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            StartCoroutine(DeathSequence());
-        }
-        
-        private IEnumerator DeathSequence()
-        {
-            // Disable input
-            if (InputManager.Instance != null && InputManager.Instance.Controls != null)
-            {
-                InputManager.Instance.DisableAllControls();
-                // Debug.Log("Player input disabled.");
-            }
-
-            // Play animation
-            if (animator != null)
-            {
-                animator.SetTrigger(deathTrigger);
-                // Debug.Log("Death animation triggered.");
-            }
-
-            // Zoom camera
-            if (cameraToZoom != null)
-            {
-                float t = 0f;
-                while (t < zoomDuration)
-                {
-                    float zoom = Mathf.Lerp(originalZoom, zoomAmount, t / zoomDuration);
-                    cameraToZoom.Lens.OrthographicSize = zoom;
-                    t += Time.deltaTime;
-                    yield return null;
-                }
-
-                cameraToZoom.Lens.OrthographicSize = zoomAmount;
-                // Debug.Log("Camera zoom completed.");
-            }
-
-            // Show death UI (no buttons)
-            if (deathScreen != null)
-            {
-                deathScreen.SetActive(true);
-                // Debug.Log("Death screen activated.");
-            }
-
-            // Wait for animation end
-            if (animator != null)
-            {
-                AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
-                while (!state.IsName(deathTrigger) || state.normalizedTime < 1f)
-                {
-                    yield return null;
-                    state = animator.GetCurrentAnimatorStateInfo(0);
-                }
-
-                // Debug.Log("Death animation finished.");
-            }
-
-            // Fade in buttons (delayed)
-            yield return new WaitForSeconds(buttonDelay);
-
-            if (deathButtons != null)
-            {
-                deathButtons.SetActive(true);
-                InputManager.Instance.EnableUIControls();
-                // Debug.Log("Death buttons shown.");
-            }
-
-            Time.timeScale = 0f;
-            
-            // Debug.Log("Player death sequence completed. Buttons active, time frozen.");
+            if (isDead || currentLives < 0 || amount <= 0) return;
+            currentArmor = (amount >= maxArmorPerLife) ? maxArmorPerLife : Mathf.Min(currentArmor + amount, maxArmorPerLife); // Simplified logic for 999
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
         }
 
-        // Getters for UI or external logic
-        public int CurrentLives => currentLives;
-        public int CurrentArmor => currentArmor;
-        public int MaxLives => maxLives;
-        public int MaxArmorPerLife => maxArmorPerLife;
+        public int GetCurrentLives() => currentLives;
+        public int GetCurrentArmor() => currentArmor;
+        public bool IsCurrentlyInvulnerable() => isInvulnerable;
 
-        /// <summary>
-        /// Debug-only method to fully restore health.
-        /// </summary>
-        public void RestoreAll()
+        public void FullResetPlayerHealth()
         {
             currentLives = maxLives;
             currentArmor = maxArmorPerLife;
-            // Debug.Log("Health fully restored (cheat/debug).");
+            isDead = false;
+            isInvulnerable = false;
+            if (invulnerabilityFlashCoroutine != null) StopCoroutine(invulnerabilityFlashCoroutine);
+            if(playerSpriteRenderer != null) playerSpriteRenderer.enabled = true;
+            if (playerFocusedCamera != null) playerFocusedCamera.Lens.OrthographicSize = initialCameraOrthographicSize;
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
         }
     }
 }
+// --- END OF FILE PlayerHealthSystem.cs ---
