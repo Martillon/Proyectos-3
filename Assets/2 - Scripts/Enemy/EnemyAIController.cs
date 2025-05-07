@@ -94,11 +94,11 @@ namespace Scripts.Enemies
                 direction.y = 0;
 
                 // Movimiento instantáneo
-                rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+                rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
             }
             else
             {
-                rb.velocity = Vector2.zero;
+                rb.linearVelocity = Vector2.zero;
             }
 
             meleeAttack.TryAttack(player);
@@ -116,11 +116,11 @@ namespace Scripts.Enemies
                 direction.y = 0;
 
                 // Movimiento instantáneo
-                rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+                rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
             }
             else
             {
-                rb.velocity = Vector2.zero;
+                rb.linearVelocity = Vector2.zero;
             }
 
             rangedAttack.TryAttack(player);
