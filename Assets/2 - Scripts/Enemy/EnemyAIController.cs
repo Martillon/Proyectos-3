@@ -1,7 +1,9 @@
 // --- START OF FILE EnemyAIController.cs ---
 using UnityEngine;
 using System.Collections;
-using Scripts.Enemies.Core; // For Coroutines if needed for attack patterns
+using Scripts.Enemies.Core;
+using Scripts.Enemies.Melee;
+using Scripts.Enemies.Ranged; // For Coroutines if needed for attack patterns
 
 namespace Scripts.Enemies
 {

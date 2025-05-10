@@ -43,6 +43,18 @@ namespace Scripts.Player.Core
             OnPlayerWeaponChanged?.Invoke(newUpgrade);
             // Debug.Log($"Player weapon changed to: {newUpgrade?.name ?? "None"}");
         }
+        
+        /// <summary>
+        /// Invoked when the player successfully completes a level.
+        /// Parameter: string levelIdentifier (e.g., scene name of the completed level).
+        /// </summary>
+        public static event System.Action<string> OnLevelCompleted;
+
+        public static void RaiseLevelCompleted(string levelIdentifier)
+        {
+            OnLevelCompleted?.Invoke(levelIdentifier);
+            // Debug.Log($"PlayerEvents: Level Completed event raised for '{levelIdentifier}'."); // Uncomment for debugging
+        }
     }
 }
 // --- END OF FILE PlayerEvents.cs ---

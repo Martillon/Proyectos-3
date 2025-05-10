@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections; // For Coroutines
 
-namespace Scripts.Enemies
+namespace Scripts.Enemies.Ranged
 {
     /// <summary>
     /// Handles ranged attack logic for an enemy.

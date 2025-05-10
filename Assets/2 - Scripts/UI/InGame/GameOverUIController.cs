@@ -117,8 +117,11 @@ namespace Scripts.UI
         {
             uiSoundFeedback?.PlayClick();
             Time.timeScale = 1f; 
-            CheckpointManager.ResetCheckpointData(); // Use CheckpointManager
-            SceneLoader.Instance?.LoadLevel(SceneManager.GetActiveScene().buildIndex);
+            CheckpointManager.ResetCheckpointData(); // Crucial
+
+            int currentSceneBuildIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+            SceneLoader.Instance?.LoadSceneByBuildIndex(currentSceneBuildIndex);
+            // Debug.Log($"GameOverUIController: Restart Level button clicked. Reloading scene with Build Index: {currentSceneBuildIndex}."); // Uncomment for debugging
         }
 
         private void OnMainMenuClicked()

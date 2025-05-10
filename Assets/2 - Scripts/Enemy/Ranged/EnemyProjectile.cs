@@ -2,7 +2,7 @@
 using UnityEngine;
 using Scripts.Core.Interfaces; // For IDamageable
 
-namespace Scripts.Enemies
+namespace Scripts.Enemies.Ranged
 {
     /// <summary>
     /// Handles behavior for projectiles fired by enemies.

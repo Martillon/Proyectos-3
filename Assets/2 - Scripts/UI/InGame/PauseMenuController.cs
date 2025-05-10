@@ -229,9 +229,15 @@ namespace Scripts.UI.InGame
         private void RestartLevel()
         {
             Time.timeScale = 1f;
-            InputManager.Instance?.EnablePlayerControls(); // Ensure controls are back
-            CheckpointManager.ResetCheckpointData(); // Reset checkpoints before reload
-            SceneLoader.Instance?.LoadLevel(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            InputManager.Instance?.EnablePlayerControls(); 
+            CheckpointManager.ResetCheckpointData(); // Crucial for a fresh start of the level's checkpoints
+
+            // Get the build index of the currently active scene
+            int currentSceneBuildIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+    
+            // Use the new method in SceneLoader
+            SceneLoader.Instance?.LoadSceneByBuildIndex(currentSceneBuildIndex); 
+            // Debug.Log($"PauseMenuController: Restarting current level (Build Index: {currentSceneBuildIndex})."); // Uncomment for debugging
         }
 
         private void GoToMainMenu()

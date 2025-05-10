@@ -57,12 +57,45 @@ namespace Scripts.Player.Core
 
         private void Start()
         {
+            // Initialize health values
             currentLives = maxLives;
             currentArmor = maxArmorPerLife;
-            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
+            isDead = false;
+            isInvulnerable = false;
 
-            CheckpointManager.SetInitialLevelSpawnPoint(transform.position);
-            // CheckpointManager.ResetCheckpointData(); // Called by GameOverUI or SceneLoader now
+            // Stop any ongoing invulnerability flash and ensure sprite is visible
+            if (invulnerabilityFlashCoroutine != null) 
+            {
+                StopCoroutine(invulnerabilityFlashCoroutine);
+                if(playerSpriteRenderer != null) playerSpriteRenderer.enabled = true; 
+            }
+            // Reset camera zoom if applicable from a previous death sequence in another context
+            if (playerFocusedCamera != null && Mathf.Abs(playerFocusedCamera.Lens.OrthographicSize - initialCameraOrthographicSize) > 0.01f)
+            {
+                playerFocusedCamera.Lens.OrthographicSize = initialCameraOrthographicSize;
+            }
+
+
+            // --- Level Start Specific Initializations ---
+
+            // 1. Reset global checkpoint data for a fresh start in this level instance.
+            // This is crucial if this PlayerHealthSystem instance is (re)starting in a new level context.
+            CheckpointManager.ResetCheckpointData(); 
+            // Debug.Log("PlayerHealthSystem.Start: Checkpoint data reset for new level entry."); // Uncomment for debugging
+
+            // 2. Set the initial spawn point for THIS level instance using the player's current position in the scene.
+            // This position will be used by CheckpointManager if the player dies before activating any checkpoint in this level.
+            CheckpointManager.SetInitialLevelSpawnPoint(transform.position); 
+            // Debug.Log($"PlayerHealthSystem.Start: Initial spawn for this level registered at: {transform.position}"); // Uncomment for debugging
+
+            // 3. Ensure player controls are enabled and game time is running.
+            InputManager.Instance?.EnablePlayerControls();
+            Time.timeScale = 1f;
+            // Debug.Log("PlayerHealthSystem.Start: Player controls enabled, Time.timeScale set to 1."); // Uncomment for debugging
+
+            // 4. Notify HUD/UI about the initial health state.
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); 
+            // Debug.Log($"PlayerHealthSystem.Start: Initial health published. Lives: {currentLives}, Armor: {currentArmor}."); // Uncomment for debugging
         }
 
         public void TakeDamage(float damageAmount)
