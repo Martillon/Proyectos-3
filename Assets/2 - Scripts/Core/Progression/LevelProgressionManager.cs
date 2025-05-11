@@ -22,7 +22,6 @@ namespace Scripts.Core
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
                 saveFilePath = Path.Combine(Application.persistentDataPath, saveFileName);
                 // We will get SceneLoader.Instance in Start()
             }
