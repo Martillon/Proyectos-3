@@ -4,14 +4,15 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Scripts.Core; // For InputManager, SceneLoader, GameConstants
 using Scripts.Core.Audio;
-using Scripts.Items.Checkpoint;
-
+using Scripts.Checkpoints;
+using Scripts.Items.Checkpoint; // Corrected namespace for CheckpointManager
 
 namespace Scripts.UI.InGame
 {
     /// <summary>
     /// Handles pause menu logic: toggling visibility, pausing time, switching input maps,
     /// navigating menu options (including opening an options submenu), and playing UI sounds.
+    /// Assumes the Options Panel is an existing GameObject in the scene, initially disabled.
     /// </summary>
     public class PauseMenuController : MonoBehaviour
     {
@@ -22,39 +23,46 @@ namespace Scripts.UI.InGame
         [SerializeField] private Button firstSelectedButtonPauseMenu;
 
         [Header("Options Submenu")]
-        [Tooltip("The GameObject containing the options panel (likely the same prefab used by Main Menu).")]
-        [SerializeField] private GameObject optionsPanelPrefab; // Or reference if already in scene hierarchy
-        [Tooltip("Button in the options panel to return to the pause menu.")]
-        [SerializeField] private Button optionsPanelReturnButton; // Needs to be configured in the options panel prefab/instance
-        [Tooltip("The button to be selected first when the options panel is opened from the pause menu.")]
-        [SerializeField] private Button firstSelectedButtonOptionsMenu; // e.g., the 'Video' tab button
+        [Tooltip("Reference to the GameObject in the scene that IS the options panel. Should be initially disabled.")]
+        [SerializeField] private GameObject optionsPanelObject; // Renamed from optionsPanelPrefab
+        [Tooltip("Button IN THE OPTIONS PANEL used to return to the pause menu. Assign from the Options Panel hierarchy.")]
+        [SerializeField] private Button optionsPanelReturnButton; 
+        [Tooltip("The button to be selected first when the options panel is opened from the pause menu (e.g., 'Video' tab button).")]
+        [SerializeField] private Button firstSelectedButtonOptionsMenu;
 
         [Header("Pause Menu Buttons")]
         [SerializeField] private Button btn_Resume;
-        [SerializeField] private Button btn_Options; // New button for options
+        [SerializeField] private Button btn_Options;
         [SerializeField] private Button btn_RestartLevel;
         [SerializeField] private Button btn_MainMenu;
 
-        [Header("Settings")]
-        [SerializeField] private bool isPaused = false;
-        private bool isOptionsOpen = false; // Track if options submenu is open
+        [Header("State")]
+        [SerializeField] private bool isPaused = false; // Serialized for debugging, primarily internal state
+        private bool isOptionsPanelOpen = false; // Renamed for clarity
 
         [Header("Sound Feedback")]
         [SerializeField] private UIAudioFeedback uiSoundFeedback;
 
-        private GameObject activeOptionsPanelInstance; // To hold the instantiated/activated options panel
+        // No longer need activeOptionsPanelInstance if optionsPanelObject is the direct reference
+        // private GameObject activeOptionsPanelInstance; 
 
         private void Awake()
         {
             if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
-            // Ensure the options panel reference (if prefab) is initially inactive or handled externally
-            if (optionsPanelPrefab != null && optionsPanelPrefab.scene.name == null) // Check if it's a prefab asset
+            if (optionsPanelObject != null)
             {
-                // Prefab logic is handled on demand
+                optionsPanelObject.SetActive(false); // Ensure options panel is initially hidden
             }
-            else if (optionsPanelPrefab != null) // If it's an object in the scene hierarchy
+            else
             {
-                optionsPanelPrefab.SetActive(false);
+                // Only log error if the btn_Options exists, implying an options panel was intended.
+                if (btn_Options != null)
+                    Debug.LogError("PauseMenuController: 'Options Panel Object' is not assigned, but an 'Options' button exists. Options functionality will be broken.", this);
+            }
+
+            if (btn_Options != null && optionsPanelReturnButton == null)
+            {
+                Debug.LogError("PauseMenuController: 'Options Panel Return Button' is not assigned. Returning from options will not work correctly.", this);
             }
         }
 
@@ -65,13 +73,10 @@ namespace Scripts.UI.InGame
                 InputManager.Instance.Controls.Player.PauseMenu.performed += OnPauseInputPerformed;
             }
 
-            // Add listeners for pause menu buttons
             btn_Resume?.onClick.AddListener(HandleResumeClicked);
-            btn_Options?.onClick.AddListener(HandleOptionsClicked); // Listener for new options button
+            btn_Options?.onClick.AddListener(HandleOptionsClicked);
             btn_RestartLevel?.onClick.AddListener(HandleRestartLevelClicked);
             btn_MainMenu?.onClick.AddListener(HandleMainMenuClicked);
-
-            // Add listener for the return button *within* the options panel
             optionsPanelReturnButton?.onClick.AddListener(HandleReturnFromOptionsClicked);
         }
 
@@ -82,29 +87,22 @@ namespace Scripts.UI.InGame
                 InputManager.Instance.Controls.Player.PauseMenu.performed -= OnPauseInputPerformed;
             }
 
-            // Remove listeners
             btn_Resume?.onClick.RemoveListener(HandleResumeClicked);
             btn_Options?.onClick.RemoveListener(HandleOptionsClicked);
             btn_RestartLevel?.onClick.RemoveListener(HandleRestartLevelClicked);
             btn_MainMenu?.onClick.RemoveListener(HandleMainMenuClicked);
             optionsPanelReturnButton?.onClick.RemoveListener(HandleReturnFromOptionsClicked);
-
-            // Clean up instantiated options panel if necessary
-            if (activeOptionsPanelInstance != null && optionsPanelPrefab != null && optionsPanelPrefab.scene.name == null)
-            {
-                 Destroy(activeOptionsPanelInstance);
-            }
         }
 
         private void OnPauseInputPerformed(InputAction.CallbackContext context)
         {
-            if (isOptionsOpen) // If options are open, Escape should close options first
+            if (isOptionsPanelOpen)
             {
-                HandleReturnFromOptionsClicked();
+                HandleReturnFromOptionsClicked(); // Escape closes Options if open
             }
-            else // Otherwise, toggle the main pause menu
+            else
             {
-                TogglePauseMenu();
+                TogglePauseMenu(); // Else, toggle Pause Menu
             }
         }
 
@@ -117,13 +115,13 @@ namespace Scripts.UI.InGame
         private void PauseGame()
         {
             isPaused = true;
-            Time.timeScale = 0f; // Pause game time
+            Time.timeScale = 0f;
 
             InputManager.Instance?.EnableUIControls();
+            isOptionsPanelOpen = false; // Reset options state
+            optionsPanelObject?.SetActive(false); // Ensure options panel is hidden
+            
             pauseMenuPanel?.SetActive(true);
-            isOptionsOpen = false; // Ensure options are marked as closed
-            if(activeOptionsPanelInstance != null) activeOptionsPanelInstance.SetActive(false); // Hide options if returning
-
             firstSelectedButtonPauseMenu?.Select();
             uiSoundFeedback?.PlayOpen();
         }
@@ -131,12 +129,12 @@ namespace Scripts.UI.InGame
         private void ResumeGame()
         {
             isPaused = false;
-            Time.timeScale = 1f; // Resume game time
+            Time.timeScale = 1f;
 
             InputManager.Instance?.EnablePlayerControls();
+            isOptionsPanelOpen = false; // Reset options state
+            optionsPanelObject?.SetActive(false); // Ensure options panel is hidden
             pauseMenuPanel?.SetActive(false);
-            isOptionsOpen = false;
-            if (activeOptionsPanelInstance != null) activeOptionsPanelInstance.SetActive(false); // Ensure options panel is hidden
 
             uiSoundFeedback?.PlayClose();
         }
@@ -160,7 +158,6 @@ namespace Scripts.UI.InGame
         }
 
         // --- Options Submenu Logic ---
-
         private void HandleOptionsClicked()
         {
             uiSoundFeedback?.PlayClick();
@@ -169,86 +166,51 @@ namespace Scripts.UI.InGame
 
         private void OpenOptionsPanel()
         {
-            isOptionsOpen = true;
+            if (optionsPanelObject == null)
+            {
+                Debug.LogError("PauseMenuController: Cannot open Options Panel because 'Options Panel Object' is not assigned.", this);
+                return;
+            }
+
+            isOptionsPanelOpen = true;
             pauseMenuPanel?.SetActive(false); // Hide main pause menu
+            optionsPanelObject.SetActive(true); // Show the options panel
 
-            if (optionsPanelPrefab != null)
-            {
-                // If prefab, instantiate; otherwise, just activate
-                if (optionsPanelPrefab.scene.name == null) // It's a prefab asset
-                {
-                     if (activeOptionsPanelInstance == null) // Instantiate only if not already done
-                     {
-                        activeOptionsPanelInstance = Instantiate(optionsPanelPrefab, transform.parent); // Instantiate under same parent as pause menu
-                        // Find the return button on the *instantiated* panel
-                        // This requires the return button to have a specific tag or be findable by path/name.
-                        // It's often easier if the Options Panel prefab has its own controller script that handles its internal state.
-                        // For now, we assume optionsPanelReturnButton was pre-assigned from the prefab asset (less robust).
-                     }
-                     activeOptionsPanelInstance.SetActive(true);
-                }
-                else // It's an object already in the scene
-                {
-                    activeOptionsPanelInstance = optionsPanelPrefab; // Assign reference
-                    activeOptionsPanelInstance.SetActive(true);
-                }
-
-                // Select the first button in the options menu
-                firstSelectedButtonOptionsMenu?.Select();
-                 // TODO: Ensure the Return button listener is correctly wired up, especially if instantiating.
-                 // It might be better for the Options Panel itself to handle its 'Return' action.
-            }
-            else
-            {
-                Debug.LogError("PauseMenuController: OptionsPanelPrefab is not assigned!", this);
-            }
+            firstSelectedButtonOptionsMenu?.Select();
         }
 
         private void HandleReturnFromOptionsClicked()
         {
-             if (!isOptionsOpen) return; // Only act if options were open
+            if (!isOptionsPanelOpen) return; // Only act if options panel was actually open
 
             uiSoundFeedback?.PlayClick();
-            isOptionsOpen = false;
+            isOptionsPanelOpen = false;
             
-            if (activeOptionsPanelInstance != null)
-            {
-                 activeOptionsPanelInstance.SetActive(false); // Hide options panel
-                 // Optional: Destroy instance if it was instantiated from prefab and not needed anymore
-                 // if (optionsPanelPrefab.scene.name == null) Destroy(activeOptionsPanelInstance);
-            }
-
-            // Show main pause menu again and select its first button
-            pauseMenuPanel?.SetActive(true);
-            firstSelectedButtonPauseMenu?.Select();
+            optionsPanelObject?.SetActive(false); // Hide options panel
+            pauseMenuPanel?.SetActive(true); // Show main pause menu again
+            
+            firstSelectedButtonPauseMenu?.Select(); // Reselect button on main pause menu
         }
 
-
         // --- Level Loading Logic ---
-
         private void RestartLevel()
         {
             Time.timeScale = 1f;
             InputManager.Instance?.EnablePlayerControls(); 
-            CheckpointManager.ResetCheckpointData(); // Crucial for a fresh start of the level's checkpoints
+            CheckpointManager.ResetCheckpointData();
 
-            // Get the build index of the currently active scene
             int currentSceneBuildIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
-    
-            // Use the new method in SceneLoader
             SceneLoader.Instance?.LoadSceneByBuildIndex(currentSceneBuildIndex); 
-            // Debug.Log($"PauseMenuController: Restarting current level (Build Index: {currentSceneBuildIndex})."); // Uncomment for debugging
         }
 
         private void GoToMainMenu()
         {
             Time.timeScale = 1f;
             InputManager.Instance?.EnablePlayerControls();
-            CheckpointManager.ResetCheckpointData(); // Reset checkpoints before going to menu
-            SceneLoader.Instance?.LoadMenu(); // Assumes LoadMenu uses GameConstants.MainMenuSceneName
+            CheckpointManager.ResetCheckpointData(); 
+            SceneLoader.Instance?.LoadMenu();
         }
 
-        // Public methods for EventTriggers on pause menu buttons (Highlight/Select sounds)
         public void PlayButtonHighlightSound() => uiSoundFeedback?.PlayHighlight();
         public void PlayButtonSelectSound() => uiSoundFeedback?.PlaySelect();
     }
