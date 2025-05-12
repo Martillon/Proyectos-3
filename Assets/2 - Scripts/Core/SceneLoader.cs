@@ -31,7 +31,7 @@ namespace Scripts.Core // Manteniendo tu namespace
         public string[] levels; // Estos son NOMBRES de escena
 
         // Internal: tracks which scenes (plus 'programSceneName') should remain loaded after a transition
-        private List<string> wantedSceneNamesInternal = new List<string>();
+        private readonly List<string> _wantedSceneNamesInternal = new List<string>();
 
         private void Awake()
         {
@@ -162,12 +162,12 @@ namespace Scripts.Core // Manteniendo tu namespace
             }
             // else Debug.Log($"SceneLoader: Scene '{sceneNameToLoad}' is already loaded. Skipping load.", this); // Uncomment for debugging
 
-            wantedSceneNamesInternal.Clear();
-            wantedSceneNamesInternal.Add(sceneNameToLoad); // The newly loaded/focused scene
+            _wantedSceneNamesInternal.Clear();
+            _wantedSceneNamesInternal.Add(sceneNameToLoad); // The newly loaded/focused scene
             // Always keep the program scene
             if (!string.IsNullOrEmpty(programSceneName) /*&& IsSceneLoaded(programSceneName)*/) // IsSceneLoaded check is good but might not be needed if Program always exists
             {
-                wantedSceneNamesInternal.Add(programSceneName);
+                _wantedSceneNamesInternal.Add(programSceneName);
             }
 
             StartCoroutine(UnloadUnwantedScenesCoroutine());
@@ -187,7 +187,7 @@ namespace Scripts.Core // Manteniendo tu namespace
                 Scene currentScene = SceneManager.GetSceneAt(i);
                 if (currentScene.isLoaded && 
                     currentScene.name != programSceneName && // Never unload the program scene
-                    !wantedSceneNamesInternal.Contains(currentScene.name))
+                    !_wantedSceneNamesInternal.Contains(currentScene.name))
                 {
                     scenesToUnloadNames.Add(currentScene.name);
                 }

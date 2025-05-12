@@ -264,6 +264,23 @@ namespace Scripts.Player.Core
         public int GetCurrentArmor() => currentArmor;
         public bool IsCurrentlyInvulnerable() => isInvulnerable;
 
+        /// <summary>
+        /// Immediately triggers the final death sequence for the player,
+        /// bypassing normal armor/life loss. Used for instakill hazards.
+        /// </summary>
+        public void TriggerInstakill()
+        {
+            if (isDead) return; // Already in a death sequence
+
+            // Debug.Log("PlayerHealthSystem: Instakill triggered!", this); // Uncomment for debugging
+
+            currentLives = 0; // Set lives to 0
+            currentArmor = 0; // Set armor to 0
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); // Update UI to reflect 0 lives/armor
+
+            StartCoroutine(FinalDeathSequence()); // Directly start the game over sequence
+        }
+        
         public void FullResetPlayerHealth()
         {
             currentLives = maxLives;

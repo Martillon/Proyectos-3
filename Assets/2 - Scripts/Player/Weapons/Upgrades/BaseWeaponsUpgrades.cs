@@ -39,7 +39,7 @@ namespace Scripts.Player.Weapons.Upgrades
         /// <summary>
         /// Timestamp of the last time this weapon was fired. Used for internal cooldown management.
         /// </summary>
-        protected float lastFireTimeInternal; // Renamed for clarity vs WeaponBase's semiAutoFireTimer
+        protected float LastFireTimeInternal; // Renamed for clarity vs WeaponBase's semiAutoFireTimer
 
         protected virtual void Awake()
         {
@@ -101,7 +101,7 @@ namespace Scripts.Player.Weapons.Upgrades
                 SpawnConfiguredProjectile(firePoint, currentShotDirection.normalized);
             }
 
-            lastFireTimeInternal = Time.time; // Record the time of this firing action
+            LastFireTimeInternal = Time.time; // Record the time of this firing action
         }
         
         /// <summary>

@@ -57,7 +57,7 @@ namespace Scripts.Player.Weapons.Upgrades.Implementations
             // The firePoint should already be rotated by WeaponBase before this is called.
             SpawnConfiguredProjectile(firePoint, direction);
             
-            lastFireTimeInternal = Time.time; // Update the internal last fire time for this upgrade's own cooldown
+            LastFireTimeInternal = Time.time; // Update the internal last fire time for this upgrade's own cooldown
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Scripts.Player.Weapons.Upgrades.Implementations
         /// </summary>
         public override bool CanFire()
         {
-            return Time.time >= lastFireTimeInternal + actualFireCooldown;
+            return Time.time >= LastFireTimeInternal + actualFireCooldown;
         }
 
         public override float GetFireCooldown()
