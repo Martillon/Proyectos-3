@@ -147,8 +147,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd1078c6bf6e34048997577b78f71d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 20
-  lifetime: 3
+  speed: 10
+  lifetime: 10
   hittableTag: Hittable
   ignorePlayerCollision: 1
   impactVFXPrefab: {fileID: 0}
