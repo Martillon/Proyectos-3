@@ -6,13 +6,18 @@ namespace Scripts.Player.Weapons
 {
     /// <summary>
     /// Resolves player aim direction based on input and player state (grounded, crouching, locking, dropping).
-    /// Handles 8-directional aiming.
+    /// Handles 8-directional aiming and provides information about the aiming state.
     /// </summary>
     public class AimDirectionResolver : MonoBehaviour
     {
         [Header("References")]
         [Tooltip("Reference to the PlayerMovement2D script to get player state.")]
         [SerializeField] private PlayerMovement2D playerMovement;
+
+        [Header("Aiming Configuration")]
+        [Tooltip("The Y-component threshold to consider the player as aiming significantly downwards (e.g., -0.7f). Should be negative.")]
+        [SerializeField] private float aimingDownThreshold = -0.7f;
+
 
         [Header("Debug")]
         [SerializeField] private float gizmoLength = 1f;
@@ -21,7 +26,16 @@ namespace Scripts.Player.Weapons
         private Vector2 _currentCalculatedAimDirection = Vector2.right;
         private float _lastNonZeroHorizontalInput = 1f; // Default to right
 
+        /// <summary>
+        /// Gets the current calculated aiming direction (normalized).
+        /// </summary>
         public Vector2 CurrentDirection => _currentCalculatedAimDirection;
+
+        /// <summary>
+        /// Gets a value indicating whether the player is currently aiming significantly downwards.
+        /// </summary>
+        public bool IsAimingDownwards { get; private set; }
+
 
         private void Awake()
         {
@@ -29,7 +43,7 @@ namespace Scripts.Player.Weapons
             {
                 playerMovement = GetComponentInParent<PlayerMovement2D>() ?? GetComponent<PlayerMovement2D>();
                 if (playerMovement == null)
-                    Debug.LogError("AimDirectionResolver: PlayerMovement2D reference is missing!", this);
+                    Debug.LogError("AimDirectionResolver: PlayerMovement2D reference is missing! This component will not function correctly.", this);
             }
         }
 
@@ -47,78 +61,79 @@ namespace Scripts.Player.Weapons
             }
 
             bool isGrounded = playerMovement.IsGrounded;
-            bool isCrouching = playerMovement.IsCrouching; // Logical crouch state from PlayerMovement2D
+            bool isCrouching = playerMovement.IsCrouching;
             bool isLocked = InputManager.Instance.Controls.Player.PositionLock.IsPressed();
             bool isDropping = playerMovement.IsDropping;
 
             _currentCalculatedAimDirection = CalculateAimDirection(inputX, inputY, isGrounded, isCrouching, isLocked, isDropping);
+
+            // Update the IsAimingDownwards property based on the calculated direction
+            IsAimingDownwards = _currentCalculatedAimDirection.y < aimingDownThreshold;
+            // Debug.Log($"AimDirectionResolver: Current Aim: {_currentCalculatedAimDirection}, IsAimingDown: {IsAimingDownwards}"); // Uncomment for debugging
         }
 
         private Vector2 CalculateAimDirection(float inputX, float inputY, bool isGrounded, bool isCrouching, bool isLocked, bool isDropping)
         {
-            // Priority 1: Dropping through platform - always aim horizontally forward
             if (isDropping)
             {
                 return new Vector2(_lastNonZeroHorizontalInput, 0f).normalized;
             }
 
-            Vector2 resolvedDirection = _currentCalculatedAimDirection; // Default to last known direction
+            Vector2 resolvedDirection = _currentCalculatedAimDirection; 
 
-            // Priority 2: Vertical input (Up or Down takes precedence if present)
-            if (inputY > 0) // Pressing Up
+            if (inputY > 0) 
             {
                 resolvedDirection = (inputX != 0) ? new Vector2(inputX, 1f).normalized : Vector2.up;
             }
-            else if (inputY < 0) // Pressing Down
+            else if (inputY < 0) 
             {
-                if (isLocked) // Position Lock + Down
+                if (isLocked) 
                 {
                     resolvedDirection = (inputX != 0) ? new Vector2(inputX, -1f).normalized : Vector2.down;
                 }
-                else // Not Locked + Pressing Down
+                else 
                 {
-                    if (isCrouching) // isCrouching implies grounded and pressing down
+                    if (isCrouching) 
                     {
-                        // If also pressing side: aim diagonal down. Else (only down): aim forward horizontally.
                         resolvedDirection = (inputX != 0) ? new Vector2(inputX, -1f).normalized : new Vector2(_lastNonZeroHorizontalInput, 0f);
                     }
-                    else if (!isGrounded) // In Air + Pressing Down (Jumping + Down)
+                    else if (!isGrounded) 
                     {
                         resolvedDirection = (inputX != 0) ? new Vector2(inputX, -1f).normalized : Vector2.down;
                     }
-                    // If grounded, pressing down, but NOT isCrouching (e.g. about to drop through platform but jump not pressed yet)
-                    // then usually defaults to horizontal aim unless overridden by jump-drop logic.
-                    // For now, if it falls through other conditions, it might keep last horizontal or current.
-                    // This specific edge case is minor as drop/jump logic takes over.
+                    // If grounded, pressing down, but NOT logically crouching (e.g., if intendsToPressDown but isGrounded became false transiently before isCrouchingLogic updated)
+                    // This state is less common if isCrouchingLogic is robust.
+                    // If it falls through here, it might retain previous horizontal or diagonal aim.
+                    // Defaulting to horizontal forward if just pressing down on ground (without full crouch criteria)
+                    else if (isGrounded && inputX == 0) // Just pressing down on ground, no horizontal
+                    {
+                        resolvedDirection = new Vector2(_lastNonZeroHorizontalInput, 0f); // Aim forward
+                    }
                 }
             }
-            // Priority 3: Horizontal input only (No Vertical Input active for aiming)
             else if (inputX != 0)
             {
                 resolvedDirection = new Vector2(inputX, 0f);
             }
-            // Priority 4: No directional input from player for aiming
             else
             {
-                // If idle on ground, not locked, not logically crouching: aim horizontally forward
                 if (isGrounded && !isLocked && !isCrouching) 
                 {
                     resolvedDirection = new Vector2(_lastNonZeroHorizontalInput, 0f);
                 }
-                // Otherwise (e.g., in air with no input, or locked with no input, or crouching with no new input),
-                // maintain the previously calculated aim direction (resolvedDirection initialized to currentAimDirection).
             }
             
-            // Ensure a valid, normalized direction. Default to horizontal facing if somehow zero.
             return resolvedDirection.sqrMagnitude > 0.001f ? resolvedDirection.normalized : new Vector2(_lastNonZeroHorizontalInput, 0f).normalized;
         }
 
         private void OnDrawGizmosSelected()
         {
-            // ... (Gizmo drawing logic - no functional changes needed here based on recent discussion) ...
-            if (playerMovement == null && !Application.isPlaying) { /* ... find ... */ }
+            if (playerMovement == null && !Application.isPlaying) { 
+                 playerMovement = GetComponentInParent<PlayerMovement2D>() ?? GetComponent<PlayerMovement2D>();
+            }
             Gizmos.color = gizmoColor;
             Vector3 pos = Application.isPlaying ? transform.position : (playerMovement != null ? playerMovement.transform.position : transform.position);
+            // Use the internal field for gizmo if not playing, as property might not be updated if Update() hasn't run.
             Vector2 dir = Application.isPlaying ? _currentCalculatedAimDirection : new Vector2(_lastNonZeroHorizontalInput, 0);
             Gizmos.DrawLine(pos, pos + (Vector3)(dir * gizmoLength));
         }
@@ -132,4 +147,5 @@ namespace Scripts.Player.Weapons
         }
     }
 }
+// --- END OF FILE AimDirectionResolver.cs ---
 
