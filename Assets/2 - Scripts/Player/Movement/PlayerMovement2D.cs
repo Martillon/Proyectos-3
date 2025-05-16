@@ -438,15 +438,19 @@ namespace Scripts.Player.Movement
             if (aimableArmObject == null) return;
 
             bool showArm = true;
-            if (_isCrouchVisualApplied) // Si el collider/visuals de agachado están aplicados
+
+            // Condición 1: Ocultar si el personaje está visualmente agachado
+            if (_isCrouchVisualApplied)
             {
                 showArm = false;
             }
+            // Condición 2: Ocultar si está en el aire Y apuntando significativamente hacia abajo
             else if (!_isGrounded && aimResolver != null && aimResolver.IsAimingDownwards)
             {
                 showArm = false;
             }
-            // Considerar añadir: else if (IsInDeathOrVictoryAnimation()) showArm = false;
+            // Puedes añadir más condiciones aquí si es necesario
+            // (ej. durante animación de muerte si el PlayerHealthSystem no desactiva el PlayerMovement2D entero)
 
             if (aimableArmObject.activeSelf != showArm)
             {

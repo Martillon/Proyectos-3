@@ -11,8 +11,13 @@ namespace Scripts.Player.Weapons
     public class WeaponBase : MonoBehaviour
     {
         [Header("Core References")]
+        [Tooltip("The transform from which projectiles are spawned. Should be a child of the object that rotates with aim.")]
         [SerializeField] private Transform firePoint;
+        [Tooltip("Reference to the AimDirectionResolver to get the current aiming direction.")]
         [SerializeField] private AimDirectionResolver aimResolver;
+        [Tooltip("The Transform of the GameObject that visually represents the arm and weapon, " +
+                 "and which rotates with aim. FirePoint should be a child of this.")]
+        [SerializeField] private Transform aimableArmTransform;
 
         [Header("Initial Weapon Setup")]
         [SerializeField] private GameObject initialUpgradePrefab;
@@ -57,6 +62,21 @@ namespace Scripts.Player.Weapons
                 PlayerEvents.RaisePlayerWeaponChanged(null);
                 Debug.Log($"WeaponBase ({gameObject.name}): No initial upgrade prefab assigned.", this); // CHIVATO
             }
+            
+            if (aimableArmTransform == null)
+            {
+                if (firePoint != null && firePoint.parent != transform) // Asume que firePoint está anidado bajo el brazo
+                {
+                    aimableArmTransform = firePoint.parent;
+                    Debug.LogWarning($"WeaponBase: 'Aimable Arm Transform' not assigned. Assuming FirePoint's parent: {aimableArmTransform?.name}", this);
+                }
+                else
+                {
+                    aimableArmTransform = firePoint; // Fallback: rotar el firePoint mismo si no hay una jerarquía de brazo clara
+                    if (aimableArmTransform == null) Debug.LogError("WeaponBase: 'FirePoint' (and thus Aimable Arm Transform) is not assigned!", this);
+                    else Debug.LogWarning("WeaponBase: 'Aimable Arm Transform' not assigned. Defaulting to rotating the FirePoint itself.", this);
+                }
+            }
         }
 
         private void OnDestroy()
@@ -91,7 +111,7 @@ namespace Scripts.Player.Weapons
                 semiAutoFireTimer -= Time.deltaTime;
             }
 
-            RotateFirePointToAim(aimResolver.CurrentDirection);
+            RotateTransformToAim(aimableArmTransform, aimResolver.CurrentDirection);
 
             bool singleShotRequestedThisFrame = InputManager.Instance.Controls.Player.Shoot.WasPressedThisFrame();
             if (singleShotRequestedThisFrame) Debug.Log($"WeaponBase ({gameObject.name}): SingleShotRequestedThisFrame = TRUE", this); // CHIVATO
@@ -143,12 +163,7 @@ namespace Scripts.Player.Weapons
                     // else Debug.Log($"WeaponBase ({gameObject.name}): Update - Semi - Cooldown or CanFire check failed.", this); // CHIVATO
                 }
             }
-        }
-
-        private void RotateFirePointToAim(Vector2 direction)
-        {
-            // ... (sin cambios) ...
-            if (direction.sqrMagnitude > 0.01f) { float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg; firePoint.rotation = Quaternion.Euler(0, 0, angle); }
+            
         }
         
         public void EquipUpgradeFromPrefab(GameObject upgradePrefabToEquip)
@@ -175,6 +190,15 @@ namespace Scripts.Player.Weapons
             PlayerEvents.RaisePlayerWeaponChanged(currentUpgradeInterface as BaseWeaponUpgrade);
             semiAutoFireTimer = 0; 
             Debug.Log($"WeaponBase ({gameObject.name}): Internal upgrade state set to '{(newUpgrade as MonoBehaviour)?.name ?? "None"}'.", this); // CHIVATO
+        }
+        
+        private void RotateTransformToAim(Transform objectToRotate, Vector2 direction)
+        {
+            if (objectToRotate != null && direction.sqrMagnitude > 0.01f)
+            {
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                objectToRotate.rotation = Quaternion.Euler(0, 0, angle);
+            }
         }
         
         public BaseWeaponUpgrade CurrentUpgradeAsBase => currentUpgradeInterface as BaseWeaponUpgrade;
