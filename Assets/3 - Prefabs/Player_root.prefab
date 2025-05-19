@@ -269,11 +269,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpForce: 10
-  fallMultiplier: 2.5
+  jumpForce: 7.5
+  fallMultiplier: 2
   coyoteTime: 0.1
   groundCheckOrigin: {fileID: 1376491531330643131}
-  groundCheckRadius: 0.6
+  groundCheckRadius: 0.55
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -596,7 +596,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: 80318770, guid: cf2484e1655b34c488a87d322c45fb80, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
