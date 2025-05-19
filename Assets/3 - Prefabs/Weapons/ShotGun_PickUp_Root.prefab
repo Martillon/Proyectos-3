@@ -103,7 +103,7 @@ MonoBehaviour:
   enableBobbing: 1
   bobbingHeight: 0.1
   bobbingSpeed: 2
-  enableFlipping: 1
+  enableFlipping: 0
   holdDurationBeforeFlip: 0
   flipAnimationTime: 1
 --- !u!1 &8374664114470279847

@@ -39,6 +39,11 @@ namespace Scripts.Core
         public const string AnimDieTrigger = "Die";
         public const string AnimRespawnTrigger = "Respawn";
         // Add other animator parameters
+        
+        //Layers
+        public const string GroundLayerName = "Ground";
+        public const string WallLayerName = "Walls";
+        public const string PlatformLayerName = "Platform";
 
         // Input Action Map Names (Less common to need constants for these, but possible)
         // public const string InputMapPlayer = "Player";

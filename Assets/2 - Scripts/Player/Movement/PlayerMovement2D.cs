@@ -344,85 +344,86 @@ namespace Scripts.Player.Movement
         // <<< VERIFICACIÓN: Lógica de CanStandUpSafely con Debug.Log activado >>>
         private bool CanStandUpSafelyNow()
         {
-            if (!_isCrouchVisualApplied) return true; 
-            if (standingColliderObject == null)
-            {
-                Debug.LogError("P2DM: Cannot check CanStandUpSafely, StandingColliderObject is not assigned!", this);
-                return false; 
-            }
+            if (!_isCrouchVisualApplied) { /*Debug.Log("CanStandUp: Already standing.");*/ return true; }
+            if (standingColliderObject == null) { /* ... error ... */ return false; }
 
             Collider2D standColComponent = standingColliderObject.GetComponent<Collider2D>();
-            if (standColComponent == null)
-            {
-                 Debug.LogError("P2DM: StandingColliderObject has no Collider2D component!", this);
-                 return false;
-            }
+            if (standColComponent == null) { /* ... error ... */ return false; }
 
-            // Obtener propiedades del collider de pie (tamaño, offset, dirección si es cápsula)
-            // El offset del collider hijo es local a ESE HIJO.
-            // El centro MUNDIAL del collider de pie es standingColliderObject.transform.position + su offset local.
-            Vector2 standUpCenterWorld;
-            Vector2 standUpSize;
-            float standUpAngle = standingColliderObject.transform.eulerAngles.z; // Usar la rotación del GO del collider de pie
-            bool isCapsule = false;
-            CapsuleDirection2D standUpCapsuleDir = CapsuleDirection2D.Vertical;
+            // --- Obtener las propiedades del collider "de pie" ---
+            // Esto asume que standingColliderObject está posicionado correctamente en la jerarquía
+            // para que su transform.position sea el centro deseado del collider de pie si su offset local es (0,0).
+            // O, si su offset local no es (0,0), TransformPoint lo calculará bien.
+            Vector2 standCenterWorld;
+            Vector2 standSize;
+            float standAngle = standingColliderObject.transform.eulerAngles.z;
+            bool isStandCapsule = false;
+            CapsuleDirection2D standCapsuleDir = CapsuleDirection2D.Vertical;
 
             if (standColComponent is CapsuleCollider2D standCapsule)
             {
-                isCapsule = true;
-                standUpSize = standCapsule.size;
-                // Multiplicar el offset local por la escala del padre (Player_Root) puede ser necesario si Player_Root tiene escala no uniforme (raro)
-                // Por simplicidad, asumimos que Player_Root tiene escala (1,1,1).
-                standUpCenterWorld = (Vector2)standingColliderObject.transform.TransformPoint(standCapsule.offset); // Transforma el offset local a posición mundial
-                standUpCapsuleDir = standCapsule.direction;
+                isStandCapsule = true;
+                standSize = standCapsule.size;
+                standCenterWorld = standingColliderObject.transform.TransformPoint(standCapsule.offset);
+                standCapsuleDir = standCapsule.direction;
             }
             else if (standColComponent is BoxCollider2D standBox)
             {
-                isCapsule = false;
-                standUpSize = standBox.size;
-                standUpCenterWorld = (Vector2)standingColliderObject.transform.TransformPoint(standBox.offset);
+                isStandCapsule = false;
+                standSize = standBox.size;
+                standCenterWorld = standingColliderObject.transform.TransformPoint(standBox.offset);
             }
-            else 
-            {
-                Debug.LogError("P2DM CanStandUpSafely: StandingCollider is not a Capsule or Box Collider!", this);
-                return true; // Fallback a permitir levantarse si el tipo de collider es desconocido
-            }
-            
-            LayerMask obstructionLayers = groundLayer | wallLayer;
+            else { return true; } // Tipo de collider no soportado para el chequeo
+
+            // --- Realizar el chequeo de Overlap ---
+            LayerMask obstructionLayers = groundLayer | wallLayer; // Capas que pueden obstruir
             Collider2D[] obstructions;
 
-            // Realizar el Overlap con las propiedades del collider de pie
-            // No necesitamos desactivar/activar colliders aquí si leemos sus propiedades directamente
-            // y realizamos un chequeo de forma en la posición donde ESTARÍA.
-            if(isCapsule)
+            // Para el chequeo, es crucial que el 'standCenterWorld' y 'standSize'
+            // no hagan que el collider "de prueba" se clave demasiado en el suelo actual.
+            // Si el pivote del Player_Root está en la base, y el standingColliderObject está
+            // posicionado con su base también en y=0 local del Player_Root, entonces
+            // standCenterWorld.y será standSize.y / 2 (relativo al Player_Root.position.y).
+            // A lo mejor necesitamos levantar un poquito el centro del chequeo.
+            Vector2 checkCenter = standCenterWorld + new Vector2(0, 0.01f); // <<< PEQUEÑO AJUSTE HACIA ARRIBA
+
+            if (isStandCapsule)
             {
-                obstructions = Physics2D.OverlapCapsuleAll(standUpCenterWorld, standUpSize, standUpCapsuleDir, standUpAngle, obstructionLayers);
+                obstructions = Physics2D.OverlapCapsuleAll(checkCenter, standSize, standCapsuleDir, standAngle, obstructionLayers);
             }
             else // Box
             {
-                obstructions = Physics2D.OverlapBoxAll(standUpCenterWorld, standUpSize, standUpAngle, obstructionLayers);
+                obstructions = Physics2D.OverlapBoxAll(checkCenter, standSize, standAngle, obstructionLayers);
             }
             
             if (obstructions.Length > 0)
             {
                 foreach (Collider2D obstruction in obstructions)
                 {
-                    // MUY IMPORTANTE: Ignorar colisiones con el collider de AGACAHADO que estaría
-                    // activo si _isCrouchVisualApplied es true.
+                    // Ignorar si la "obstrucción" es el collider de agachado que está a punto de desactivarse.
                     if (crouchingColliderObject != null && obstruction.gameObject == crouchingColliderObject)
                     {
-                        continue; // Es el propio collider de agachado, ignorar
-                    }
-                    // También ignorar cualquier otro collider que sea parte del jugador
-                    if (obstruction.transform.IsChildOf(this.transform)) // Si la obstrucción es hija del Player_Root
-                    {
-                         // Podríamos ser más específicos aquí si el jugador tiene múltiples colliders hijos
-                         // Por ahora, si es hijo, lo consideramos parte del jugador y no una obstrucción externa real.
-                         // Esto podría necesitar ajuste si tienes colliders hijos que SÍ pueden obstruir.
-                        continue;
+                        continue; 
                     }
 
-                    Debug.LogWarning($"P2DM: Cannot stand up, OBSTRUCTED by '{obstruction.gameObject.name}' (Layer: {LayerMask.LayerToName(obstruction.gameObject.layer)})", obstruction.gameObject);
+                    // Ignorar otros colliders que son parte integral del jugador (pero no el de agachado)
+                    // Esto es delicado. Si tienes, por ejemplo, un "hurtbox" como hijo, no debería contar.
+                    bool isPartOfPlayerSelf = false;
+                    if (obstruction.transform == this.transform) isPartOfPlayerSelf = true; // Es el collider raíz (si lo hubiera)
+                    else if (obstruction.transform.IsChildOf(this.transform))
+                    {
+                        // Es un hijo, pero no el crouchingColliderObject (ya filtrado) ni el standingColliderObject (que estamos probando)
+                        if (obstruction.gameObject != standingColliderObject)
+                            isPartOfPlayerSelf = true; 
+                    }
+                    if(isPartOfPlayerSelf) continue;
+
+
+                    // Si la obstrucción es el suelo Y está *principalmente debajo* del jugador,
+                    // podría no ser una obstrucción real para levantarse (a menos que sea un techo bajo).
+                    // Este filtro es el más complicado.
+                    // Por ahora, cualquier cosa en obstructionLayers que no sea parte del jugador es una obstrucción.
+                    Debug.LogWarning($"P2DM: Cannot stand up, OBSTRUCTED by '{obstruction.gameObject.name}' (Layer: {LayerMask.LayerToName(obstruction.gameObject.layer)}) at {obstruction.transform.position}", obstruction.gameObject);
                     return false; 
                 }
             }
@@ -502,21 +503,96 @@ namespace Scripts.Player.Movement
             if (bodyAnimator != null) bodyAnimator.SetTrigger(animVictoryTriggerHash);
         }
 
+        #if UNITY_EDITOR // Solo compilar este código en el editor
         private void OnDrawGizmosSelected()
         {
+            // Gizmo para el Ground Check (ya lo tienes)
             if (groundCheckOrigin != null)
             {
-                Gizmos.color = groundCheckGizmoColor; 
+                Gizmos.color = groundCheckGizmoColor;
                 Gizmos.DrawWireSphere(groundCheckOrigin.position, groundCheckRadius);
             }
 
+            // Gizmo para el Wall Check (ya lo tienes)
             if (wallCheckOrigin != null)
             {
-                Gizmos.color = wallCheckGizmoColor; 
-                Gizmos.DrawLine(wallCheckOrigin.position, wallCheckOrigin.position + Vector3.left * wallCheckDistance); 
+                Gizmos.color = wallCheckGizmoColor;
+                Gizmos.DrawLine(wallCheckOrigin.position, wallCheckOrigin.position + Vector3.left * wallCheckDistance);
                 Gizmos.DrawLine(wallCheckOrigin.position, wallCheckOrigin.position + Vector3.right * wallCheckDistance);
             }
+
+            // --- NUEVO: Gizmos para las Posiciones del FirePoint ---
+            if (firePoint != null) // Solo dibujar si hay una referencia al Transform del firePoint
+            {
+                // Necesitamos la rotación actual del AimableArm para orientar los gizmos del firePoint correctamente.
+                // Si AimableArm_Pivot es el que rota y firePoint es su hijo, la rotación del firePoint ya será correcta.
+                // Si firePoint es hijo directo de Player_Root, y AimableArm_Pivot es otro objeto que rota,
+                // entonces necesitaríamos la rotación del AimableArm_Pivot.
+                // Por ahora, asumimos que firePoint.parent es el AimableArm_Pivot o que firePoint rota directamente.
+
+                Quaternion armRotation = Quaternion.identity;
+                if (aimableArmObject != null) // Si tenemos referencia al objeto del brazo que rota
+                {
+                    armRotation = aimableArmObject.transform.rotation;
+                }
+                else if (firePoint.parent != transform) // Si el firePoint tiene un padre que no es el Player_Root (podría ser el brazo)
+                {
+                    armRotation = firePoint.parent.rotation;
+                }
+                // else: el firePoint es hijo directo del Player_Root y rota por sí mismo (menos común para esta estructura)
+
+
+                // Gizmo para FirePoint Estando de Pie
+                Gizmos.color = Color.cyan;
+                // Calculamos la posición mundial del firePoint estando de pie
+                // El firePoint está en el espacio local del Player_Root (si es hijo directo)
+                // o en el espacio local de AimableArm_Pivot (si es hijo de este).
+                // Si firePoint es hijo de AimableArm_Pivot, su localPosition es relativa a AimableArm_Pivot.
+                // Si AimableArm_Pivot es hijo de Player_Root, entonces:
+                // WorldPos = Player_Root.TransformPoint(AimableArm_Pivot.localPosition + AimableArm_Pivot.localRotation * firePointStandingLocalPos)
+                // Es más simple si el firePoint ES el objeto que tiene su localPosition cambiada.
+                
+                // Asumiendo que firePoint.parent es el Player_Root o el AimableArm_Pivot (que está en (0,0,0) local si es solo pivote)
+                // y que firePointStandingLocalPos es la posición local del firePoint relativa a su padre inmediato.
+                Vector3 worldStandingFirePos = transform.TransformPoint(firePointStandingLocalPos); 
+                // Si firePoint es hijo de aimableArmObject y este último es el que rota:
+                if (firePoint != null && aimableArmObject != null && firePoint.IsChildOf(aimableArmObject.transform))
+                {
+                    worldStandingFirePos = aimableArmObject.transform.TransformPoint(firePointStandingLocalPos);
+                }
+                else if (firePoint != null) // Si firePoint es hijo directo del Player_Root
+                {
+                     worldStandingFirePos = transform.TransformPoint(firePointStandingLocalPos);
+                }
+
+
+                Gizmos.DrawSphere(worldStandingFirePos, 0.05f); // Un pequeño círculo
+                Gizmos.DrawLine(worldStandingFirePos, worldStandingFirePos + (armRotation * Vector3.right * 0.3f)); // Una línea indicando la dirección "adelante"
+
+                // Gizmo para FirePoint Agachado
+                Gizmos.color = Color.magenta;
+                Vector3 worldCrouchingFirePos = transform.TransformPoint(firePointCrouchingLocalPos);
+                if (firePoint != null && aimableArmObject != null && firePoint.IsChildOf(aimableArmObject.transform))
+                {
+                     worldCrouchingFirePos = aimableArmObject.transform.TransformPoint(firePointCrouchingLocalPos);
+                }
+                else if (firePoint != null)
+                {
+                      worldCrouchingFirePos = transform.TransformPoint(firePointCrouchingLocalPos);
+                }
+
+                Gizmos.DrawSphere(worldCrouchingFirePos, 0.05f);
+                Gizmos.DrawLine(worldCrouchingFirePos, worldCrouchingFirePos + (armRotation * Vector3.right * 0.3f));
+
+                // Dibujar el firePoint actual si está activo y es diferente
+                if (Application.isPlaying && firePoint.gameObject.activeInHierarchy) // O aimableArmObject.activeSelf
+                {
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawWireSphere(firePoint.position, 0.06f); // Ligeramente más grande o diferente
+                }
+            }
         }
+        #endif
 
     }
 }

@@ -35,7 +35,7 @@ namespace Scripts.Player.Weapons
 
         private void Awake()
         {
-            Debug.Log($"WeaponBase ({gameObject.name}): Awake called. Scene: {gameObject.scene.name}", this); // CHIVATO ESCENA
+            //Debug.Log($"WeaponBase ({gameObject.name}): Awake called. Scene: {gameObject.scene.name}", this); // CHIVATO ESCENA
 
             if (firePoint == null) Debug.LogError("WeaponBase: 'FirePoint' is not assigned!", this);
             if (aimResolver == null)
@@ -49,9 +49,9 @@ namespace Scripts.Player.Weapons
             {
                 InputManager.Instance.Controls.Player.Shoot.started += OnShootActionPerformed;
                 InputManager.Instance.Controls.Player.Shoot.canceled += OnShootActionPerformed;
-                Debug.Log($"WeaponBase ({gameObject.name}): Subscribed to Shoot action.", this); // CHIVATO
+                //Debug.Log($"WeaponBase ({gameObject.name}): Subscribed to Shoot action.", this); // CHIVATO
             }
-            else Debug.LogError("WeaponBase: Could not subscribe to Shoot action. InputManager or Controls might be missing.", this);
+            //else Debug.LogError("WeaponBase: Could not subscribe to Shoot action. InputManager or Controls might be missing.", this);
 
             if (initialUpgradePrefab != null)
             {
@@ -60,7 +60,7 @@ namespace Scripts.Player.Weapons
             else
             {
                 PlayerEvents.RaisePlayerWeaponChanged(null);
-                Debug.Log($"WeaponBase ({gameObject.name}): No initial upgrade prefab assigned.", this); // CHIVATO
+                //Debug.Log($"WeaponBase ({gameObject.name}): No initial upgrade prefab assigned.", this); // CHIVATO
             }
             
             if (aimableArmTransform == null)
@@ -68,7 +68,7 @@ namespace Scripts.Player.Weapons
                 if (firePoint != null && firePoint.parent != transform) // Asume que firePoint está anidado bajo el brazo
                 {
                     aimableArmTransform = firePoint.parent;
-                    Debug.LogWarning($"WeaponBase: 'Aimable Arm Transform' not assigned. Assuming FirePoint's parent: {aimableArmTransform?.name}", this);
+                    //Debug.LogWarning($"WeaponBase: 'Aimable Arm Transform' not assigned. Assuming FirePoint's parent: {aimableArmTransform?.name}", this);
                 }
                 else
                 {
@@ -81,12 +81,12 @@ namespace Scripts.Player.Weapons
 
         private void OnDestroy()
         {
-            Debug.Log($"WeaponBase ({gameObject.name}): OnDestroy called. Scene: {gameObject.scene.name}", this); // CHIVATO ESCENA
+            //Debug.Log($"WeaponBase ({gameObject.name}): OnDestroy called. Scene: {gameObject.scene.name}", this); // CHIVATO ESCENA
             if (InputManager.Instance?.Controls?.Player.Shoot != null)
             {
                 InputManager.Instance.Controls.Player.Shoot.started -= OnShootActionPerformed;
                 InputManager.Instance.Controls.Player.Shoot.canceled -= OnShootActionPerformed;
-                Debug.Log($"WeaponBase ({gameObject.name}): Unsubscribed from Shoot action.", this); // CHIVATO
+                //Debug.Log($"WeaponBase ({gameObject.name}): Unsubscribed from Shoot action.", this); // CHIVATO
             }
             if (currentInstantiatedUpgradeGameObject != null)
             {
@@ -97,7 +97,7 @@ namespace Scripts.Player.Weapons
         private void OnShootActionPerformed(InputAction.CallbackContext context)
         {
             isShootActionPressed = context.ReadValueAsButton();
-            Debug.Log($"WeaponBase ({gameObject.name}): OnShootActionPerformed - Phase: {context.phase}, IsPressed: {isShootActionPressed}", this); // CHIVATO
+            //Debug.Log($"WeaponBase ({gameObject.name}): OnShootActionPerformed - Phase: {context.phase}, IsPressed: {isShootActionPressed}", this); // CHIVATO
         }
 
         private void Update()
@@ -129,7 +129,7 @@ namespace Scripts.Player.Weapons
                     // Debug.Log($"WeaponBase ({gameObject.name}): Update - Auto - isShootActionPressed: {isShootActionPressed}", this); // Uncomment for spammy log
                     if (currentUpgradeInterface.CanFire())
                     {
-                        Debug.Log($"WeaponBase ({gameObject.name}): Update - Auto - FIRING!", this); // CHIVATO
+                        //Debug.Log($"WeaponBase ({gameObject.name}): Update - Auto - FIRING!", this); // CHIVATO
                         automaticWeapon.HandleAutomaticFire(firePoint, aimResolver.CurrentDirection);
                     }
                     // else Debug.Log($"WeaponBase ({gameObject.name}): Update - Auto - CanFire returned FALSE.", this); // CHIVATO
@@ -156,7 +156,7 @@ namespace Scripts.Player.Weapons
                     // Debug.Log($"WeaponBase ({gameObject.name}): Update - Semi - singleShotRequestedThisFrame: {singleShotRequestedThisFrame}, semiAutoFireTimer: {semiAutoFireTimer}", this); // Uncomment for spammy log
                     if (semiAutoFireTimer <= 0 && currentUpgradeInterface.CanFire())
                     {
-                        Debug.Log($"WeaponBase ({gameObject.name}): Update - Semi - FIRING!", this); // CHIVATO
+                        //Debug.Log($"WeaponBase ({gameObject.name}): Update - Semi - FIRING!", this); // CHIVATO
                         currentUpgradeInterface.Fire(firePoint, aimResolver.CurrentDirection);
                         semiAutoFireTimer = Mathf.Max(semiAutoFireCooldown, currentUpgradeInterface.GetFireCooldown());
                     }
@@ -168,7 +168,6 @@ namespace Scripts.Player.Weapons
         
         public void EquipUpgradeFromPrefab(GameObject upgradePrefabToEquip)
         {
-            // ... (sin cambios mayores, pero puedes añadir Debug.Logs aquí si sospechas de esta parte) ...
             if (upgradePrefabToEquip == null) return;
             IWeaponUpgrade testUpgradeInterface = upgradePrefabToEquip.GetComponentInChildren<IWeaponUpgrade>(true) ?? upgradePrefabToEquip.GetComponent<IWeaponUpgrade>();
             if (testUpgradeInterface == null) { Debug.LogError($"WeaponBase: Prefab '{upgradePrefabToEquip.name}' invalid.", this); return; }
@@ -179,17 +178,16 @@ namespace Scripts.Player.Weapons
             currentInstantiatedUpgradeGameObject.name = upgradePrefabToEquip.name + "_Instance";
             IWeaponUpgrade newEquippedUpgrade = currentInstantiatedUpgradeGameObject.GetComponentInChildren<IWeaponUpgrade>(true) ?? currentInstantiatedUpgradeGameObject.GetComponent<IWeaponUpgrade>();
             SetInternalUpgradeState(newEquippedUpgrade);
-            Debug.Log($"WeaponBase ({gameObject.name}): Equipped upgrade from prefab '{upgradePrefabToEquip.name}'.", this); // CHIVATO
+            //Debug.Log($"WeaponBase ({gameObject.name}): Equipped upgrade from prefab '{upgradePrefabToEquip.name}'.", this); // CHIVATO
         }
 
         private void SetInternalUpgradeState(IWeaponUpgrade newUpgrade)
         {
-            // ... (sin cambios mayores, pero puedes añadir Debug.Logs aquí) ...
             currentUpgradeInterface = newUpgrade;
             if (currentUpgradeInterface is MonoBehaviour newMonoBehaviour && newMonoBehaviour != null) { newMonoBehaviour.enabled = true; if (!newMonoBehaviour.gameObject.activeSelf) newMonoBehaviour.gameObject.SetActive(true); }
             PlayerEvents.RaisePlayerWeaponChanged(currentUpgradeInterface as BaseWeaponUpgrade);
             semiAutoFireTimer = 0; 
-            Debug.Log($"WeaponBase ({gameObject.name}): Internal upgrade state set to '{(newUpgrade as MonoBehaviour)?.name ?? "None"}'.", this); // CHIVATO
+            //Debug.Log($"WeaponBase ({gameObject.name}): Internal upgrade state set to '{(newUpgrade as MonoBehaviour)?.name ?? "None"}'.", this); // CHIVATO
         }
         
         private void RotateTransformToAim(Transform objectToRotate, Vector2 direction)
