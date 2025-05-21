@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2646109473616756967}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Firepoint
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -45,9 +45,9 @@ GameObject:
   - component: {fileID: 3619032925503631072}
   - component: {fileID: 4516621579600153257}
   - component: {fileID: 7913986734316917696}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LogicContainer_Movement
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -159,9 +159,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4001976694772957207}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Colliders
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -193,9 +193,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6251718003751311885}
   - component: {fileID: 2452416624767161543}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LogicContainer_Health
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -249,9 +249,9 @@ GameObject:
   - component: {fileID: 6866794100967471875}
   - component: {fileID: 5869662360522274131}
   - component: {fileID: 591465923511167631}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LogicContainer_Weapons
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -315,9 +315,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6264034608520597866}
   - component: {fileID: 2758304495769058431}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AimableArm_pivot
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -405,9 +405,9 @@ GameObject:
   - component: {fileID: 718103473440177562}
   - component: {fileID: 4320553435687645814}
   - component: {fileID: 3329666527860977808}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player_root
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -492,9 +492,9 @@ GameObject:
   m_Component:
   - component: {fileID: 828720365906844900}
   - component: {fileID: 7488792869884885432}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: StandUp Collider
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -560,9 +560,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4712626532065443603}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Logic
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -595,9 +595,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8250074878629967083}
   - component: {fileID: 6298412675927334074}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Crouch Collider
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -666,9 +666,9 @@ GameObject:
   - component: {fileID: 609864197953944947}
   - component: {fileID: 351755833925862429}
   - component: {fileID: 2885523442813928405}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PlayerVisuals
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

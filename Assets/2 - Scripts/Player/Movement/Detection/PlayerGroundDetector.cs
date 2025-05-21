@@ -1,12 +1,14 @@
 using UnityEngine;
-using Scripts.Core;
+using System.Collections.Generic; // Required for List
 using Scripts.Player.Core; // For GameConstants and PlayerStateManager
+// using Scripts.Environment.Interfaces; // Ya no es estrictamente necesario aquí si SM lo maneja
 
 namespace Scripts.Player.Movement.Detectors
 {
     /// <summary>
-    /// Detects if the player is currently grounded and if the surface beneath is a one-way platform.
-    /// This component is responsible for updating the PlayerStateManager with the ground status.
+    /// Detects if the player is currently grounded and identifies all ground surfaces beneath.
+    /// This component is responsible for updating the PlayerStateManager with the ground status
+    /// and the list of colliders the player is currently standing on.
     /// </summary>
     public class PlayerGroundDetector : MonoBehaviour
     {
@@ -17,27 +19,24 @@ namespace Scripts.Player.Movement.Detectors
         [SerializeField] private float groundCheckRadius = 0.15f;
         [Tooltip("LayerMask defining what layers are considered 'Ground'.")]
         [SerializeField] private LayerMask groundDetectionLayerMask;
-        [Tooltip("Tag used to identify one-way platforms that the player can drop through.")]
-        [SerializeField] private string oneWayPlatformTag = GameConstants.PlatformTag;
 
         [Header("Debug")]
         [SerializeField] private Color gizmoColor = Color.green;
 
-        private PlayerStateManager _playerStateManager; // Referencia al StateManager
+        private PlayerStateManager _playerStateManager;
 
         // Internal state for this frame's detection
         private bool _isCurrentlyGrounded;
-        private bool _isOnPlatformThisFrame;
-        private Collider2D _detectedPlatformColliderThisFrame;
+        private List<Collider2D> _detectedGroundCollidersThisFrame = new List<Collider2D>();
+        // ELIMINADO: private bool _isOnOneWayPlatformThisFrame;
 
         void Awake()
         {
-            // Obtener la referencia al PlayerStateManager, que debería estar en este GameObject o en un padre.
             _playerStateManager = GetComponentInParent<PlayerStateManager>();
             if (_playerStateManager == null)
             {
                 Debug.LogError("PlayerGroundDetector: PlayerStateManager not found on this GameObject or its parents! Ground detection state cannot be updated.", this);
-                enabled = false; // Deshabilitar este script si falta la dependencia crítica
+                enabled = false;
                 return;
             }
 
@@ -48,58 +47,38 @@ namespace Scripts.Player.Movement.Detectors
             }
         }
 
-        // Es común hacer las detecciones físicas o que dependen de otros estados (como IsDropping)
-        // en Update o LateUpdate para asegurar que los estados base estén actualizados para el frame actual.
-        // Si PlayerPlatformHandler actualiza IsDropping en PlayerStateManager en su Update,
-        // este Update debería ejecutarse después o leer el estado del frame anterior.
-        // Para simplificar, asumimos que el orden de Update de los scripts es manejable o
-        // que el PlayerStateManager.IsDroppingFromPlatform se actualiza antes de este Update.
-        // O, si el orden es un problema, se podría hacer en LateUpdate.
-        void Update() 
+        void Update()
         {
             if (_playerStateManager == null || groundCheckOrigin == null) return;
 
-            DetectGroundAndPlatform();
-            
+            DetectGroundAndPlatforms();
+
             // Actualizar el PlayerStateManager con los resultados de la detección
-            _playerStateManager.UpdateGroundedState(_isCurrentlyGrounded, _isOnPlatformThisFrame, _detectedPlatformColliderThisFrame);
-            //Debug.Log($"GROUND_DETECTOR: Updating StateManager.IsGrounded to {_isCurrentlyGrounded}");
+            _playerStateManager.UpdateGroundedState(_isCurrentlyGrounded, _detectedGroundCollidersThisFrame);
+            //Debug.Log($"GROUND_DETECTOR: Updating StateManager.IsGrounded to {_isCurrentlyGrounded}, Colliders found: {_detectedGroundCollidersThisFrame.Count}");
         }
 
-        private void DetectGroundAndPlatform()
+        private void DetectGroundAndPlatforms()
         {
-            // Si el jugador está en el proceso de 'dropping' a través de una plataforma,
-            // no se considera 'grounded' para propósitos de lógica de salto o aterrizaje.
-            if (_playerStateManager.IsDroppingFromPlatform)
+            _detectedGroundCollidersThisFrame.Clear(); // Limpiar la lista de la detección anterior
+            // ELIMINADO: _isOnOneWayPlatformThisFrame = false; // Reset
+
+            if (_playerStateManager.IsDroppingFromPlatform || groundCheckOrigin == null)
             {
                 _isCurrentlyGrounded = false;
-                _isOnPlatformThisFrame = false;
                 return;
             }
 
-            //bool previousGrounded = _isCurrentlyGrounded; // For debugging state changes
-
-            _isCurrentlyGrounded = Physics2D.OverlapCircle(groundCheckOrigin.position, groundCheckRadius, groundDetectionLayerMask);
-            _detectedPlatformColliderThisFrame = null; // Reset
+            Collider2D[] collidersUnderPlayer = Physics2D.OverlapCircleAll(groundCheckOrigin.position, groundCheckRadius, groundDetectionLayerMask);
+            _isCurrentlyGrounded = collidersUnderPlayer.Length > 0;
 
             if (_isCurrentlyGrounded)
             {
-                Collider2D[] collidersUnderPlayer = Physics2D.OverlapCircleAll(groundCheckOrigin.position, groundCheckRadius, groundDetectionLayerMask);
                 foreach (Collider2D hitCollider in collidersUnderPlayer)
                 {
-                    if (hitCollider.CompareTag(oneWayPlatformTag) && hitCollider.GetComponent<PlatformEffector2D>() != null)
-                    {
-                        _isOnPlatformThisFrame = true;
-                        _detectedPlatformColliderThisFrame = hitCollider; // Guardar el collider
-                        break; 
-                    }
+                    _detectedGroundCollidersThisFrame.Add(hitCollider);
                 }
             }
-
-            //if (_isCurrentlyGrounded != previousGrounded)
-            //{
-            //    Debug.Log($"PlayerGroundDetector: Grounded state changed to {_isCurrentlyGrounded}. OnPlatform: {_isOnPlatformThisFrame}. PosY: {transform.position.y}");
-            //}
         }
 
 #if UNITY_EDITOR
@@ -114,4 +93,3 @@ namespace Scripts.Player.Movement.Detectors
 #endif
     }
 }
-// --- END OF FILE PlayerGroundDetector.cs ---

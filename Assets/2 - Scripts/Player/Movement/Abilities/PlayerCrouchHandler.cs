@@ -82,12 +82,13 @@ namespace Scripts.Player.Movement.Abilities
 
         private void SwitchPlayerColliderAndFirePoint(bool activateCrouchState)
         {
-            // ... (lógica como antes para activar/desactivar colliders y actualizar firepoint) ...
-             if (standingColliderObject != null) standingColliderObject.SetActive(!activateCrouchState);
-            if (crouchingColliderObject != null) crouchingColliderObject.SetActive(activateCrouchState);
-            Collider2D newActiveCollider = activateCrouchState ? crouchingColliderObject?.GetComponent<Collider2D>() : standingColliderObject?.GetComponent<Collider2D>();
-            _playerStateManager.UpdateActiveCollider(newActiveCollider);
-            if (firePointTransform != null) firePointTransform.localPosition = activateCrouchState ? firePointCrouchingLocalPos : firePointStandingLocalPos;
+            Collider2D newActiveCollider = activateCrouchState
+                ? crouchingColliderObject?.GetComponent<Collider2D>()
+                : standingColliderObject?.GetComponent<Collider2D>();
+
+            _playerStateManager.UpdateActiveCollider(newActiveCollider); // ESTO ES CRUCIAL
+            Debug.Log(
+                $"CROUCH_HANDLER SwitchCollider: Active Collider set in StateManager to: {newActiveCollider?.gameObject.name}");
         }
 
         private bool CanStandUp()
@@ -149,53 +150,48 @@ namespace Scripts.Player.Movement.Abilities
                 Transform playerRoot = _playerStateManager.transform;
                 foreach (Collider2D obstruction in obstructions)
                 {
-                    if (crouchingColliderObject != null && obstruction.gameObject == crouchingColliderObject) continue;
-                    if (obstruction.transform.IsChildOf(playerRoot) &&
-                        obstruction.gameObject != standingColliderObject) continue;
+                    int obstructionLayerBit = 1 << obstruction.gameObject.layer;
+                    bool isGround = (LayerMask.GetMask(GameConstants.GroundLayerName).GetHashCode() & obstructionLayerBit) > 0;
+                    bool isWallOrCeiling = (LayerMask.GetMask(GameConstants.WallLayerName).GetHashCode() & obstructionLayerBit) > 0;
 
-                    // --- LÓGICA CORREGIDA PARA COMPROBAR CAPAS ---
-                    int obstructionLayerValue =
-                        1 << obstruction.gameObject.layer; // Obtener el bit de la capa del objeto
-                    bool isGroundObstruction = (groundMask.value & obstructionLayerValue) > 0;
-                    bool isWallObstruction = (wallMask.value & obstructionLayerValue) > 0;
-
-                    // Si es suelo Y NO es también una pared/techo (asumiendo que no solapas estas capas para el mismo objeto de suelo)
-                    if (isGroundObstruction && !isWallObstruction)
+                    if (isGround && !isWallOrCeiling) // Si es suelo, pero no una pared/techo
                     {
-                        Collider2D activeCrouchCollider = crouchingColliderObject?.GetComponent<Collider2D>();
-                        if (activeCrouchCollider != null)
+                        // Obtener la parte superior del collider de agachado (el que está activo)
+                        Collider2D activeCrouchCol = crouchingColliderObject.GetComponent<Collider2D>();
+                        if (activeCrouchCol != null)
                         {
-                            // El centro del collider de agachado en el mundo
-                            Vector2 crouchColliderCenterWorld =
-                                crouchingColliderObject.transform.TransformPoint(activeCrouchCollider.offset);
-                            // El borde superior del collider de agachado en el mundo
-                            float crouchColliderTopY =
-                                crouchColliderCenterWorld.y +
-                                (activeCrouchCollider.bounds.size.y / 2f); // bounds.size es mundial
+                            // Centro mundial del collider de agachado
+                            Vector2 crouchCenterWorld = crouchingColliderObject.transform.TransformPoint(activeCrouchCol.offset);
+                            // Bounds del collider de agachado para obtener su altura actual
+                            float crouchColliderCurrentHeight = 0f;
+                            if(activeCrouchCol is CapsuleCollider2D cap) crouchColliderCurrentHeight = cap.size.y * crouchingColliderObject.transform.lossyScale.y; // Considerar escala del GO
+                            else if(activeCrouchCol is BoxCollider2D box) crouchColliderCurrentHeight = box.size.y * crouchingColliderObject.transform.lossyScale.y;
+                            
+                            // Parte superior del collider de agachado
+                            float crouchTopY = crouchCenterWorld.y + (crouchColliderCurrentHeight / 2f);
+                            float obstructionTopY = obstruction.bounds.max.y; // Parte superior del suelo detectado
 
-                            float obstructionTopY =
-                                obstruction.bounds.max.y; // Borde superior de la obstrucción (suelo)
-
-                            // Si la parte superior del suelo no está significativamente por encima de la cabeza del personaje agachado,
-                            // entonces probablemente es el suelo sobre el que está, no un techo.
-                            if (obstructionTopY < crouchColliderTopY + 0.05f) // Pequeño margen de tolerancia
+                            // Si la parte superior del "suelo" que obstruye NO está significativamente por encima
+                            // de la cabeza del personaje agachado, entonces es el suelo bajo los pies, no un techo.
+                            float tolerance = 0.1f; // Margen pequeño
+                            if (obstructionTopY < crouchTopY + tolerance) 
                             {
-                                // Debug.Log($"CanStandUp: Ignoring obstruction '{obstruction.gameObject.name}' as it appears to be ground beneath or at crouch level.");
-                                continue;
+                                // Debug.Log($"CanStandUp: Ignoring ground obstruction: {obstruction.name} (TopY: {obstructionTopY} vs CrouchTopY: {crouchTopY})");
+                                continue; // Ignorar esta obstrucción, es solo el suelo
                             }
                         }
                     }
-                    // --- FIN LÓGICA CORREGIDA ---
 
-                    Debug.LogWarning($"PlayerCrouchHandler: Cannot stand up, OBSTRUCTED by '{obstruction.gameObject.name}' (Layer: {LayerMask.LayerToName(obstruction.gameObject.layer)})", this);
-                    return false; 
+                    // Si no es suelo ignorable, o es una pared/techo, entonces es una obstrucción real.
+                    Debug.LogWarning($"P2DM: Cannot stand up, OBSTRUCTED by '{obstruction.gameObject.name}' (Layer: {LayerMask.LayerToName(obstruction.gameObject.layer)})", this);
+                    return false;
                 }
             }
             // Debug.Log("PlayerCrouchHandler: Can stand up safely.");
             return true;
         }
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
             if (firePointTransform == null) return;
@@ -237,7 +233,7 @@ namespace Scripts.Player.Movement.Abilities
                  Gizmos.DrawWireSphere(firePointTransform.position, 0.06f);
             }
         }
-#endif
+    #endif
     }
 }
 // --- END OF FILE PlayerCrouchHandler.cs ---

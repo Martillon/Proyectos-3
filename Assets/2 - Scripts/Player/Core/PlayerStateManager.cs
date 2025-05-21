@@ -1,5 +1,8 @@
 // --- START OF FILE PlayerStateManager.cs ---
 using UnityEngine;
+using System.Collections.Generic; // Required for List
+using Scripts.Environment.Interfaces; // Para ITraversablePlatform
+using Scripts.Core; // Para GameConstants, si lo usas para el tag
 
 namespace Scripts.Player.Core // O un namespace Player.State
 {
@@ -21,7 +24,7 @@ namespace Scripts.Player.Core // O un namespace Player.State
 
         // --- Physics/World States (Updated by Detectors/Handlers) ---
         public bool IsGrounded { get; private set; }
-        public bool IsOnOneWayPlatform { get; private set; } // Updated by PlayerGroundDetector
+        public bool IsOnOneWayPlatform { get; private set; } // True if ANY ground collider is a one-way platform
         public bool IsTouchingWall { get; private set; }   // Updated by PlayerWallDetector
         public bool IsCrouchingLogic { get; private set; } // True if logical conditions for crouch are met
         public bool IsCrouchVisualApplied { get; private set; } // True if crouch collider/visuals are active
@@ -34,7 +37,9 @@ namespace Scripts.Player.Core // O un namespace Player.State
         public bool CanMoveHorizontally => !IsMovementLockedByInput && !IsMovementLockedByCrouch && !IsDroppingFromPlatform;
         
         public Collider2D ActivePlayerCollider { get; private set; } // Actualizado por PlayerCrouchHandler
-        public Collider2D CurrentGroundPlatformCollider { get; private set; } // Actualizado por PlayerGroundDetector
+        
+        // MODIFICADO: De Collider2D singular a List<Collider2D>
+        public List<Collider2D> CurrentGroundPlatformColliders { get; private set; } = new List<Collider2D>();
 
         // --- Update Methods (Called by specialized components) ---
 
@@ -43,15 +48,10 @@ namespace Scripts.Player.Core // O un namespace Player.State
             HorizontalInput = horizontal;
             VerticalInput = vertical;
 
-            // Actualizar FacingDirection si hay input horizontal.
-            // PositionLockInputActive NO debe impedir que cambie la dirección a la que MIRA el personaje.
-            // PositionLockInputActive impide el MOVIMIENTO físico, no necesariamente el cambio de orientación visual.
             if (Mathf.Abs(horizontal) > 0.01f) 
             {
                 CurrentFacingDirection = Mathf.Sign(horizontal);
-                // Debug.Log($"STATEMANAGER: Updated FacingDirection to {CurrentFacingDirection}");
             }
-            // Si no hay input horizontal, CurrentFacingDirection mantiene su último valor.
         }
         
         public void UpdateIntendsToPressDownState(bool intendsDown)
@@ -61,21 +61,15 @@ namespace Scripts.Player.Core // O un namespace Player.State
 
         public void UpdateJumpInputState(bool jumpPressedDown)
         {
-            // Si ya estaba presionado y el nuevo estado es true, no hagas nada (evita múltiples "true" si Update corre antes que el consumo)
-            // Si el nuevo estado es true, ponlo a true.
-            // Si el nuevo estado es false (desde PlayerInputReader.LateUpdate), permite que se ponga a false SOLO SI YA ERA FALSE.
-            // Esto es un poco complicado. Simplifiquemos: PlayerInputReader lo pone a true. PlayerMotor lo pone a false.
-            if (jumpPressedDown) // Solo permite ponerlo a true
+            if (jumpPressedDown)
             {
                 JumpInputDown = true;
-                // Debug.Log($"STATEMANAGER: JumpInputDown SET TO TRUE by InputReader");
             }
         }
 
-        public void ConsumeJumpInput() // Nuevo método
+        public void ConsumeJumpInput()
         {
             JumpInputDown = false;
-            // Debug.Log($"STATEMANAGER: JumpInputDown CONSUMED (set to false) by Motor");
         }
 
         public void UpdatePositionLockState(bool isActive)
@@ -89,12 +83,42 @@ namespace Scripts.Player.Core // O un namespace Player.State
             ShootInputHeld = shootHeld;
         }
 
-        public void UpdateGroundedState(bool isGrounded, bool isOnPlatform, Collider2D platformColliderIfAny)
+        // MODIFICADO: Firma y lógica para manejar múltiples colliders
+        public void UpdateGroundedState(bool isGrounded, List<Collider2D> detectedColliders)
         {
             IsGrounded = isGrounded;
-            IsOnOneWayPlatform = isOnPlatform;
-            CurrentGroundPlatformCollider = isOnPlatform ? platformColliderIfAny : null;
+            CurrentGroundPlatformColliders.Clear(); // Limpiar la lista de la detección anterior
+            IsOnOneWayPlatform = false; // Resetear antes de verificar
+
+            if (IsGrounded && detectedColliders != null && detectedColliders.Count > 0)
+            {
+                CurrentGroundPlatformColliders.AddRange(detectedColliders);
+                foreach (Collider2D col in CurrentGroundPlatformColliders)
+                {
+                    
+                    // La forma más directa de saber si es "one-way" para el drop es si implementa ITraversablePlatform.
+                    // También puedes combinarlo con el tag o PlatformEffector2D si tienes otros tipos de one-way platforms
+                    // que no son ITraversablePlatform (por ejemplo, solo permiten saltar a través desde abajo).
+                    if (col.GetComponent<ITraversablePlatform>() != null)
+                    // Alternativamente, si quieres mantener la lógica anterior con tag y PlatformEffector2D:
+                    // if (col.CompareTag(GameConstants.PlatformTag) && col.GetComponent<PlatformEffector2D>() != null)
+                    {
+                        IsOnOneWayPlatform = true;
+                        // No necesitamos 'break' aquí, ya que IsOnOneWayPlatform solo necesita ser true
+                        // si *alguna* plataforma lo es, y queremos que CurrentGroundPlatformColliders
+                        // contenga todas las plataformas bajo el jugador.
+                    }
+                }
+            }
+            else // Si no está grounded o no hay colliders detectados
+            {
+                // IsGrounded ya está en false, CurrentGroundPlatformColliders ya está limpio,
+                // e IsOnOneWayPlatform ya está en false. No se necesita más aquí.
+            }
+            
+            // Debug.Log($"STATEMANAGER: GroundedState Updated. IsGrounded={IsGrounded}, IsOnPlatform={IsOnOneWayPlatform}, CollidersCount={CurrentGroundPlatformColliders.Count}");
         }
+
 
         public void UpdateWallState(bool isTouchingWall)
         {
@@ -129,14 +153,7 @@ namespace Scripts.Player.Core // O un namespace Player.State
             ActivePlayerCollider = activeCollider;
         }
         
-        
-
-        // Example of how a composite state could be useful for the animator
         public bool IsConsideredMovingOnGround => IsGrounded && Mathf.Abs(HorizontalInput) > 0.01f && !IsCrouchingLogic;
-
-
-        // TODO: Consider a method to reset all relevant states (e.g., on player death/respawn if needed)
-        // public void ResetVolatileStates() { ... JumpInputDown = false; ... }
     }
 }
-// --- END OF FILE PlayerStateManager.cs ---
+// --- END OF MODIFIED FILE PlayerStateManager.cs ---

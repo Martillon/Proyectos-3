@@ -38,104 +38,79 @@ namespace Scripts.Player.Movement.Motor // Nuevo sub-namespace
         void FixedUpdate()
         {
             if (_rb == null || _playerStateManager == null) return;
-            
-            // Leer estados actualizados del PlayerStateManager
-            bool isPosLocked = _playerStateManager.PositionLockInputActive;
-            bool isCrouchLogic = _playerStateManager.IsCrouchingLogic;
-            bool isGrounded = _playerStateManager.IsGrounded;
-            bool isDropping = _playerStateManager.IsDroppingFromPlatform;
-            float horizInput = _playerStateManager.HorizontalInput;
 
-            // Determinar si el movimiento horizontal debe bloquearse
-            bool lockHorizontalMovement = isPosLocked || (isCrouchLogic && isGrounded);
-            // Debug.Log($"MOTOR FixedUpdate: lockHorizontal={lockHorizontalMovement} (isPosLocked={isPosLocked}, isCrouchLogic={isCrouchLogic}, isGrounded={isGrounded}) HorizInput={horizInput}");
+            Vector2 currentVelocity = _rb.linearVelocity; 
+            bool isGrounded = _playerStateManager.IsGrounded; // Leer una vez para consistencia en este FixedUpdate
 
-            // --- INICIO DE CÁLCULO DE VELOCIDAD ---
-            Vector2 currentVelocity = _rb.linearVelocity; // LEER la velocidad actual del Rigidbody
+            // Actualizar Coyote Time (si no lo has movido a Update)
+            if (isGrounded) { _coyoteTimeCounterMotor = coyoteTimeDuration; }
+            else { _coyoteTimeCounterMotor -= Time.fixedDeltaTime; }
 
-            // 1. Aplicar Movimiento Horizontal
-            if (!lockHorizontalMovement && !isDropping)
+            if (_playerStateManager.IsDroppingFromPlatform) // <<< ESTADO CLAVE
             {
-                currentVelocity.x = horizInput * moveSpeed;
-            }
-            else
-            {
+                // Cuando está bajando de plataforma, PlayerPlatformHandler debería tener más control
+                // sobre la velocidad Y para asegurar que atraviese.
+                // PlayerPlatformHandler ya aplica un _rb.velocity.y negativo.
+                // Aquí, principalmente evitamos que la lógica normal de salto/gravedad interfiera.
+                // También nos aseguramos de que no haya movimiento horizontal.
+                Debug.Log($"MOTOR FixedUpdate: IS DROPPING. Current RB Vel Y before override: {_rb.linearVelocity.y}, Calculated currentVel Y: {currentVelocity.y}");
                 currentVelocity.x = 0f;
-                // if(lockHorizontalMovement) Debug.Log("MOTOR FixedUpdate: Horizontal Movement LOCKED TO 0");
+
+                // Podrías añadir una velocidad de caída mínima si el nudge no es suficiente
+                // o si el Rigidbody pierde velocidad Y por alguna razón.
+                if (currentVelocity.y > -0.5f) // Si no está cayendo o cae muy lento
+                {
+                    currentVelocity.y = -0.5f; // Asegurar una pequeña velocidad de caída constante
+                    Debug.Log($"MOTOR FixedUpdate: IS DROPPING. Forcing currentVelocity.y to -0.5f");
+
+                }
+                // NO llamar a HandleJump ni ApplyFallMultiplier aquí
             }
-            
-            // 2. Actualizar Coyote Time (debe hacerse antes de HandleJump si HandleJump lo usa)
-            if (isGrounded) // Usa el 'isGrounded' leído del StateManager para este frame de FixedUpdate
+            else // Lógica de movimiento normal
             {
-                _coyoteTimeCounterMotor = coyoteTimeDuration;
+                Debug.Log("MOTOR FixedUpdate: NORMAL MOVEMENT LOGIC.");
+                float horizInput = _playerStateManager.HorizontalInput;
+                bool lockHorizontalMovement = _playerStateManager.PositionLockInputActive || (_playerStateManager.IsCrouchingLogic && isGrounded);
+
+                if (!lockHorizontalMovement) { currentVelocity.x = horizInput * moveSpeed; }
+                else { currentVelocity.x = 0f; }
+                
+                HandleJump(ref currentVelocity); // Pasa isGrounded y otros estados relevantes si es necesario
+                ApplyFallMultiplier(ref currentVelocity); // Pasa isGrounded
             }
-            else
-            {
-                _coyoteTimeCounterMotor -= Time.fixedDeltaTime;
-            }
 
-            // 3. Procesar Salto (esto modificará currentVelocity.y si se salta)
-            //    HandleJump AHORA modificará 'currentVelocity' directamente en lugar de _rb.linearVelocity
-            HandleJump(ref currentVelocity); // <<< CAMBIO: Pasar currentVelocity por referencia
-
-            // 4. Aplicar Multiplicador de Caída (esto modifica currentVelocity.y si se está cayendo)
-            ApplyFallMultiplier(ref currentVelocity); // <<< CAMBIO: Pasar currentVelocity por referencia
-            
-            // --- FIN DE CÁLCULO DE VELOCIDAD ---
-
-            // Aplicar la velocidad calculada FINAL al Rigidbody UNA SOLA VEZ
             _rb.linearVelocity = currentVelocity;
-            // Debug.Log($"MOTOR FixedUpdate END: Applied Velocity = {_rb.linearVelocity}, currentVelocityCalculated = {currentVelocity}");
+            // Debug.Log($"MOTOR FixedUpdate END: Applied Velocity = {_rb.linearVelocity}, IsDropping={_playerStateManager.IsDroppingFromPlatform}");
         }
 
-        private void HandleHorizontalMovement()
+        private void HandleJump(ref Vector2 currentVelocity /*, bool isCurrentlyGrounded, bool canUseCoyote, etc. */)
         {
-            float targetHorizontalVelocity = 0f;
-
-            if (_playerStateManager.CanMoveHorizontally) // Usa el estado compuesto del StateManager
-            {
-                targetHorizontalVelocity = _playerStateManager.HorizontalInput * moveSpeed;
-            }
-            // else: targetHorizontalVelocity remains 0, so player stops.
-
-            // Aplicar la velocidad horizontal
-            _rb.linearVelocity = new Vector2(targetHorizontalVelocity, _rb.linearVelocity.y);
-        }
-
-        private void HandleJump(ref Vector2 currentVelocity) // <<< CAMBIO: Acepta y modifica currentVelocity
-        {
-            if (_playerStateManager == null) return;
-
-            bool canUseCoyote = _coyoteTimeCounterMotor > 0f;
+            // Usa los estados pasados o los del PlayerStateManager (excepto IsDropping)
+            bool canUseCoyote = _coyoteTimeCounterMotor > 0f; // _coyoteTimeCounterMotor se actualiza arriba
             bool baseJumpConditionsMet = !_playerStateManager.PositionLockInputActive &&
                                          !_playerStateManager.IsCrouchingLogic &&
-                                         !_playerStateManager.IsTouchingWall &&
-                                         !_playerStateManager.IsDroppingFromPlatform;
+                                         !_playerStateManager.IsTouchingWall;
+            // No necesitamos !IsDropping aquí porque ya está manejado en FixedUpdate
+
             bool canPhysicallyJump = (_playerStateManager.IsGrounded || canUseCoyote) && baseJumpConditionsMet;
-            
-            // Debug.Log($"MOTOR HandleJump: JumpInputDown(SM)={_playerStateManager.JumpInputDown}, CanPhysicallyJump={canPhysicallyJump} ...");
 
             if (_playerStateManager.JumpInputDown && canPhysicallyJump)
             {
-                currentVelocity.y = jumpForce; // <<< CAMBIO: Modifica currentVelocity
+                currentVelocity.y = jumpForce;
                 _coyoteTimeCounterMotor = 0f; 
                 _playerStateManager.ConsumeJumpInput(); 
-                // Debug.Log("MOTOR: JUMP APPLIED! JumpInput Consumed.", this);
             }
             else if (_playerStateManager.JumpInputDown && !canPhysicallyJump) 
             {
-                // Debug.LogWarning($"MOTOR: Jump input IGNORED. Conditions not met. Consuming input anyway.", this);
                 _playerStateManager.ConsumeJumpInput(); 
             }
         }
 
-        private void ApplyFallMultiplier(ref Vector2 currentVelocity) // <<< CAMBIO: Acepta y modifica currentVelocity
+        private void ApplyFallMultiplier(ref Vector2 currentVelocity /*, bool isCurrentlyGrounded */)
         {
-            // Solo aplicar si la velocidad Y (después de un posible salto) es negativa
-            if (currentVelocity.y < 0) // NO uses _rb.linearVelocity.y aquí, porque podría no reflejar el salto de este frame
+            // Si está cayendo (currentVelocity.y ya es < 0 después de la gravedad normal o el salto)
+            if (currentVelocity.y < 0) 
             {
-                // No necesitamos la condición !_playerStateManager.JumpInputDown si estamos mirando currentVelocity.y
-                // porque si acabamos de saltar, currentVelocity.y será positivo.
                 currentVelocity.y += Physics2D.gravity.y * (fallMultiplier - 1f) * Time.fixedDeltaTime;
             }
         }
