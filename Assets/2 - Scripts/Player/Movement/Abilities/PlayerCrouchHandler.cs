@@ -87,8 +87,8 @@ namespace Scripts.Player.Movement.Abilities
                 : standingColliderObject?.GetComponent<Collider2D>();
 
             _playerStateManager.UpdateActiveCollider(newActiveCollider); // ESTO ES CRUCIAL
-            Debug.Log(
-                $"CROUCH_HANDLER SwitchCollider: Active Collider set in StateManager to: {newActiveCollider?.gameObject.name}");
+            //Debug.Log(
+                //$"CROUCH_HANDLER SwitchCollider: Active Collider set in StateManager to: {newActiveCollider?.gameObject.name}");
         }
 
         private bool CanStandUp()

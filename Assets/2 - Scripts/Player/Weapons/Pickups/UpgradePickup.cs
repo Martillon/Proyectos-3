@@ -1,81 +1,105 @@
-// --- START OF FILE UpgradePickup.cs ---
 using UnityEngine;
-using Scripts.Player.Weapons.Interfaces; // For IWeaponUpgrade (though not strictly needed by this script directly anymore)
+using Scripts.Player.Weapons.Interfaces; 
 
 namespace Scripts.Player.Weapons.Pickups
 {
-    /// <summary>
-    /// Represents a collectible weapon upgrade in the scene.
-    /// When the player touches it, the player's weapon system is updated by equipping
-    /// the upgrade defined by the assigned 'Upgrade Prefab'.
-    /// </summary>
     [RequireComponent(typeof(Collider2D))]
     public class UpgradePickup : MonoBehaviour
     {
         [Header("Upgrade Configuration")]
-        [Tooltip("The Prefab that contains the actual weapon upgrade script (e.g., a DefaultUpgrade or ShotgunUpgrade component). This script must implement IWeaponUpgrade.")]
         [SerializeField] private GameObject upgradePrefab;
 
+        [Header("Collision Settings")]
+        [SerializeField] private LayerMask collidableWithLayers; 
+
         [Header("Visual & Audio Feedback (Optional)")]
-        [Tooltip("Visual effect to instantiate when the pickup is collected.")]
         [SerializeField] private GameObject pickupEffectPrefab;
-        // [SerializeField] private Sounds pickupSound; // Example for sound
-        // [SerializeField] private AudioSource audioSourceForPickupSound; // Example for sound
+
+        private Collider2D _collider;
 
         private void Awake()
         {
-            // Basic validation of the upgradePrefab
-            if (upgradePrefab == null)
+            _collider = GetComponent<Collider2D>();
+            if (!_collider.isTrigger)
             {
-                Debug.LogError($"UpgradePickup '{gameObject.name}': 'Upgrade Prefab' is not assigned. This pickup will not function.", this);
-                enabled = false; // Disable the script if it's not configured correctly
-                return;
+                Debug.LogWarning($"UpgradePickup '{gameObject.name}': Collider2D is not set to 'Is Trigger'. Setting it now.", this);
+                _collider.isTrigger = true;
             }
 
-            // More detailed validation: Check if the prefab actually contains an IWeaponUpgrade component.
-            // We check components on the prefab's root and its children, including inactive ones.
+            if (upgradePrefab == null)
+            {
+                Debug.LogError($"UpgradePickup '{gameObject.name}': 'Upgrade Prefab' is not assigned.", this);
+                enabled = false; 
+                return;
+            }
+            if (collidableWithLayers.value == 0)
+            {
+                Debug.LogError($"UpgradePickup '{gameObject.name}': 'Collidable With Layers' is not assigned.", this);
+                // enabled = false; // Opcional
+            }
             if (upgradePrefab.GetComponentInChildren<IWeaponUpgrade>(true) == null && upgradePrefab.GetComponent<IWeaponUpgrade>() == null)
             {
-                Debug.LogError($"UpgradePickup '{gameObject.name}': The assigned 'Upgrade Prefab' ('{upgradePrefab.name}') " +
-                                 "does not contain any component that implements IWeaponUpgrade. This pickup will not function.", this);
+                Debug.LogError($"UpgradePickup '{gameObject.name}': Prefab '{upgradePrefab.name}' no contiene IWeaponUpgrade.", this);
                 enabled = false;
             }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (!enabled) return; // Don't run if misconfigured (checked in Awake)
+            if (!enabled) return;
 
-            if (!other.CompareTag("Player"))
+            if ((collidableWithLayers.value & (1 << other.gameObject.layer)) == 0)
             {
-                // Optional: Log collision with non-player for debugging if needed
-                // Debug.Log($"UpgradePickup on '{gameObject.name}' collided with non-player: {other.name}", this);
-                return;
+                return; // No es la capa correcta
             }
 
-            WeaponBase playerWeaponSystem = other.GetComponentInChildren<WeaponBase>(); // Find WeaponBase on the player or its children
+            // --- MODIFICACIÓN IMPORTANTE AQUÍ ---
+            // En lugar de other.GetComponentInChildren, necesitamos encontrar el "root" del jugador
+            // y luego buscar WeaponBase desde allí.
+            // Asumimos que el Rigidbody2D está en el objeto raíz del jugador que colisiona,
+            // o que el collider tiene una referencia a su entidad "dueña".
+            // La forma más común es que el Rigidbody2D esté en el objeto que debe recibir los mensajes.
+
+            WeaponBase playerWeaponSystem = null;
+            Rigidbody2D playerRb = other.attachedRigidbody; // Obtiene el Rigidbody2D al que este collider está adjunto.
+                                                          // Esto suele ser el objeto "principal" del jugador.
+
+            if (playerRb != null)
+            {
+                // Ahora busca WeaponBase en el GameObject del Rigidbody y sus hijos.
+                playerWeaponSystem = playerRb.GetComponentInChildren<WeaponBase>(true);
+                // Debug.Log($"UpgradePickup: Found Rigidbody on '{playerRb.gameObject.name}'. Searching WeaponBase from there.", this);
+            }
+            else
+            {
+                // Si no hay Rigidbody adjunto directamente al collider que impactó (raro para un jugador dinámico),
+                // podríamos intentar subir en la jerarquía desde 'other' hasta encontrar Player_root.
+                // Pero 'attachedRigidbody' es la forma preferida.
+                // Como fallback, si 'other' es parte de una jerarquía más grande y no tiene su propio RB.
+                Transform rootOfOther = other.transform.root; // Obtiene el transform más alto en la jerarquía de 'other'
+                playerWeaponSystem = rootOfOther.GetComponentInChildren<WeaponBase>(true);
+                // Debug.LogWarning($"UpgradePickup: No attached Rigidbody found for collider '{other.name}'. Trying search from root '{rootOfOther.name}'.", this);
+            }
+            // --- FIN DE LA MODIFICACIÓN ---
+
+
             if (playerWeaponSystem == null)
             {
-                // Debug.LogWarning($"UpgradePickup on '{gameObject.name}': Player collided, but no WeaponBase component was found on the player entity.", this); // Uncomment for debugging
+                Debug.LogWarning($"UpgradePickup on '{gameObject.name}': Collided with '{other.name}' (Layer: {LayerMask.LayerToName(other.gameObject.layer)}), " +
+                                 $"but WeaponBase component was NOT found on its hierarchy (searched from Rigidbody owner or root: {(playerRb != null ? playerRb.gameObject.name : other.transform.root.name)}).", this);
                 return;
             }
 
-            // Equip the upgrade using the prefab
-            // Debug.Log($"UpgradePickup: Player collected '{upgradePrefab.name}'. Equipping via WeaponBase.", this); // Uncomment for debugging
+            // Debug.Log($"UpgradePickup: '{other.name}' collected '{upgradePrefab.name}'. Equipping via WeaponBase on '{playerWeaponSystem.gameObject.name}'.", this);
             playerWeaponSystem.EquipUpgradeFromPrefab(upgradePrefab);
 
-            // Instantiate visual effect if assigned
             if (pickupEffectPrefab != null)
             {
                 Instantiate(pickupEffectPrefab, transform.position, Quaternion.identity);
             }
 
-            // Play pickup sound if configured
-            // pickupSound?.Play(audioSourceForPickupSound);
-
-            // Consume the pickup
             Destroy(gameObject);
         }
     }
 }
-// --- END OF FILE UpgradePickup.cs ---
+// --- END OF MODIFIED FILE UpgradePickup.cs ---

@@ -53,7 +53,7 @@ namespace Scripts.Player.Movement.Motor // Nuevo sub-namespace
                 // PlayerPlatformHandler ya aplica un _rb.velocity.y negativo.
                 // Aquí, principalmente evitamos que la lógica normal de salto/gravedad interfiera.
                 // También nos aseguramos de que no haya movimiento horizontal.
-                Debug.Log($"MOTOR FixedUpdate: IS DROPPING. Current RB Vel Y before override: {_rb.linearVelocity.y}, Calculated currentVel Y: {currentVelocity.y}");
+                //Debug.Log($"MOTOR FixedUpdate: IS DROPPING. Current RB Vel Y before override: {_rb.linearVelocity.y}, Calculated currentVel Y: {currentVelocity.y}");
                 currentVelocity.x = 0f;
 
                 // Podrías añadir una velocidad de caída mínima si el nudge no es suficiente
@@ -61,14 +61,14 @@ namespace Scripts.Player.Movement.Motor // Nuevo sub-namespace
                 if (currentVelocity.y > -0.5f) // Si no está cayendo o cae muy lento
                 {
                     currentVelocity.y = -0.5f; // Asegurar una pequeña velocidad de caída constante
-                    Debug.Log($"MOTOR FixedUpdate: IS DROPPING. Forcing currentVelocity.y to -0.5f");
+                    //Debug.Log($"MOTOR FixedUpdate: IS DROPPING. Forcing currentVelocity.y to -0.5f");
 
                 }
                 // NO llamar a HandleJump ni ApplyFallMultiplier aquí
             }
             else // Lógica de movimiento normal
             {
-                Debug.Log("MOTOR FixedUpdate: NORMAL MOVEMENT LOGIC.");
+                //Debug.Log("MOTOR FixedUpdate: NORMAL MOVEMENT LOGIC.");
                 float horizInput = _playerStateManager.HorizontalInput;
                 bool lockHorizontalMovement = _playerStateManager.PositionLockInputActive || (_playerStateManager.IsCrouchingLogic && isGrounded);
 

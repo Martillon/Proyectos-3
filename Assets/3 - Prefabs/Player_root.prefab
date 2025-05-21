@@ -100,7 +100,6 @@ MonoBehaviour:
   groundDetectionLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  oneWayPlatformTag: Platform
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &3619032925503631072
 MonoBehaviour:
@@ -149,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8f36203d225b0348b03737393cb367e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dropThroughTime: 1
+  platformDisableDuration: 0.3
 --- !u!1 &3156983210351922252
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,6 +287,10 @@ MonoBehaviour:
   aimableArmTransform: {fileID: 6264034608520597866}
   initialUpgradePrefab: {fileID: 4398430865810154143, guid: 00724aa67be493f4db9ff5459aa937b6, type: 3}
   upgradeContainer: {fileID: 6866794100967471875}
+  currentInstantiatedUpgradeGameObject: {fileID: 0}
+  pickupObjectLayer:
+    serializedVersion: 2
+    m_Bits: 512
   semiAutoFireCooldown: 0.2
 --- !u!114 &591465923511167631
 MonoBehaviour:

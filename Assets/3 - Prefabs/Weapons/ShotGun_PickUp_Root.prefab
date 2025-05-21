@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1190286566347446113}
   - component: {fileID: 8149143094253269514}
   - component: {fileID: 7420480252214435897}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ShotGun_PickUp_Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117,7 +117,7 @@ GameObject:
   - component: {fileID: 6712310438552812743}
   - component: {fileID: 7122921690826292759}
   - component: {fileID: 1313506373785056658}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ShotGun_PickUp_Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,4 +199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   upgradePrefab: {fileID: 6791487315314059437, guid: 9c41a5306fcd3194f986de871006558f, type: 3}
+  collidableWithLayers:
+    serializedVersion: 2
+    m_Bits: 128
   pickupEffectPrefab: {fileID: 0}

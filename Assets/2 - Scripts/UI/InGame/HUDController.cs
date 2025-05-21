@@ -79,7 +79,7 @@ namespace Scripts.UI.InGame
                 WeaponBase weaponSys = playerObject.GetComponentInChildren<WeaponBase>();
                 if (weaponSys != null)
                 {
-                    UpdateWeaponIconDisplay(weaponSys.CurrentUpgradeAsBase);
+                    UpdateWeaponIconDisplay(weaponSys.CurrentUpgradeAsBaseType);
                 }
             }
             else

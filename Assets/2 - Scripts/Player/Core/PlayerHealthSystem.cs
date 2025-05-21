@@ -1,17 +1,14 @@
-// --- START OF FILE PlayerHealthSystem.cs ---
 using System.Collections;
 using Scripts.Core;
 using Scripts.Core.Interfaces;
-using Scripts.Checkpoints;
 using Scripts.Items.Checkpoint;
 using Unity.Cinemachine;
 using UnityEngine;
-using Scripts.Player.Core;
-using Scripts.Player.Movement;
+using Scripts.Player.Movement; // Asumo que PlayerMovement2D es para deshabilitar el movimiento
+using Scripts.Player.Weapons; // <--- NUEVO: Para acceder a WeaponBase
 
 namespace Scripts.Player.Core
 {
-    // Ya no necesita [RequireComponent(typeof(SpriteRenderer))] si el SpriteRenderer está en un hijo
     public class PlayerHealthSystem : MonoBehaviour, IHealLife, IHealArmor, IDamageable
     {
         [Header("Health Configuration")]
@@ -20,44 +17,68 @@ namespace Scripts.Player.Core
         [SerializeField] private float invulnerabilityDuration = 1.5f;
 
         [Header("Visual Feedback")]
-        [Tooltip("SpriteRenderer for the player's main body. Used for flashing effect during invulnerability. Should be assigned if not on this GameObject.")]
-        [SerializeField] private SpriteRenderer playerBodySpriteRenderer; // <--- NUEVO CAMPO / MODIFICADO
-        [Tooltip("Interval (in seconds) for sprite flashing during invulnerability.")]
+        [SerializeField] private SpriteRenderer playerBodySpriteRenderer;
         [SerializeField] private float invulnerabilityFlashInterval = 0.1f;
 
-        // ... (resto de tus campos existentes: playerAnimator, deathAnimationTrigger, etc.) ...
         [Header("Death & Respawn")]
-        [SerializeField] private Animator playerAnimator; // Este debería ser el Animator en PlayerVisuals/BodySprite
-        [SerializeField] private string deathAnimationTrigger = GameConstants.AnimDieTrigger; // Usando GameConstants
+        [SerializeField] private Animator playerAnimator;
+        [SerializeField] private string deathAnimationTrigger = GameConstants.AnimDieTrigger;
         [SerializeField] private string respawnAnimationTrigger = GameConstants.AnimRespawnTrigger;
         [SerializeField] private CinemachineCamera playerFocusedCamera;
         [SerializeField] private float deathCameraZoomSize = 3f;
         [SerializeField] private float deathCameraZoomDuration = 1.5f;
+
+        // --- Referencias a otros componentes del jugador ---
+        private PlayerMovement2D playerMovement; // Asumo que este es el script de movimiento principal
+        private WeaponBase playerWeaponBase;   // <--- NUEVO: Referencia al sistema de armas
 
         private int currentLives;
         private int currentArmor;
         private bool isInvulnerable = false;
         private bool isDead = false;
         private float initialCameraOrthographicSize;
-
-        private PlayerMovement2D playerMovement;
         private Coroutine invulnerabilityFlashCoroutine;
 
         private void Awake()
         {
-            playerMovement = GetComponent<PlayerMovement2D>();
-            
-            // Si playerBodySpriteRenderer no se asigna en el Inspector, intenta encontrarlo en hijos.
-            // Esto asume una estructura como PlayerRoot -> PlayerVisuals -> BodySprite (con SpriteRenderer)
+            // Intenta obtener PlayerMovement2D del mismo GameObject o de un padre si es necesario.
+            // Si está en Player_Root y PlayerHealthSystem también, GetComponent es suficiente.
+
+            // Obtener WeaponBase
+            // Asumimos que PlayerHealthSystem y WeaponBase comparten un ancestro común (Player_root)
+            // y WeaponBase está en un hijo de ese ancestro.
+            Transform playerRoot = transform.parent?.parent; // Sube dos niveles: LogicContainer_Health -> Logic -> Player_root
+            // O si LogicContainer_Health está directamente bajo Player_root:
+            // Transform playerRoot = transform.parent; // LogicContainer_Health -> Player_root
+
+            if (playerRoot != null)
+            {
+                playerWeaponBase = playerRoot.GetComponentInChildren<WeaponBase>(true); // Busca en Player_root y todos sus hijos (incluyendo inactivos)
+            }
+    
+            // Fallback o alternativa si la estructura es más plana o Player_root es el padre directo del GO de este script
+            if (playerWeaponBase == null && transform.parent != null) // Si no se encontró arriba, o si playerRoot no era el correcto
+            {
+                // Quizás Player_root es el padre directo de LogicContainer_Health
+                // y LogicContainer_Weapons también es hijo directo de Player_root
+                playerWeaponBase = transform.parent.GetComponentInChildren<WeaponBase>(true);
+            }
+
+
+            if (playerWeaponBase == null)
+            {
+                Debug.LogError("PlayerHealthSystem: WeaponBase component not found on player hierarchy! " +
+                               "Cannot reset weapon on death. Check player prefab structure and WeaponBase location.", this);
+            }
+
             if (playerBodySpriteRenderer == null)
             {
-                playerBodySpriteRenderer = GetComponentInChildren<SpriteRenderer>(true); // true para incluir inactivos
+                playerBodySpriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
                 if (playerBodySpriteRenderer == null)
                 {
                     Debug.LogError("PlayerHealthSystem: Player Body SpriteRenderer not found or assigned! Flashing will not work.", this);
                 }
             }
-            // Similar para playerAnimator si no está en el mismo objeto que PlayerHealthSystem
             if (playerAnimator == null)
             {
                 playerAnimator = GetComponentInChildren<Animator>(true);
@@ -67,7 +88,6 @@ namespace Scripts.Player.Core
                 }
             }
 
-
             if (playerFocusedCamera != null)
             {
                 initialCameraOrthographicSize = playerFocusedCamera.Lens.OrthographicSize;
@@ -76,7 +96,6 @@ namespace Scripts.Player.Core
 
         private void Start()
         {
-            // ... (tu lógica de Start existente, incluyendo el reseteo de checkpoints y la inicialización de salud) ...
             currentLives = maxLives;
             currentArmor = maxArmorPerLife;
             isDead = false; 
@@ -91,17 +110,24 @@ namespace Scripts.Player.Core
                 playerFocusedCamera.Lens.OrthographicSize = initialCameraOrthographicSize;
             }
             CheckpointManager.ResetCheckpointData(); 
+            // Asegúrate de que esto se llame *después* de que Player_Root (y por tanto el jugador) esté en su posición inicial en la escena.
+            // Si Start() de PlayerHealthSystem se ejecuta antes de que el nivel posicione al jugador, este spawn point podría ser incorrecto.
+            // Considera llamarlo desde un LevelManager o similar después de la carga/preparación del nivel.
             CheckpointManager.SetInitialLevelSpawnPoint(transform.position); 
             PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); 
             InputManager.Instance?.EnablePlayerControls();
             Time.timeScale = 1f;
+
+            // Asegurarse de que el arma inicial esté equipada al comenzar el juego/nivel.
+            // WeaponBase ya lo hace en su Awake/Start si initialUpgradePrefab está asignado.
         }
 
         public void TakeDamage(float damageAmount)
         {
             if (isInvulnerable || isDead) return;
 
-            currentArmor--;
+            int damage = Mathf.FloorToInt(damageAmount); // Asumiendo que el daño siempre es entero o se redondea hacia abajo.
+            currentArmor -= damage;
             PlayerEvents.RaiseHealthChanged(currentLives, currentArmor < 0 ? 0 : currentArmor);
 
             if (currentArmor < 0)
@@ -115,7 +141,6 @@ namespace Scripts.Player.Core
                 }
                 else
                 {
-                    // Actualiza la UI para mostrar la nueva cantidad de vidas, y que la armadura se restaurará.
                     PlayerEvents.RaiseHealthChanged(currentLives, maxArmorPerLife); 
                     StartCoroutine(LoseLifeAndRespawnSequence());
                 }
@@ -126,7 +151,6 @@ namespace Scripts.Player.Core
             }
         }
         
-        // --- SECUENCIAS DE MUERTE Y RESPAWN ---
         private IEnumerator LoseLifeAndRespawnSequence()
         {
             isDead = true; 
@@ -138,7 +162,6 @@ namespace Scripts.Player.Core
             if (playerAnimator != null && !string.IsNullOrEmpty(deathAnimationTrigger))
             {
                 playerAnimator.SetTrigger(deathAnimationTrigger);
-                // Estima un tiempo para la animación de "perder vida" o usa un evento de animación si es complejo
                 yield return new WaitForSeconds(0.75f); 
             }
             
@@ -147,9 +170,20 @@ namespace Scripts.Player.Core
 
             transform.position = CheckpointManager.GetCurrentRespawnPosition();
             
+            // *** NUEVO: Resetear el arma al arma inicial ***
+            if (playerWeaponBase != null)
+            {
+                // Debug.Log("PlayerHealthSystem: Resetting weapon to initial after losing a life.");
+                playerWeaponBase.EquipInitialUpgrade(); // Necesitaremos añadir este método a WeaponBase
+            }
+            else
+            {
+                // Debug.LogWarning("PlayerHealthSystem: WeaponBase reference missing, cannot reset weapon.");
+            }
+
             if (playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = true;
 
-            currentArmor = maxArmorPerLife; // Restaura la armadura para la vida recuperada
+            currentArmor = maxArmorPerLife;
             PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
 
             if (playerAnimator != null && !string.IsNullOrEmpty(respawnAnimationTrigger))
@@ -162,7 +196,7 @@ namespace Scripts.Player.Core
             InputManager.Instance?.EnablePlayerControls();
             
             isDead = false; 
-            StartCoroutine(BeginInvulnerability()); // Invulnerabilidad después de respawnear
+            StartCoroutine(BeginInvulnerability());
         }
 
         private IEnumerator FinalDeathSequence()
@@ -173,17 +207,20 @@ namespace Scripts.Player.Core
             InputManager.Instance?.DisableAllControls();
             if (playerMovement != null) playerMovement.enabled = false;
 
+            // También podrías querer resetear el arma aquí si el juego permite "continuar" desde un game over
+            // volviendo al checkpoint pero con el arma inicial. Por ahora, lo dejamos así.
+
             if (playerAnimator != null && !string.IsNullOrEmpty(deathAnimationTrigger))
             {
                 playerAnimator.SetTrigger(deathAnimationTrigger);
             }
             
-            PlayerEvents.RaisePlayerDeath(); // Notifica a GameOverUIController, etc.
+            PlayerEvents.RaisePlayerDeath(); 
 
             if (playerFocusedCamera != null)
             {
                 float startTime = Time.unscaledTime; 
-                float currentCamSize = playerFocusedCamera.Lens.OrthographicSize; // Cachear al inicio del lerp
+                float currentCamSize = playerFocusedCamera.Lens.OrthographicSize; 
                 while (Time.unscaledTime < startTime + deathCameraZoomDuration)
                 {
                     float t = (Time.unscaledTime - startTime) / deathCameraZoomDuration;
@@ -196,16 +233,13 @@ namespace Scripts.Player.Core
             {
                 yield return new WaitForSecondsRealtime(1.0f); 
             }
-            // El juego debería estar pausado por GameOverUIController en este punto
         }
 
-        // --- INVULNERABILIDAD Y FEEDBACK VISUAL ---
         private IEnumerator BeginInvulnerability()
         {
             isInvulnerable = true;
             if (invulnerabilityFlashCoroutine != null) StopCoroutine(invulnerabilityFlashCoroutine);
             
-            // Solo inicia el flash si el SpriteRenderer del cuerpo está asignado y el GO está activo
             if (playerBodySpriteRenderer != null && playerBodySpriteRenderer.gameObject.activeInHierarchy) 
             {
                  invulnerabilityFlashCoroutine = StartCoroutine(FlashSpriteCoroutine(playerBodySpriteRenderer, invulnerabilityDuration, invulnerabilityFlashInterval));
@@ -225,63 +259,64 @@ namespace Scripts.Player.Core
         {
             if (spriteToFlash == null) yield break;
             
-            // Debug.Log($"FlashSpriteCoroutine START for {duration}s, interval {interval}s", this); // Uncomment for debugging
             float endTime = Time.time + duration;
-            bool originalVisibility = spriteToFlash.enabled; // Captura el estado inicial
+            // bool originalVisibility = spriteToFlash.enabled; // No es necesario si siempre lo pones true al final
 
             try
             {
-                while (Time.time < endTime && isInvulnerable) // Continúa solo si sigue invulnerable
+                while (Time.time < endTime && isInvulnerable) 
                 {
                     spriteToFlash.enabled = !spriteToFlash.enabled;
                     yield return new WaitForSeconds(interval);
                 }
             }
-            finally // Bloque finally para asegurar que el sprite se restaure
+            finally
             {
-                spriteToFlash.enabled = originalVisibility; // Restaura al estado original (o siempre true)
-                // Debug.Log($"FlashSpriteCoroutine END. Sprite enabled: {spriteToFlash.enabled}", this); // Uncomment for debugging
+                spriteToFlash.enabled = true; // Siempre asegurar que sea visible al final
             }
         }
 
-        // --- MÉTODOS DE CURACIÓN ---
         public void HealLife(int amount)
         {
-            // ... (lógica existente sin cambios significativos) ...
             if (isDead || amount <= 0) return;
             int previousLives = currentLives;
             currentLives = Mathf.Min(currentLives + amount, maxLives);
-            if(currentLives > previousLives) currentArmor = maxArmorPerLife;
+            if(currentLives > previousLives && currentLives <= maxLives) { // Solo restaura armadura si realmente ganó una vida y no estaba ya al máximo de vidas
+                 currentArmor = maxArmorPerLife;
+            }
             PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
         }
 
         public void HealArmor(int amount)
         {
-            // ... (lógica existente sin cambios significativos) ...
-            if (isDead || currentLives < 0 || amount <= 0) return;
-            currentArmor = (amount >= maxArmorPerLife) ? maxArmorPerLife : Mathf.Min(currentArmor + amount, maxArmorPerLife);
+            if (isDead || currentLives < 0 || amount <= 0) return; // currentLives < 0 es redundante si isDead ya lo cubre
+            currentArmor = Mathf.Min(currentArmor + amount, maxArmorPerLife);
+            if (currentLives == 0 && currentArmor > 0) currentArmor = 0; // No deberías tener armadura si no tienes vidas (lógica de game over)
             PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
         }
 
-        // --- GETTERS Y RESET ---
         public int GetCurrentLives() => currentLives;
         public int GetCurrentArmor() => currentArmor;
         public bool IsCurrentlyInvulnerable() => isInvulnerable;
 
-        public void FullResetPlayerHealth()
+        public void FullResetPlayerHealth() // Usado para reiniciar nivel o similar
         {
-            // ... (lógica existente) ...
-            currentLives = maxLives; currentArmor = maxArmorPerLife; isDead = false; isInvulnerable = false;
+            currentLives = maxLives; 
+            currentArmor = maxArmorPerLife; 
+            isDead = false; 
+            isInvulnerable = false;
             if (invulnerabilityFlashCoroutine != null) StopCoroutine(invulnerabilityFlashCoroutine);
             if(playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = true;
             if (playerFocusedCamera != null) playerFocusedCamera.Lens.OrthographicSize = initialCameraOrthographicSize;
+            
+            if (playerWeaponBase != null)
+            {
+                playerWeaponBase.EquipInitialUpgrade(); // También resetea el arma aquí
+            }
+
             PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
         }
 
-        /// <summary>
-        /// Public method to directly trigger the final death sequence.
-        /// Used by DeathZones or other instakill mechanics.
-        /// </summary>
         public void TriggerInstakill()
         {
             if (isDead) return;
@@ -292,4 +327,3 @@ namespace Scripts.Player.Core
         }
     }
 }
-// --- END OF FILE PlayerHealthSystem.cs ---

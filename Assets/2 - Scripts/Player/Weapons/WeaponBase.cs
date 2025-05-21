@@ -1,22 +1,16 @@
-// --- START OF FILE WeaponBase.cs ---
 using UnityEngine;
 using Scripts.Player.Weapons.Interfaces;
 using Scripts.Core; 
-using Scripts.Player.Weapons.Upgrades; 
 using Scripts.Player.Core; 
-using UnityEngine.InputSystem; 
+using UnityEngine.InputSystem;
 
 namespace Scripts.Player.Weapons
 {
     public class WeaponBase : MonoBehaviour
     {
         [Header("Core References")]
-        [Tooltip("The transform from which projectiles are spawned. Should be a child of the object that rotates with aim.")]
         [SerializeField] private Transform firePoint;
-        [Tooltip("Reference to the AimDirectionResolver to get the current aiming direction.")]
         [SerializeField] private AimDirectionResolver aimResolver;
-        [Tooltip("The Transform of the GameObject that visually represents the arm and weapon, " +
-                 "and which rotates with aim. FirePoint should be a child of this.")]
         [SerializeField] private Transform aimableArmTransform;
 
         [Header("Initial Weapon Setup")]
@@ -24,8 +18,16 @@ namespace Scripts.Player.Weapons
 
         [Header("Upgrade Management")]
         [SerializeField] private Transform upgradeContainer;
-        private GameObject currentInstantiatedUpgradeGameObject;
+        [SerializeField] private GameObject currentInstantiatedUpgradeGameObject; 
         private IWeaponUpgrade currentUpgradeInterface;
+
+        // NUEVO CAMPO: Layer para los Pickups
+        [Header("External Object Layers (Optional)")]
+        [Tooltip("The layer on which weapon upgrade pickups are expected to be. (For reference or future systems)")]
+        [SerializeField] private LayerMask pickupObjectLayer; // Puedes usar LayerMask si quieres seleccionar múltiples, o int si es solo una.
+                                                            // Usaré LayerMask por consistencia con cómo se suelen manejar las capas en el Inspector.
+                                                            // Si solo es UNA capa, un int y LayerMask.NameToLayer sería más conciso en código,
+                                                            // pero LayerMask es más amigable en el Inspector.
 
         [Header("Firing Control (Semi-Automatic)")]
         [SerializeField] private float semiAutoFireCooldown = 0.2f;
@@ -35,13 +37,12 @@ namespace Scripts.Player.Weapons
 
         private void Awake()
         {
-            //Debug.Log($"WeaponBase ({gameObject.name}): Awake called. Scene: {gameObject.scene.name}", this); // CHIVATO ESCENA
-
-            if (firePoint == null) Debug.LogError("WeaponBase: 'FirePoint' is not assigned!", this);
+            // ... (resto de Awake sin cambios relevantes a esta adición) ...
+            if (firePoint == null) Debug.LogError($"WeaponBase ({gameObject.name}): 'FirePoint' is not assigned!", this);
             if (aimResolver == null)
             {
                 aimResolver = GetComponentInParent<AimDirectionResolver>() ?? GetComponent<AimDirectionResolver>();
-                if (aimResolver == null) Debug.LogError("WeaponBase: 'AimDirectionResolver' could not be found.", this);
+                if (aimResolver == null) Debug.LogError($"WeaponBase ({gameObject.name}): 'AimDirectionResolver' could not be found.", this);
             }
             if (upgradeContainer == null) upgradeContainer = transform;
 
@@ -49,62 +50,145 @@ namespace Scripts.Player.Weapons
             {
                 InputManager.Instance.Controls.Player.Shoot.started += OnShootActionPerformed;
                 InputManager.Instance.Controls.Player.Shoot.canceled += OnShootActionPerformed;
-                //Debug.Log($"WeaponBase ({gameObject.name}): Subscribed to Shoot action.", this); // CHIVATO
             }
-            //else Debug.LogError("WeaponBase: Could not subscribe to Shoot action. InputManager or Controls might be missing.", this);
+            else Debug.LogWarning($"WeaponBase ({gameObject.name}): Could not subscribe to Shoot action in Awake. InputManager or Controls might be missing or not enabled yet.", this);
 
+            EquipInitialUpgrade();
+            
+            if (aimableArmTransform == null)
+            {
+                if (firePoint != null && firePoint.parent != transform && firePoint.parent != upgradeContainer) 
+                {
+                    aimableArmTransform = firePoint.parent;
+                }
+                else
+                {
+                    aimableArmTransform = firePoint; 
+                    if (aimableArmTransform == null) Debug.LogError($"WeaponBase ({gameObject.name}): 'FirePoint' is not assigned, cannot default Aimable Arm Transform!", this);
+                    else Debug.LogWarning($"WeaponBase ({gameObject.name}): 'Aimable Arm Transform' not assigned. Defaulting to rotating the FirePoint itself.", this);
+                }
+            }
+
+            // Ejemplo de uso (opcional): Validar si la capa de pickup está configurada
+            if (pickupObjectLayer.value == 0) // Ninguna capa seleccionada
+            {
+                Debug.LogWarning($"WeaponBase ({gameObject.name}): 'Pickup Object Layer' is not configured (set to 'Nothing'). This might be intentional or an oversight.", this);
+            }
+        }
+
+        // ... (OnDestroy, OnShootActionPerformed, Update sin cambios relevantes) ...
+
+        public void EquipUpgradeFromPrefab(GameObject upgradePrefabToEquip)
+        {
+            // ... (sin cambios relevantes a esta adición) ...
+            if (upgradePrefabToEquip == null)
+            {
+                Debug.LogWarning($"WeaponBase ({gameObject.name}): EquipUpgradeFromPrefab called with null prefab.", this);
+                return;
+            }
+
+            IWeaponUpgrade prospectiveUpgrade = upgradePrefabToEquip.GetComponentInChildren<IWeaponUpgrade>(true) ?? upgradePrefabToEquip.GetComponent<IWeaponUpgrade>();
+            if (prospectiveUpgrade == null)
+            {
+                Debug.LogError($"WeaponBase ({gameObject.name}): Prefab '{upgradePrefabToEquip.name}' does not contain a valid IWeaponUpgrade component. Cannot equip.", this);
+                return;
+            }
+
+            if (currentInstantiatedUpgradeGameObject != null)
+            {
+                Destroy(currentInstantiatedUpgradeGameObject);
+                currentInstantiatedUpgradeGameObject = null; 
+            }
+
+            currentInstantiatedUpgradeGameObject = Instantiate(upgradePrefabToEquip, upgradeContainer);
+            currentInstantiatedUpgradeGameObject.transform.localPosition = Vector3.zero;
+            currentInstantiatedUpgradeGameObject.transform.localRotation = Quaternion.identity;
+            currentInstantiatedUpgradeGameObject.name = upgradePrefabToEquip.name + "_Instance"; 
+
+            IWeaponUpgrade newEquippedUpgrade = currentInstantiatedUpgradeGameObject.GetComponentInChildren<IWeaponUpgrade>(true) ?? currentInstantiatedUpgradeGameObject.GetComponent<IWeaponUpgrade>();
+            
+            SetInternalUpgradeState(newEquippedUpgrade);
+        }
+
+        public void EquipInitialUpgrade()
+        {
+            // ... (sin cambios relevantes a esta adición) ...
             if (initialUpgradePrefab != null)
             {
                 EquipUpgradeFromPrefab(initialUpgradePrefab);
             }
             else
             {
-                PlayerEvents.RaisePlayerWeaponChanged(null);
-                //Debug.Log($"WeaponBase ({gameObject.name}): No initial upgrade prefab assigned.", this); // CHIVATO
-            }
-            
-            if (aimableArmTransform == null)
-            {
-                if (firePoint != null && firePoint.parent != transform) // Asume que firePoint está anidado bajo el brazo
+                if (currentInstantiatedUpgradeGameObject != null)
                 {
-                    aimableArmTransform = firePoint.parent;
-                    //Debug.LogWarning($"WeaponBase: 'Aimable Arm Transform' not assigned. Assuming FirePoint's parent: {aimableArmTransform?.name}", this);
+                    Destroy(currentInstantiatedUpgradeGameObject);
+                    currentInstantiatedUpgradeGameObject = null;
                 }
-                else
-                {
-                    aimableArmTransform = firePoint; // Fallback: rotar el firePoint mismo si no hay una jerarquía de brazo clara
-                    if (aimableArmTransform == null) Debug.LogError("WeaponBase: 'FirePoint' (and thus Aimable Arm Transform) is not assigned!", this);
-                    else Debug.LogWarning("WeaponBase: 'Aimable Arm Transform' not assigned. Defaulting to rotating the FirePoint itself.", this);
-                }
+                SetInternalUpgradeState(null);
+                Debug.LogWarning($"WeaponBase ({gameObject.name}): No initial upgrade prefab assigned. Player will be unarmed if no other upgrade is equipped.", this);
             }
         }
 
+        private void SetInternalUpgradeState(IWeaponUpgrade newUpgrade)
+        {
+            // ... (sin cambios relevantes a esta adición) ...
+            currentUpgradeInterface = newUpgrade;
+
+            if (currentUpgradeInterface is MonoBehaviour newMonoBehaviour && newMonoBehaviour != null)
+            {
+                if (!newMonoBehaviour.gameObject.activeSelf)
+                {
+                    newMonoBehaviour.gameObject.SetActive(true);
+                }
+                if (!newMonoBehaviour.enabled)
+                {
+                    newMonoBehaviour.enabled = true;
+                }
+            }
+            
+            PlayerEvents.RaisePlayerWeaponChanged(currentUpgradeInterface as Scripts.Player.Weapons.Upgrades.BaseWeaponUpgrade);
+            semiAutoFireTimer = 0; 
+        }
+        
+        private void RotateTransformToAim(Transform objectToRotate, Vector2 direction)
+        {
+            // ... (sin cambios relevantes a esta adición) ...
+            if (objectToRotate != null && direction.sqrMagnitude > 0.01f)
+            {
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                objectToRotate.rotation = Quaternion.Euler(0, 0, angle);
+            }
+        }
+        
+        public Scripts.Player.Weapons.Upgrades.BaseWeaponUpgrade CurrentUpgradeAsBaseType => currentUpgradeInterface as Scripts.Player.Weapons.Upgrades.BaseWeaponUpgrade;
+        public IWeaponUpgrade GetCurrentUpgradeInterface() => currentUpgradeInterface;
+
+        // Getter para la capa de pickups si otros scripts necesitan consultarla
+        public LayerMask GetPickupObjectLayer() => pickupObjectLayer;
+
+
         private void OnDestroy()
         {
-            //Debug.Log($"WeaponBase ({gameObject.name}): OnDestroy called. Scene: {gameObject.scene.name}", this); // CHIVATO ESCENA
             if (InputManager.Instance?.Controls?.Player.Shoot != null)
             {
                 InputManager.Instance.Controls.Player.Shoot.started -= OnShootActionPerformed;
                 InputManager.Instance.Controls.Player.Shoot.canceled -= OnShootActionPerformed;
-                //Debug.Log($"WeaponBase ({gameObject.name}): Unsubscribed from Shoot action.", this); // CHIVATO
             }
             if (currentInstantiatedUpgradeGameObject != null)
             {
                 Destroy(currentInstantiatedUpgradeGameObject);
+                currentInstantiatedUpgradeGameObject = null;
             }
         }
 
         private void OnShootActionPerformed(InputAction.CallbackContext context)
         {
             isShootActionPressed = context.ReadValueAsButton();
-            //Debug.Log($"WeaponBase ({gameObject.name}): OnShootActionPerformed - Phase: {context.phase}, IsPressed: {isShootActionPressed}", this); // CHIVATO
         }
 
         private void Update()
         {
-            if (currentUpgradeInterface == null) { /* Debug.Log($"WeaponBase ({gameObject.name}): Update - currentUpgradeInterface is NULL.", this); */ return; } // CHIVATO (comentado para no spamear)
-            if (aimResolver == null) { /* Debug.Log($"WeaponBase ({gameObject.name}): Update - aimResolver is NULL.", this); */ return; } // CHIVATO
-            if (firePoint == null) { /* Debug.Log($"WeaponBase ({gameObject.name}): Update - firePoint is NULL.", this); */ return; } // CHIVATO
+            if (currentUpgradeInterface == null || aimResolver == null || firePoint == null) return;
 
             if (semiAutoFireTimer > 0)
             {
@@ -113,100 +197,52 @@ namespace Scripts.Player.Weapons
 
             RotateTransformToAim(aimableArmTransform, aimResolver.CurrentDirection);
 
-            bool singleShotRequestedThisFrame = InputManager.Instance.Controls.Player.Shoot.WasPressedThisFrame();
-            if (singleShotRequestedThisFrame) Debug.Log($"WeaponBase ({gameObject.name}): SingleShotRequestedThisFrame = TRUE", this); // CHIVATO
-
-            // Check current action map
-            // if (InputManager.Instance != null && !InputManager.Instance.Controls.Player.enabled) {
-            //     Debug.LogWarning($"WeaponBase ({gameObject.name}): Player action map is DISABLED in Update!", this); // CHIVATO IMPORTANTE
-            // }
-
+            bool singleShotRequestedThisFrame = InputManager.Instance?.Controls?.Player.Shoot.WasPressedThisFrame() ?? false;
 
             if (currentUpgradeInterface is IAutomaticWeapon automaticWeapon)
             {
-                if (isShootActionPressed) // CHIVATO: ¿Llega aquí cuando mantienes pulsado?
+                if (isShootActionPressed && currentUpgradeInterface.CanFire())
                 {
-                    // Debug.Log($"WeaponBase ({gameObject.name}): Update - Auto - isShootActionPressed: {isShootActionPressed}", this); // Uncomment for spammy log
-                    if (currentUpgradeInterface.CanFire())
-                    {
-                        //Debug.Log($"WeaponBase ({gameObject.name}): Update - Auto - FIRING!", this); // CHIVATO
-                        automaticWeapon.HandleAutomaticFire(firePoint, aimResolver.CurrentDirection);
-                    }
-                    // else Debug.Log($"WeaponBase ({gameObject.name}): Update - Auto - CanFire returned FALSE.", this); // CHIVATO
+                    automaticWeapon.HandleAutomaticFire(firePoint, aimResolver.CurrentDirection);
                 }
             }
-            else if (currentUpgradeInterface is IBurstWeapon burstWeapon)
+            else 
             {
-                if (singleShotRequestedThisFrame) // CHIVATO: ¿Llega aquí cuando pulsas una vez?
+                if (singleShotRequestedThisFrame && semiAutoFireTimer <= 0 && currentUpgradeInterface.CanFire())
                 {
-                    // Debug.Log($"WeaponBase ({gameObject.name}): Update - Burst - singleShotRequestedThisFrame: {singleShotRequestedThisFrame}, semiAutoFireTimer: {semiAutoFireTimer}", this); // Uncomment for spammy log
-                    if (semiAutoFireTimer <= 0 && currentUpgradeInterface.CanFire())
+                    if (currentUpgradeInterface is IBurstWeapon burstWeapon)
                     {
-                         Debug.Log($"WeaponBase ({gameObject.name}): Update - Burst - FIRING!", this); // CHIVATO
                         burstWeapon.StartBurst(firePoint, aimResolver.CurrentDirection);
-                        semiAutoFireTimer = Mathf.Max(semiAutoFireCooldown, currentUpgradeInterface.GetFireCooldown());
                     }
-                    // else Debug.Log($"WeaponBase ({gameObject.name}): Update - Burst - Cooldown or CanFire check failed.", this); // CHIVATO
-                }
-            }
-            else // Default to semi-automatic
-            {
-                if (singleShotRequestedThisFrame) // CHIVATO: ¿Llega aquí cuando pulsas una vez?
-                {
-                    // Debug.Log($"WeaponBase ({gameObject.name}): Update - Semi - singleShotRequestedThisFrame: {singleShotRequestedThisFrame}, semiAutoFireTimer: {semiAutoFireTimer}", this); // Uncomment for spammy log
-                    if (semiAutoFireTimer <= 0 && currentUpgradeInterface.CanFire())
+                    else 
                     {
-                        //Debug.Log($"WeaponBase ({gameObject.name}): Update - Semi - FIRING!", this); // CHIVATO
                         currentUpgradeInterface.Fire(firePoint, aimResolver.CurrentDirection);
-                        semiAutoFireTimer = Mathf.Max(semiAutoFireCooldown, currentUpgradeInterface.GetFireCooldown());
                     }
-                    // else Debug.Log($"WeaponBase ({gameObject.name}): Update - Semi - Cooldown or CanFire check failed.", this); // CHIVATO
+                    semiAutoFireTimer = Mathf.Max(semiAutoFireCooldown, currentUpgradeInterface.GetFireCooldown());
                 }
             }
-            
         }
-        
-        public void EquipUpgradeFromPrefab(GameObject upgradePrefabToEquip)
-        {
-            if (upgradePrefabToEquip == null) return;
-            IWeaponUpgrade testUpgradeInterface = upgradePrefabToEquip.GetComponentInChildren<IWeaponUpgrade>(true) ?? upgradePrefabToEquip.GetComponent<IWeaponUpgrade>();
-            if (testUpgradeInterface == null) { Debug.LogError($"WeaponBase: Prefab '{upgradePrefabToEquip.name}' invalid.", this); return; }
-            if (currentInstantiatedUpgradeGameObject != null) Destroy(currentInstantiatedUpgradeGameObject);
-            currentInstantiatedUpgradeGameObject = Instantiate(upgradePrefabToEquip, upgradeContainer);
-            currentInstantiatedUpgradeGameObject.transform.localPosition = Vector3.zero;
-            currentInstantiatedUpgradeGameObject.transform.localRotation = Quaternion.identity;
-            currentInstantiatedUpgradeGameObject.name = upgradePrefabToEquip.name + "_Instance";
-            IWeaponUpgrade newEquippedUpgrade = currentInstantiatedUpgradeGameObject.GetComponentInChildren<IWeaponUpgrade>(true) ?? currentInstantiatedUpgradeGameObject.GetComponent<IWeaponUpgrade>();
-            SetInternalUpgradeState(newEquippedUpgrade);
-            //Debug.Log($"WeaponBase ({gameObject.name}): Equipped upgrade from prefab '{upgradePrefabToEquip.name}'.", this); // CHIVATO
-        }
-
-        private void SetInternalUpgradeState(IWeaponUpgrade newUpgrade)
-        {
-            currentUpgradeInterface = newUpgrade;
-            if (currentUpgradeInterface is MonoBehaviour newMonoBehaviour && newMonoBehaviour != null) { newMonoBehaviour.enabled = true; if (!newMonoBehaviour.gameObject.activeSelf) newMonoBehaviour.gameObject.SetActive(true); }
-            PlayerEvents.RaisePlayerWeaponChanged(currentUpgradeInterface as BaseWeaponUpgrade);
-            semiAutoFireTimer = 0; 
-            //Debug.Log($"WeaponBase ({gameObject.name}): Internal upgrade state set to '{(newUpgrade as MonoBehaviour)?.name ?? "None"}'.", this); // CHIVATO
-        }
-        
-        private void RotateTransformToAim(Transform objectToRotate, Vector2 direction)
-        {
-            if (objectToRotate != null && direction.sqrMagnitude > 0.01f)
-            {
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                objectToRotate.rotation = Quaternion.Euler(0, 0, angle);
-            }
-        }
-        
-        public BaseWeaponUpgrade CurrentUpgradeAsBase => currentUpgradeInterface as BaseWeaponUpgrade;
-        public IWeaponUpgrade GetCurrentUpgrade() => currentUpgradeInterface;
 
         private void OnValidate()
         {
-            // ... (sin cambios) ...
-            if (aimResolver == null) aimResolver = GetComponentInParent<AimDirectionResolver>() ?? GetComponent<AimDirectionResolver>(); if (firePoint == null && transform.childCount > 0) firePoint = transform.GetChild(0); if (upgradeContainer == null) upgradeContainer = transform;
+            if (Application.isPlaying || !gameObject.scene.IsValid()) return;
+
+            if (aimResolver == null) aimResolver = GetComponentInParent<AimDirectionResolver>() ?? GetComponent<AimDirectionResolver>();
+            if (upgradeContainer == null) upgradeContainer = transform;
+
+            if (initialUpgradePrefab != null)
+            {
+                IWeaponUpgrade potentialInitialUpgrade = initialUpgradePrefab.GetComponentInChildren<IWeaponUpgrade>(true) ?? initialUpgradePrefab.GetComponent<IWeaponUpgrade>();
+                if (potentialInitialUpgrade == null)
+                {
+                    Debug.LogError($"WeaponBase ({gameObject.name}): OnValidate - The 'Initial Upgrade Prefab' ('{initialUpgradePrefab.name}') " +
+                                     "does not contain any component that implements IWeaponUpgrade.", this);
+                }
+            }
+            // Opcional: Validar que pickupObjectLayer esté configurado si es crítico
+            // if (pickupObjectLayer.value == 0) {
+            //     Debug.LogWarning($"WeaponBase ({gameObject.name}): OnValidate - 'Pickup Object Layer' is not configured.", this);
+            // }
         }
     }
 }
-// --- END OF FILE WeaponBase.cs ---
