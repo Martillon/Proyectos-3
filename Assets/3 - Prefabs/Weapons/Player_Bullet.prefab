@@ -78,7 +78,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: 252688492, guid: 07775f23e55335244a0defc772539676, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -148,8 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd1078c6bf6e34048997577b78f71d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  lifetime: 10
+  speed: 7.5
+  lifetime: 0.8
   hittableTag: Hittable
   ignorePlayerCollision: 1
   impactVFXPrefab: {fileID: 0}
