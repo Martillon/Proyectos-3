@@ -131,8 +131,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 261416036b147d2469d1a7ebd3dcdc6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  standingColliderObject: {fileID: 6727546462888763051}
-  crouchingColliderObject: {fileID: 7332891486622959373}
+  standingColliderGO: {fileID: 6727546462888763051}
+  crouchingColliderGO: {fileID: 7332891486622959373}
   firePointTransform: {fileID: 2646109473616756967}
   firePointStandingLocalPos: {x: 0.5, y: 0.04, z: 0}
   firePointCrouchingLocalPos: {x: 0.5, y: -0.5, z: 0}
@@ -192,7 +192,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6251718003751311885}
   - component: {fileID: 2452416624767161543}
-  - component: {fileID: 3109995914849102489}
   m_Layer: 7
   m_Name: LogicContainer_Health
   m_TagString: Player
@@ -238,43 +237,6 @@ MonoBehaviour:
   playerFocusedCamera: {fileID: 0}
   deathCameraZoomSize: 3
   deathCameraZoomDuration: 1.5
---- !u!70 &3109995914849102489
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4784336284940929459}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.3, y: 1}
-  m_Direction: 0
 --- !u!1 &5195280029038726180
 GameObject:
   m_ObjectHideFlags: 0
@@ -533,6 +495,7 @@ GameObject:
   m_Component:
   - component: {fileID: 828720365906844900}
   - component: {fileID: 7488792869884885432}
+  - component: {fileID: 795676061277897756}
   m_Layer: 7
   m_Name: StandUp Collider
   m_TagString: Player
@@ -592,6 +555,19 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.3, y: 1}
   m_Direction: 0
+--- !u!114 &795676061277897756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6727546462888763051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 942bc0512c5296a489950fb21a643711, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainHealthSystem: {fileID: 2452416624767161543}
 --- !u!1 &6791747499485613874
 GameObject:
   m_ObjectHideFlags: 0
@@ -636,6 +612,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8250074878629967083}
   - component: {fileID: 6298412675927334074}
+  - component: {fileID: 3148424504033522019}
   m_Layer: 7
   m_Name: Crouch Collider
   m_TagString: Player
@@ -695,6 +672,19 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: -0.25}
   m_Size: {x: 0.5, y: 0.5}
   m_Direction: 1
+--- !u!114 &3148424504033522019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7332891486622959373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 942bc0512c5296a489950fb21a643711, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainHealthSystem: {fileID: 2452416624767161543}
 --- !u!1 &8816898818485719959
 GameObject:
   m_ObjectHideFlags: 0
@@ -705,8 +695,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1818947377514303170}
   - component: {fileID: 609864197953944947}
-  - component: {fileID: 351755833925862429}
   - component: {fileID: 2885523442813928405}
+  - component: {fileID: 351755833925862429}
   m_Layer: 7
   m_Name: PlayerVisuals
   m_TagString: Player
@@ -784,24 +774,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &351755833925862429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8816898818485719959}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db0b7b9348e8a764db291f193322dc1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bodyAnimator: {fileID: 2885523442813928405}
-  bodySpriteRenderer: {fileID: 609864197953944947}
-  visualsContainerTransform: {fileID: 1818947377514303170}
-  aimableArmObject: {fileID: 5356255291716726675}
-  armSpriteRenderer: {fileID: 2758304495769058431}
-  armVisualHolderTransform: {fileID: 0}
 --- !u!95 &2885523442813928405
 Animator:
   serializedVersion: 7
@@ -824,3 +796,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &351755833925862429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8816898818485719959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db0b7b9348e8a764db291f193322dc1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bodyAnimator: {fileID: 2885523442813928405}
+  bodySpriteRenderer: {fileID: 609864197953944947}
+  visualsContainerTransform: {fileID: 1818947377514303170}
+  aimableArmObject: {fileID: 5356255291716726675}
+  armSpriteRenderer: {fileID: 2758304495769058431}
+  armVisualHolderTransform: {fileID: 0}

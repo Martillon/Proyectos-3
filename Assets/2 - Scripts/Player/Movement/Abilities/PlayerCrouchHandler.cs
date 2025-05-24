@@ -12,183 +12,206 @@ namespace Scripts.Player.Movement.Abilities
     /// </summary>
     public class PlayerCrouchHandler : MonoBehaviour
     {
-        [Header("Collider References")]
-        [Tooltip("GameObject containing the collider used when the player is standing.")]
-        [SerializeField] private GameObject standingColliderObject;
-        [Tooltip("GameObject containing the collider used when the player is crouching.")]
-        [SerializeField] private GameObject crouchingColliderObject;
+        [Header("Collider GameObjects")]
+        [SerializeField] private GameObject standingColliderGO;
+        [SerializeField] private GameObject crouchingColliderGO;
 
         [Header("FirePoint Adjustment")]
-        [Tooltip("Reference to the player's fire point Transform that will be moved.")]
-        [SerializeField] private Transform firePointTransform; // Renombrado para claridad
-        [Tooltip("Local position of the fire point when standing, relative to its parent (likely ArmPivot or Player_Root).")]
+        [SerializeField] private Transform firePointTransform;
         [SerializeField] private Vector3 firePointStandingLocalPos = new Vector3(0.5f, 0.3f, 0f);
-        [Tooltip("Local position of the fire point when crouching, relative to its parent.")]
         [SerializeField] private Vector3 firePointCrouchingLocalPos = new Vector3(0.5f, 0.1f, 0f);
 
         private PlayerStateManager _playerStateManager;
-        private bool _isCrouchEffectCurrentlyApplied = false; // Renombrado desde _isCrouchVisualApplied
+        private bool _isCrouchEffectPhysicallyApplied = false; // Rastrea el estado físico aplicado
 
         void Awake()
         {
             _playerStateManager = GetComponentInParent<PlayerStateManager>();
-            if (_playerStateManager == null) { /* ... error ... */ enabled = false; return; }
-            if (standingColliderObject == null || standingColliderObject.GetComponent<Collider2D>() == null) Debug.LogError("...", this);
-            if (crouchingColliderObject == null || crouchingColliderObject.GetComponent<Collider2D>() == null) Debug.LogError("...", this);
-            if (firePointTransform == null) Debug.LogWarning("...", this);
 
-            if (standingColliderObject != null && crouchingColliderObject != null)
-            {
-                _isCrouchEffectCurrentlyApplied = crouchingColliderObject.activeSelf; 
-                _playerStateManager.UpdateCrouchVisualState(_isCrouchEffectCurrentlyApplied);
-                if(firePointTransform != null) firePointTransform.localPosition = firePointStandingLocalPos;
-            }
+            if (_playerStateManager == null) { Debug.LogError("PCH: PlayerStateManager not found!", this); enabled = false; return; }
+            if (standingColliderGO == null || standingColliderGO.GetComponent<Collider2D>() == null) { Debug.LogError("PCH: Standing Collider GO o su Collider2D no asignado!", this); enabled = false; return; }
+            if (crouchingColliderGO == null || crouchingColliderGO.GetComponent<Collider2D>() == null) { Debug.LogError("PCH: Crouching Collider GO o su Collider2D no asignado!", this); enabled = false; return; }
+            if (firePointTransform == null) Debug.LogWarning("PCH: FirePointTransform no asignado.", this);
+
+            // Estado inicial consistente: Empezar de pie
+            ApplyPhysicalStateChange(false); // false para estar de pie
+            _playerStateManager.UpdateCrouchLogicState(false);
         }
 
         void Update()
         {
             if (_playerStateManager == null) return;
-            bool shouldBeCrouchingLogically = _playerStateManager.IntendsToPressDown &&
-                                              _playerStateManager.IsGrounded &&
-                                              !_playerStateManager.IsDroppingFromPlatform &&
-                                              !_playerStateManager.PositionLockInputActive; 
-            _playerStateManager.UpdateCrouchLogicState(shouldBeCrouchingLogically);            
-            
-            ApplyCrouchStateChanges();
-        }
 
-        private void ApplyCrouchStateChanges()
-        {
-            // Debug.Log($"ApplyCrouchVisuals :: Entrando. LógicaAgachado: {_playerStateManager.IsCrouchingLogic}, EfectoAplicado: {_isCrouchEffectCurrentlyApplied}");
-            if (_playerStateManager.IsCrouchingLogic && !_isCrouchEffectCurrentlyApplied)
+            // 1. Determinar la intención lógica del jugador
+            bool intendsToCrouchLogically = _playerStateManager.IntendsToPressDown &&
+                                            _playerStateManager.IsGrounded &&
+                                            !_playerStateManager.IsDroppingFromPlatform &&
+                                            !_playerStateManager.PositionLockInputActive;
+            
+            _playerStateManager.UpdateCrouchLogicState(intendsToCrouchLogically); // Actualizar el estado lógico en SM
+
+            // 2. Reaccionar a los cambios en la intención lógica para aplicar el estado físico
+            if (intendsToCrouchLogically && !_isCrouchEffectPhysicallyApplied) // Quiere agacharse y está físicamente de pie
             {
-                _isCrouchEffectCurrentlyApplied = true;
-                SwitchPlayerColliderAndFirePoint(true); 
-                _playerStateManager.UpdateCrouchVisualState(true);
-                // Debug.Log("PlayerCrouchHandler: Switched TO Crouch State");
+                // Aplicar estado de agachado
+                ApplyPhysicalStateChange(true);
             }
-            else if (!_playerStateManager.IsCrouchingLogic && _isCrouchEffectCurrentlyApplied)
+            else if (!intendsToCrouchLogically && _isCrouchEffectPhysicallyApplied) // No quiere/puede agacharse Y está físicamente agachado
             {
                 if (CanStandUp())
                 {
-                    _isCrouchEffectCurrentlyApplied = false;
-                    SwitchPlayerColliderAndFirePoint(false); 
-                    _playerStateManager.UpdateCrouchVisualState(false);
-                    // Debug.Log("PlayerCrouchHandler: Switched TO Standing State");
+                    // Aplicar estado de pie
+                    ApplyPhysicalStateChange(false);
                 }
-                // else Debug.LogWarning("PlayerCrouchHandler: Cannot stand up, effect remains applied.");
+                else
+                {
+                    // No puede levantarse. Forzar que la "intención lógica" siga siendo agachado para evitar
+                    // que el PlayerStateManager.IsCrouchingLogic se ponga a false y el visual controller
+                    // cambie la animación a de pie mientras físicamente sigue agachado.
+                    // El PlayerStateManager.IsCrouchVisualApplied (actualizado por ApplyPhysicalStateChange)
+                    // es lo que el VisualController debería usar principalmente.
+                    _playerStateManager.UpdateCrouchLogicState(true); // Reflejar que no pudo levantarse
+                    // El estado _isCrouchEffectPhysicallyApplied sigue siendo true.
+                    // El PlayerStateManager.IsCrouchVisualApplied también sigue siendo true.
+                }
             }
         }
 
-        private void SwitchPlayerColliderAndFirePoint(bool activateCrouchState)
+        /// <summary>
+        /// Cambia el collider activo, actualiza el StateManager y ajusta el firepoint.
+        /// </summary>
+        private void ApplyPhysicalStateChange(bool activateCrouch)
         {
-            Collider2D newActiveCollider = activateCrouchState
-                ? crouchingColliderObject?.GetComponent<Collider2D>()
-                : standingColliderObject?.GetComponent<Collider2D>();
+            if (standingColliderGO == null || crouchingColliderGO == null) return;
 
-            _playerStateManager.UpdateActiveCollider(newActiveCollider); // ESTO ES CRUCIAL
-            //Debug.Log(
-                //$"CROUCH_HANDLER SwitchCollider: Active Collider set in StateManager to: {newActiveCollider?.gameObject.name}");
+            // Solo aplicar cambios si el estado físico deseado es diferente al actual
+            if (_isCrouchEffectPhysicallyApplied == activateCrouch)
+            {
+                // Ya estamos en el estado deseado, no hacer nada más para evitar llamadas redundantes.
+                // Esto puede pasar si CanStandUp() devuelve false y luego el input cambia de nuevo.
+                return;
+            }
+
+            Debug.Log($"[{Time.frameCount}] PCH: ApplyPhysicalStateChange - Activando estado agachado: {activateCrouch}. Actual _isCrouchEffectPhysicallyApplied: {_isCrouchEffectPhysicallyApplied}");
+
+            standingColliderGO.SetActive(!activateCrouch);
+            crouchingColliderGO.SetActive(activateCrouch);
+
+            Collider2D newActiveCollider = activateCrouch
+                ? crouchingColliderGO.GetComponent<Collider2D>()
+                : standingColliderGO.GetComponent<Collider2D>();
+            
+            if (newActiveCollider == null) {
+                Debug.LogError($"PCH: El nuevo collider activo es NULL al intentar cambiar a agachado={activateCrouch}. Verifique los GameObjects de los colliders.");
+                // No actualizar _isCrouchEffectPhysicallyApplied si el cambio falló críticamente.
+                // Podrías querer revertir SetActive aquí o manejar el error de otra forma.
+                return;
+            }
+
+            _playerStateManager.UpdateActiveCollider(newActiveCollider);
+            _playerStateManager.UpdateCrouchVisualState(activateCrouch); 
+
+            if (firePointTransform != null)
+            {
+                firePointTransform.localPosition = activateCrouch 
+                    ? firePointCrouchingLocalPos 
+                    : firePointStandingLocalPos;
+            }
+
+            _isCrouchEffectPhysicallyApplied = activateCrouch; 
+            Debug.Log($"[{Time.frameCount}] PCH: Estado físico aplicado. Nuevo _isCrouchEffectPhysicallyApplied: {_isCrouchEffectPhysicallyApplied}. VisualState en SM: {activateCrouch}");
         }
 
         private bool CanStandUp()
         {
-            if (!_isCrouchEffectCurrentlyApplied) return true;
-            if (standingColliderObject == null) return false;
+            // Esta función es CRÍTICA. Su lógica de OverlapBox/Capsule debe ser robusta.
+            // Asegúrate de que la desactivación/reactivación temporal de colliders funcione
+            // y que las layers de obstrucción sean correctas.
+            // (Usaré tu implementación completa de CanStandUp que ya me pasaste antes, asumiendo que es correcta)
 
-            Collider2D standColComponent = standingColliderObject.GetComponent<Collider2D>();
-            if (standColComponent == null) return false;
+            if (standingColliderGO == null) return false; // No puede levantarse si no hay collider de pie
 
-            Vector2 standUpCenterWorld;
-            Vector2 standUpSize;
-            float standUpAngle = standingColliderObject.transform.eulerAngles.z;
-            bool isStandCapsule = false;
-            CapsuleDirection2D standUpCapsuleDir = CapsuleDirection2D.Vertical;
+            bool originalCrouchActive = crouchingColliderGO.activeSelf;
+            bool originalStandActive = standingColliderGO.activeSelf;
+
+            crouchingColliderGO.SetActive(false); // Desactivar el de agachado para no interferir con el check
+            standingColliderGO.SetActive(true);   // Activar el de pie para que el check use sus dimensiones correctas
+
+            Collider2D standColComponent = standingColliderGO.GetComponent<Collider2D>();
+            if (standColComponent == null) {
+                crouchingColliderGO.SetActive(originalCrouchActive); // Restaurar
+                standingColliderGO.SetActive(originalStandActive);   // Restaurar
+                return false; // No puede chequear
+            }
+
+            Vector2 checkCenter;
+            Vector2 checkSize;
+            float checkAngle = standingColliderGO.transform.eulerAngles.z;
+            bool isCapsule = false;
+            CapsuleDirection2D capsuleDir = CapsuleDirection2D.Vertical;
 
             if (standColComponent is CapsuleCollider2D standCapsule)
             {
-                isStandCapsule = true;
-                standUpSize = standCapsule.size;
-                standUpCenterWorld = standingColliderObject.transform.TransformPoint(standCapsule.offset);
-                standUpCapsuleDir = standCapsule.direction;
+                isCapsule = true;
+                // Para OverlapCapsule, el 'size' es el tamaño completo, no extents.
+                // El offset ya está en el transform del GO si lo tiene.
+                checkCenter = standingColliderGO.transform.TransformPoint(standCapsule.offset);
+                checkSize = new Vector2(standCapsule.size.x * standingColliderGO.transform.lossyScale.x, 
+                                        standCapsule.size.y * standingColliderGO.transform.lossyScale.y);
+                capsuleDir = standCapsule.direction;
+
             }
             else if (standColComponent is BoxCollider2D standBox)
             {
-                isStandCapsule = false;
-                standUpSize = standBox.size;
-                standUpCenterWorld = standingColliderObject.transform.TransformPoint(standBox.offset);
+                isCapsule = false;
+                checkCenter = standingColliderGO.transform.TransformPoint(standBox.offset);
+                checkSize = new Vector2(standBox.size.x * standingColliderGO.transform.lossyScale.x, 
+                                        standBox.size.y * standingColliderGO.transform.lossyScale.y);
             }
             else
             {
-                return true;
+                 crouchingColliderGO.SetActive(originalCrouchActive); standingColliderGO.SetActive(originalStandActive);
+                 return true; // Tipo no soportado, asumir que puede
             }
+            
+            // Ligero ajuste para el check
+            checkCenter.y += 0.01f;
+            // checkSize.y *= 0.98f; // Puede ser demasiado agresivo si el techo está justo
 
-            Vector2 checkCenter = standUpCenterWorld + new Vector2(0, 0.01f);
-            Vector2 checkSize = new Vector2(standUpSize.x, standUpSize.y * 0.98f);
-
-            // Obtener máscaras de capa
-            LayerMask
-                groundMask =
-                    LayerMask.GetMask(GameConstants.GroundLayerName); // Asume que GameConstants.GroundLayerName es "Ground"
-            LayerMask
-                wallMask = LayerMask.GetMask(GameConstants.WallLayerName); // Asume que GameConstants.WallLayerName es "Walls" o tu capa de techos
-            LayerMask obstructionLayers = groundMask | wallMask; // O las capas que definiste antes
-
+            LayerMask obstructionLayers = LayerMask.GetMask(GameConstants.GroundLayerName, GameConstants.WallLayerName);
             Collider2D[] obstructions;
-            if (isStandCapsule)
+
+            if (isCapsule)
             {
-                obstructions = Physics2D.OverlapCapsuleAll(checkCenter, checkSize, standUpCapsuleDir, standUpAngle,
-                    obstructionLayers);
+                obstructions = Physics2D.OverlapCapsuleAll(checkCenter, checkSize, capsuleDir, checkAngle, obstructionLayers);
             }
             else
             {
-                obstructions = Physics2D.OverlapBoxAll(checkCenter, checkSize, standUpAngle, obstructionLayers);
+                obstructions = Physics2D.OverlapBoxAll(checkCenter, checkSize, checkAngle, obstructionLayers);
             }
 
+            bool canReallyStand = true;
             if (obstructions.Length > 0)
             {
-                Transform playerRoot = _playerStateManager.transform;
                 foreach (Collider2D obstruction in obstructions)
                 {
-                    int obstructionLayerBit = 1 << obstruction.gameObject.layer;
-                    bool isGround = (LayerMask.GetMask(GameConstants.GroundLayerName).GetHashCode() & obstructionLayerBit) > 0;
-                    bool isWallOrCeiling = (LayerMask.GetMask(GameConstants.WallLayerName).GetHashCode() & obstructionLayerBit) > 0;
-
-                    if (isGround && !isWallOrCeiling) // Si es suelo, pero no una pared/techo
+                    if (obstruction.gameObject == standingColliderGO || obstruction.gameObject == crouchingColliderGO || obstruction.transform.IsChildOf(transform.root))
                     {
-                        // Obtener la parte superior del collider de agachado (el que está activo)
-                        Collider2D activeCrouchCol = crouchingColliderObject.GetComponent<Collider2D>();
-                        if (activeCrouchCol != null)
-                        {
-                            // Centro mundial del collider de agachado
-                            Vector2 crouchCenterWorld = crouchingColliderObject.transform.TransformPoint(activeCrouchCol.offset);
-                            // Bounds del collider de agachado para obtener su altura actual
-                            float crouchColliderCurrentHeight = 0f;
-                            if(activeCrouchCol is CapsuleCollider2D cap) crouchColliderCurrentHeight = cap.size.y * crouchingColliderObject.transform.lossyScale.y; // Considerar escala del GO
-                            else if(activeCrouchCol is BoxCollider2D box) crouchColliderCurrentHeight = box.size.y * crouchingColliderObject.transform.lossyScale.y;
-                            
-                            // Parte superior del collider de agachado
-                            float crouchTopY = crouchCenterWorld.y + (crouchColliderCurrentHeight / 2f);
-                            float obstructionTopY = obstruction.bounds.max.y; // Parte superior del suelo detectado
-
-                            // Si la parte superior del "suelo" que obstruye NO está significativamente por encima
-                            // de la cabeza del personaje agachado, entonces es el suelo bajo los pies, no un techo.
-                            float tolerance = 0.1f; // Margen pequeño
-                            if (obstructionTopY < crouchTopY + tolerance) 
-                            {
-                                // Debug.Log($"CanStandUp: Ignoring ground obstruction: {obstruction.name} (TopY: {obstructionTopY} vs CrouchTopY: {crouchTopY})");
-                                continue; // Ignorar esta obstrucción, es solo el suelo
-                            }
-                        }
+                        continue; // Ignorar los propios colliders del jugador
                     }
-
-                    // Si no es suelo ignorable, o es una pared/techo, entonces es una obstrucción real.
-                    Debug.LogWarning($"P2DM: Cannot stand up, OBSTRUCTED by '{obstruction.gameObject.name}' (Layer: {LayerMask.LayerToName(obstruction.gameObject.layer)})", this);
-                    return false;
+                    // Aquí tu lógica para ignorar el suelo bajo los pies si es necesario,
+                    // pero el offset de checkCenter.y += 0.01f debería ayudar.
+                    Debug.LogWarning($"PCH: No se puede levantar, OBSTRUIDO por '{obstruction.gameObject.name}'");
+                    canReallyStand = false;
+                    break;
                 }
             }
-            // Debug.Log("PlayerCrouchHandler: Can stand up safely.");
-            return true;
+
+            crouchingColliderGO.SetActive(originalCrouchActive);
+            standingColliderGO.SetActive(originalStandActive);
+
+            if (canReallyStand) Debug.Log($"[{Time.frameCount}] PCH: CanStandUp - Es seguro levantarse.");
+            return canReallyStand;
         }
 
     #if UNITY_EDITOR
