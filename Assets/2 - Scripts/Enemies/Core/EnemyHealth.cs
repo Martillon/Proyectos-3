@@ -4,11 +4,11 @@ using Scripts.Core.Interfaces; // For IDamageable
 using System.Collections;
 using Scripts.Enemies.Melee;
 using Scripts.Enemies.Ranged;
+using Scripts.Enemies.Visuals;
 
 // Ajusta el namespace si es diferente
 namespace Scripts.Enemies.Core 
 {
-    [RequireComponent(typeof(SpriteRenderer))]
     public class EnemyHealth : MonoBehaviour, IDamageable
     {
         [Header("Health Settings")]
@@ -36,7 +36,7 @@ namespace Scripts.Enemies.Core
         private void Awake()
         {
             currentHealth = maxHealth;
-            spriteRenderer = GetComponent<SpriteRenderer>();
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             if (spriteRenderer != null)
             {
                 originalSpriteColor = spriteRenderer.color;
@@ -122,6 +122,18 @@ namespace Scripts.Enemies.Core
                 rb.linearVelocity = Vector2.zero; // Stop any existing movement
                 rb.angularVelocity = 0f;   // Stop any existing rotation
                 rb.bodyType = RigidbodyType2D.Static; // Make the body static so it doesn't move or fall
+            }
+            
+            EnemyVisualController visualController = GetComponentInChildren<EnemyVisualController>(); // O una referencia directa si es más fácil
+            if (visualController != null)
+            {
+                visualController.TriggerDeathAnimation();
+            }
+            else
+            {
+                // Fallback: Intenta encontrar Animator y disparar trigger directamente si no hay VisualController
+                Animator animator = GetComponentInChildren<Animator>();
+                if (animator != null) animator.SetTrigger("Die"); // Usa tu nombre de trigger
             }
 
             // Disable attack components explicitly if they exist

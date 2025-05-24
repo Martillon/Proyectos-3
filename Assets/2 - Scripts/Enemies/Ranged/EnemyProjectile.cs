@@ -1,6 +1,7 @@
 // --- START OF FILE EnemyProjectile.cs ---
 using UnityEngine;
-using Scripts.Core.Interfaces; // For IDamageable
+using Scripts.Core.Interfaces;
+using Scripts.Enemies.Core; // For IDamageable
 
 namespace Scripts.Enemies.Ranged
 {

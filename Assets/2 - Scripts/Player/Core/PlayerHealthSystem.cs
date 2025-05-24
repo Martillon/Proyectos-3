@@ -4,7 +4,8 @@ using Scripts.Core.Interfaces;
 using Scripts.Items.Checkpoint;
 using Unity.Cinemachine;
 using UnityEngine;
-using Scripts.Player.Movement; // Asumo que PlayerMovement2D es para deshabilitar el movimiento
+using Scripts.Player.Movement;
+using Scripts.Player.Movement.Motor; // Asumo que PlayerMovement2D es para deshabilitar el movimiento
 using Scripts.Player.Weapons; // <--- NUEVO: Para acceder a WeaponBase
 
 namespace Scripts.Player.Core
@@ -29,7 +30,7 @@ namespace Scripts.Player.Core
         [SerializeField] private float deathCameraZoomDuration = 1.5f;
 
         // --- Referencias a otros componentes del jugador ---
-        private PlayerMovement2D playerMovement; // Asumo que este es el script de movimiento principal
+        private PlayerMotor playerMovement;
         private WeaponBase playerWeaponBase;   // <--- NUEVO: Referencia al sistema de armas
 
         private int currentLives;

@@ -1,13 +1,12 @@
 // --- START OF FILE EnemyAttackMelee.cs ---
 using UnityEngine;
 using System.Collections;
+using Scripts.Enemies.Core;
 
 // No longer needs Scripts.Core.Interfaces directly if hitbox handles damage
 
 namespace Scripts.Enemies.Melee
 {
-    [RequireComponent(typeof(EnemyAIController))]
-    [RequireComponent(typeof(Animator))] // Now requires an Animator
     public class EnemyAttackMelee : MonoBehaviour
     {
         [Header("Melee Attack Settings")]
@@ -35,7 +34,7 @@ namespace Scripts.Enemies.Melee
 
         private void Awake()
         {
-            aiController = GetComponent<EnemyAIController>();
+            aiController = GetComponentInParent<EnemyAIController>();
             enemyAnimator = GetComponent<Animator>();
             // if (audioSourceForSFX == null) audioSourceForSFX = GetComponent<AudioSource>();
 
@@ -49,14 +48,18 @@ namespace Scripts.Enemies.Melee
                 Debug.LogError($"EnemyAttackMelee on '{gameObject.name}' requires an Animator component.", this);
                 enabled = false; return;
             }
-            if (meleeHitbox == null)
+            if (meleeHitbox == null) // Si no está asignado en el inspector
             {
-                Debug.LogError($"EnemyAttackMelee on '{gameObject.name}': MeleeHitbox reference is not assigned.", this);
-                // Try to find it as a child if not assigned
-                meleeHitbox = GetComponentInChildren<EnemyMeleeHitbox>(true); // true to include inactive
+                // Buscar en el Root y sus hijos
+                Transform rootTransform = transform.parent; // Asumiendo que Enemy_Visuals es hijo de EnemyMelee_root
+                if (rootTransform != null)
+                {
+                    meleeHitbox = rootTransform.GetComponentInChildren<EnemyMeleeHitbox>(true);
+                }
+
                 if (meleeHitbox == null)
                 {
-                    Debug.LogError($"EnemyAttackMelee on '{gameObject.name}': MeleeHitbox could not be found as a child. Attack will not function.", this);
+                    Debug.LogError($"EnemyAttackMelee on '{gameObject.name}': MeleeHitbox could not be found. Attack will not function.", this);
                     enabled = false; return;
                 }
             }
@@ -83,43 +86,38 @@ namespace Scripts.Enemies.Melee
         private IEnumerator MeleeAttackSequenceCoroutine()
         {
             isCurrentlyInAttackSequence = true;
-            aiController.SetCanMove(false); // Stop AI movement
+            aiController.SetCanMove(false); 
+            enemyAnimator.SetTrigger(attackAnimationTriggerName); // Asegúrate que el nombre coincida con el Animator
+            //Debug.Log($"[{Time.frameCount}] MeleeAttacker: Coroutine STARTED. Trigger '{attackAnimationTriggerName}' fired. isCurrentlyInAttackSequence = true.");
 
-            // Debug.Log($"Enemy '{gameObject.name}' starting melee attack sequence.", this); // Uncomment for debugging
-            // attackWindupSFX?.Play(audioSourceForSFX);
-            enemyAnimator.SetTrigger(attackAnimationTriggerName); // Trigger the attack animation
+            // Esperar a que FinishAttackSequence sea llamado por el evento de animación,
+            // lo que pondrá isCurrentlyInAttackSequence a false.
+            // Añadimos un timeout para evitar un bucle infinito si el evento nunca se llama.
+            float animationTimeout = 10f; // Tiempo máximo de espera razonable para una animación de ataque
+            float timer = 0f;
 
-            // The animation itself will call ActivateHitbox() and DeactivateHitbox() via Animation Events.
-            // We need to wait for the animation to logically complete or for a signal.
-            // For simplicity, we can wait for the animator to exit the attack state,
-            // or use a fixed duration if the animation state is hard to track.
-            // A robust way is to have an Animation Event at the END of the attack animation
-            // that calls a method like "AttackSequenceFinished()".
-
-            // Simple wait based on an assumption or a new field for total attack duration:
-            // yield return new WaitForSeconds(enemyAnimator.GetCurrentAnimatorStateInfo(0).length); // This can be tricky
-            // For now, let's assume the animation events handle hitbox, and we just manage cooldown timing.
-            // The duration of AI pause can be tied to animation length.
-            // We'll set 'isCurrentlyInAttackSequence = false' and 'lastAttackEndTime'
-            // via an animation event or after a determined duration.
-            // Let's use a placeholder for total animation cycle time before cooldown starts.
-            // A better way: Animation event calls "OnAttackAnimationFinished".
-            float animationLength = GetAnimationClipLength(attackAnimationTriggerName);
-            if(animationLength > 0) {
-                yield return new WaitForSeconds(animationLength);
-            } else {
-                Debug.LogWarning($"EnemyAttackMelee on {gameObject.name}: Could not get length for animation triggered by '{attackAnimationTriggerName}'. Using default wait.", this);
-                yield return new WaitForSeconds(1f); // Default wait if animation length not found
-            }
-            
-            // Ensure hitbox is off if animation event somehow missed
-            if (meleeHitbox.gameObject.activeSelf)
+            while (isCurrentlyInAttackSequence && timer < animationTimeout)
             {
-                // Debug.LogWarning($"EnemyAttackMelee '{gameObject.name}': Hitbox was still active after attack sequence. Deactivating.", this); // Uncomment for debugging
-                DeactivateHitbox(); // Called by animation, but as a fallback
+                timer += Time.deltaTime;
+                yield return null; // Esperar al siguiente frame
             }
 
-            FinishAttackSequence();
+            // Este bloque ahora solo se ejecuta si el while loop terminó debido al TIMEOUT,
+            // lo que significa que el evento de animación OnAttackAnimationFinished probablemente no se llamó.
+            if (isCurrentlyInAttackSequence) 
+            {
+                Debug.LogWarning($"[{Time.frameCount}] MeleeAttacker: Attack sequence for '{gameObject.name}' TIMED OUT after {animationTimeout}s. Forcing FinishAttackSequence. Check Animation Events for 'OnAttackAnimationFinished'.");
+                if (meleeHitbox != null && meleeHitbox.gameObject.activeSelf)
+                {
+                    Debug.LogWarning($"[{Time.frameCount}] MeleeAttacker: Hitbox was still active on timeout. Deactivating as a fallback.");
+                    DeactivateHitbox(); // Asegurarse de que la hitbox se desactive
+                }
+                FinishAttackSequence(); // Llamar a FinishAttackSequence como último recurso
+            }
+            else
+            {
+                //Debug.Log($"[{Time.frameCount}] MeleeAttacker: Coroutine ENDED because isCurrentlyInAttackSequence became false (likely via Animation Event).");
+            }
         }
         
         // Helper to estimate animation clip length (can be unreliable if state names don't match trigger names)
@@ -172,11 +170,11 @@ namespace Scripts.Enemies.Melee
 
         private void FinishAttackSequence()
         {
-            if (!isCurrentlyInAttackSequence) return; // Avoid multiple calls
+            if (!isCurrentlyInAttackSequence) return; 
 
-            // Debug.Log($"Enemy '{gameObject.name}' finished melee attack sequence.", this); // Uncomment for debugging
-            aiController.SetCanMove(true); // Resume AI movement
-            lastAttackEndTime = Time.time; // Start cooldown now
+            //Debug.Log($"[{Time.frameCount}] MeleeAttacker: FinishAttackSequence CALLED. Setting isCurrentlyInAttackSequence to false, CanMove to true.");
+            aiController.SetCanMove(true); 
+            lastAttackEndTime = Time.time; 
             isCurrentlyInAttackSequence = false;
         }
         // --- END OF ANIMATION EVENT METHODS ---
@@ -188,6 +186,15 @@ namespace Scripts.Enemies.Melee
         }
 
         public bool IsAttacking() => isCurrentlyInAttackSequence;
+        
+        public bool CanInitiateAttack(Transform target)
+        {
+            if (target == null || isCurrentlyInAttackSequence || Time.time < lastAttackEndTime + attackCooldown)
+            {
+                return false;
+            }
+            return IsTargetInAttackInitiationRange(target);
+        }
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
@@ -203,7 +210,7 @@ namespace Scripts.Enemies.Melee
                 // This is a simplified draw. For accurate BoxCollider2D, you'd use Gizmos.matrix.
                 if(hitboxCollider is BoxCollider2D box)
                 {
-                    // Matrix math needed for rotated/offset box. For simplicity, just show a sphere at its position.
+                    // Matrix math needed for rotated/offset box. For simplicity, show a sphere at its position.
                     Gizmos.DrawWireSphere(meleeHitbox.transform.position, box.size.x / 2f); 
                 } else if (hitboxCollider is CapsuleCollider2D capsule) {
                     Gizmos.DrawWireSphere(meleeHitbox.transform.position, capsule.size.x / 2f);
@@ -215,4 +222,3 @@ namespace Scripts.Enemies.Melee
 #endif
     }
 }
-// --- END OF FILE EnemyAttackMelee.cs ---

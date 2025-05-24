@@ -131,7 +131,6 @@ namespace Scripts.Player.Weapons
 
         private void SetInternalUpgradeState(IWeaponUpgrade newUpgrade)
         {
-            // ... (sin cambios relevantes a esta adición) ...
             currentUpgradeInterface = newUpgrade;
 
             if (currentUpgradeInterface is MonoBehaviour newMonoBehaviour && newMonoBehaviour != null)

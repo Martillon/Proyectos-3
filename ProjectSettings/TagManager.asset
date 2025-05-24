@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Platform
   - Hittable
+  - PickUp
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -16,10 +18,10 @@ TagManager:
   - Sky
   - Player
   - IgnorePlayer
-  - 
-  - 
-  - 
-  - 
+  - PickUp
+  - DamagePlayer
+  - Hittable - Enemy
+  - DamageEnemy
   - 
   - 
   - 

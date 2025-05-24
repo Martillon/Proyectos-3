@@ -80,8 +80,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpForce: 7.5
-  fallMultiplier: 2
+  jumpForce: 5
+  fallMultiplier: 2.5
   coyoteTimeDuration: 0.1
 --- !u!114 &4490356189428783854
 MonoBehaviour:
@@ -192,6 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6251718003751311885}
   - component: {fileID: 2452416624767161543}
+  - component: {fileID: 3109995914849102489}
   m_Layer: 7
   m_Name: LogicContainer_Health
   m_TagString: Player
@@ -237,6 +238,43 @@ MonoBehaviour:
   playerFocusedCamera: {fileID: 0}
   deathCameraZoomSize: 3
   deathCameraZoomDuration: 1.5
+--- !u!70 &3109995914849102489
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4784336284940929459}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 0.3, y: 1}
+  m_Direction: 0
 --- !u!1 &5195280029038726180
 GameObject:
   m_ObjectHideFlags: 0
@@ -290,7 +328,7 @@ MonoBehaviour:
   currentInstantiatedUpgradeGameObject: {fileID: 0}
   pickupObjectLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
   semiAutoFireCooldown: 0.2
 --- !u!114 &591465923511167631
 MonoBehaviour:
@@ -384,7 +422,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 9bcdf846c4601fe4db598eaa458f2641, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -552,7 +590,7 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 1}
+  m_Size: {x: 0.3, y: 1}
   m_Direction: 0
 --- !u!1 &6791747499485613874
 GameObject:
@@ -655,7 +693,7 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: -0.25}
-  m_Size: {x: 1, y: 0.5}
+  m_Size: {x: 0.5, y: 0.5}
   m_Direction: 1
 --- !u!1 &8816898818485719959
 GameObject:
@@ -734,7 +772,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 0
   m_Sprite: {fileID: 80318770, guid: cf2484e1655b34c488a87d322c45fb80, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

@@ -73,19 +73,23 @@ namespace Scripts.Enemies.Melee
                 return;
             }
 
-            if (other.CompareTag(GameConstants.PlayerTag)) // Using GameConstants
+            if (other.CompareTag(GameConstants.PlayerTag)) // O tu tag de jugador "Player"
             {
-                // Debug.Log($"EnemyMeleeHitbox '{gameObject.name}' hit Player: {other.name}", this); // Uncomment for debugging
+                //Debug.Log($"Hitbox: Collided with object tagged Player: {other.gameObject.name}"); // AÑADIR ESTE LOG
                 if (other.TryGetComponent<IDamageable>(out var damageableTarget))
                 {
+                    //Debug.Log($"Hitbox: Found IDamageable on Player. Applying {damageToDeal} damage."); // AÑADIR ESTE LOG
                     damageableTarget.TakeDamage(damageToDeal);
-                    targetsHitThisSwing.Add(other); // Add to list of hit targets for this swing
-
-                    // Optional: Play hit sound or spawn hit particle effect here or in TakeDamage
-
-                    // If your melee attack should only hit one target per swing, you might deactivate early:
-                    // Deactivate(); 
+                    targetsHitThisSwing.Add(other);
                 }
+                else
+                {
+                    Debug.LogError($"Hitbox: Player object {other.gameObject.name} does NOT have an IDamageable component!"); // AÑADIR ESTE LOG
+                }
+            } 
+            else 
+            {
+                //Debug.Log($"Hitbox: Collided with {other.gameObject.name}, Tag: {other.tag}. NOT PLAYER TAG.");
             }
         }
     }
