@@ -52,12 +52,12 @@ namespace Scripts.Enemies.Visuals
 
             if (root != null)
             {
-                _aiController = root.GetComponent<EnemyAIController>();
+                _aiController = GetComponentInParent<EnemyAIController>();
                 _movementComponent = root.GetComponentInChildren<EnemyMovementComponent>(); // Podría estar en un hijo de Root
-                _rb = root.GetComponent<Rigidbody2D>();
-                _enemyHealth = root.GetComponent<EnemyHealth>();
-                _meleeAttacker = root.GetComponent<EnemyAttackMelee>();
-                _rangedAttacker = root.GetComponent<EnemyAttackRanged>();
+                _rb = GetComponentInParent<Rigidbody2D>();
+                _enemyHealth = GetComponentInParent<EnemyHealth>();
+                _meleeAttacker = GetComponent<EnemyAttackMelee>();
+                _rangedAttacker = GetComponent<EnemyAttackRanged>();
             }
             else
             {

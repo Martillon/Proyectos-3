@@ -92,7 +92,7 @@ namespace Scripts.Player.Movement.Abilities
                 return;
             }
 
-            Debug.Log($"[{Time.frameCount}] PCH: ApplyPhysicalStateChange - Activando estado agachado: {activateCrouch}. Actual _isCrouchEffectPhysicallyApplied: {_isCrouchEffectPhysicallyApplied}");
+            //Debug.Log($"[{Time.frameCount}] PCH: ApplyPhysicalStateChange - Activando estado agachado: {activateCrouch}. Actual _isCrouchEffectPhysicallyApplied: {_isCrouchEffectPhysicallyApplied}");
 
             standingColliderGO.SetActive(!activateCrouch);
             crouchingColliderGO.SetActive(activateCrouch);
@@ -119,7 +119,7 @@ namespace Scripts.Player.Movement.Abilities
             }
 
             _isCrouchEffectPhysicallyApplied = activateCrouch; 
-            Debug.Log($"[{Time.frameCount}] PCH: Estado físico aplicado. Nuevo _isCrouchEffectPhysicallyApplied: {_isCrouchEffectPhysicallyApplied}. VisualState en SM: {activateCrouch}");
+            //Debug.Log($"[{Time.frameCount}] PCH: Estado físico aplicado. Nuevo _isCrouchEffectPhysicallyApplied: {_isCrouchEffectPhysicallyApplied}. VisualState en SM: {activateCrouch}");
         }
 
         private bool CanStandUp()

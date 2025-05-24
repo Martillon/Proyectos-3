@@ -48,6 +48,6 @@ MonoBehaviour:
   fireSounds: []
   audioSource: {fileID: 7530060451397391055, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
   projectilePrefab: {fileID: 5437270158944902891, guid: 1a8dd97ca1292214bbfca2260ad2a11c, type: 3}
-  projectilesPerShot: 4
-  spreadAngle: 5
+  projectilesPerShot: 5
+  spreadAngle: 20
   icon: {fileID: 21300000, guid: 80f1c3e43673016408f6c3106093d867, type: 3}

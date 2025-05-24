@@ -53,7 +53,7 @@ namespace Scripts.Environment.Platforms
             }
             else
             {
-                Debug.Log($"TraversablePlatform on '{gameObject.name}': Target layer '{playerNonCollidingLayerName}' found. Value: {playerIgnoreLayerValue}. Original layer: {LayerMask.LayerToName(originalLayer)} ({originalLayer})", this);
+                //Debug.Log($"TraversablePlatform on '{gameObject.name}': Target layer '{playerNonCollidingLayerName}' found. Value: {playerIgnoreLayerValue}. Original layer: {LayerMask.LayerToName(originalLayer)} ({originalLayer})", this);
             }
         }
 
@@ -79,21 +79,21 @@ namespace Scripts.Environment.Platforms
                 // Debug.Log($"TraversablePlatform '{gameObject.name}': Interrupted previous layer change, layer restored to '{LayerMask.LayerToName(originalLayer)}'.", this); // Uncomment for debugging
             }
             temporaryLayerChangeCoroutine = StartCoroutine(ChangeLayerTemporarilyCoroutine(duration));
-            Debug.Log($"TRAVERSABLE_PLATFORM '{gameObject.name}': Coroutine for layer change STARTED.", this);
+            //Debug.Log($"TRAVERSABLE_PLATFORM '{gameObject.name}': Coroutine for layer change STARTED.", this);
         }
 
         private IEnumerator ChangeLayerTemporarilyCoroutine(float duration)
         {
-            Debug.Log($"TRAVERSABLE_PLATFORM '{gameObject.name}': Coroutine RUNNING. Target Layer Value: {playerIgnoreLayerValue}. Current GO Layer: {gameObject.layer}", this);
+            //Debug.Log($"TRAVERSABLE_PLATFORM '{gameObject.name}': Coroutine RUNNING. Target Layer Value: {playerIgnoreLayerValue}. Current GO Layer: {gameObject.layer}", this);
             gameObject.layer = playerIgnoreLayerValue;
-            Debug.Log($"TRAVERSABLE_PLATFORM '{gameObject.name}': gameObject.layer attempted to be set to {playerIgnoreLayerValue}. NEW GO Layer: {gameObject.layer}. Intended Name: {playerNonCollidingLayerName}", this);
+            //Debug.Log($"TRAVERSABLE_PLATFORM '{gameObject.name}': gameObject.layer attempted to be set to {playerIgnoreLayerValue}. NEW GO Layer: {gameObject.layer}. Intended Name: {playerNonCollidingLayerName}", this);
 
             yield return new WaitForSeconds(duration);
 
             if (this != null && gameObject != null) 
             {
                 gameObject.layer = originalLayer;
-                Debug.Log($"TRAVERSABLE_PLATFORM '{gameObject.name}': Layer restored to original '{LayerMask.LayerToName(originalLayer)}' ({gameObject.layer})", this);
+                //Debug.Log($"TRAVERSABLE_PLATFORM '{gameObject.name}': Layer restored to original '{LayerMask.LayerToName(originalLayer)}' ({gameObject.layer})", this);
             }
             temporaryLayerChangeCoroutine = null;
         }
