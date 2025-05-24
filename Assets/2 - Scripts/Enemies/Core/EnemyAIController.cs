@@ -23,7 +23,8 @@ namespace Scripts.Enemies.Core // Ajusta el namespace
         [Tooltip("Range within which the enemy will stop approaching and start attacking (if applicable).")]
         [SerializeField] private float engagementRange = 1.5f;
         [Tooltip("Transform of the player. If null, will try to find GameObject with 'Player' tag.")]
-        [SerializeField] private Transform playerTarget;
+        [SerializeField]
+        public Transform playerTarget;
         [SerializeField] private bool canPatrol = true;
         [Tooltip("Speed of the enemy when chasing the player.")]
         [SerializeField] private float initialChaseSpeed = 3f;

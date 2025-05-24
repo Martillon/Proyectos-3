@@ -134,7 +134,7 @@ MonoBehaviour:
   behaviorType: 0
   detectionRange: 2.95
   engagementRange: 1.5
-  playerTarget: {fileID: 0}
+  playerTarget: {fileID: 1376491531330643131, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
   canPatrol: 1
   initialChaseSpeed: 3
   patrolSpeed: 1.5
