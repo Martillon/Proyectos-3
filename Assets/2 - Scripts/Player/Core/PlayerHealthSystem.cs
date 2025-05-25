@@ -22,15 +22,26 @@ namespace Scripts.Player.Core
         [SerializeField] private SpriteRenderer playerBodySpriteRenderer;
         [SerializeField] private float invulnerabilityFlashInterval = 0.1f;
 
-        [Header("Death & Respawn")]
+        [Header("Lose Life & Respawn Sequence Config")] // SECCIÓN RENOMBRADA Y CON NUEVOS CAMPOS
+        [Tooltip("Animator principal del jugador.")]
         [SerializeField] private Animator playerAnimator;
-        [SerializeField] private string deathAnimationTrigger = GameConstants.AnimDieTrigger;
-        [SerializeField] private string respawnAnimationTrigger = GameConstants.AnimRespawnTrigger;
-        [SerializeField] private CinemachineCamera playerFocusedCamera;
+        [Tooltip("Nombre del trigger para la animación de 'herido' al perder una vida.")]
+        [SerializeField] private string loseLifeHurtTrigger = "HurtTrigger"; 
+        [Tooltip("Duración (en segundos) que se espera después de la animación de 'herido' y ANTES del fade a negro.")]
+        [SerializeField] private float hurtStateDuration = 0.75f; 
+        [Tooltip("Nombre del trigger para la animación de 'reaparición' en el checkpoint.")]
+        [SerializeField] private string respawnAppearTrigger = "RespawnAppearTrigger";
+        [Tooltip("Duración (en segundos) que se espera después de la animación de 'reaparición' y DESPUÉS del fade de vuelta.")]
+        [SerializeField] private float respawnStateDuration = 0.8f; 
+        [Tooltip("Duración del fade in/out de pantalla para la secuencia de respawn.")]
+        [SerializeField] private float screenFadeDurationForRespawn = 0.5f; 
+
+        [Header("Final Death (Game Over) Sequence Config")]
+        [Tooltip("Nombre del trigger para la animación de muerte final.")]
+        [SerializeField] private string finalDeathAnimationTrigger = GameConstants.AnimDieTrigger;
+        [SerializeField] private CinemachineCamera playerFocusedCamera; // Para el zoom de Game Over
         [SerializeField] private float deathCameraZoomSize = 3f;
         [SerializeField] private float deathCameraZoomDuration = 1.5f;
-        [Tooltip("Nombre del trigger para la animación de 'stun' al perder una vida (no la muerte final).")]
-        [SerializeField] private string loseLifeStunTrigger = "StunTrigger";
 
         // --- Referencias a otros componentes del jugador ---
         private PlayerMotor playerMovement;
@@ -42,6 +53,7 @@ namespace Scripts.Player.Core
         private bool isInvulnerable = false;
         private bool isDead = false;
         private float initialCameraOrthographicSize;
+        private Coroutine _activeRespawnSequence;
         private Coroutine invulnerabilityFlashCoroutine;
         
         
@@ -139,103 +151,117 @@ namespace Scripts.Player.Core
 
         public void TakeDamage(float damageAmount)
         {
-            if (isInvulnerable || isDead) return;
+            if (isInvulnerable || isDead || _activeRespawnSequence != null) return; // No tomar daño si ya está en una secuencia
 
-            int damage = Mathf.FloorToInt(damageAmount); // Asumiendo que el daño siempre es entero o se redondea hacia abajo.
+            int damage = Mathf.FloorToInt(damageAmount);
             currentArmor -= damage;
-            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor < 0 ? 0 : currentArmor);
 
-            if (currentArmor < 0)
+            if (currentArmor < 0) // Se rompió la armadura, se considera perder una vida
             {
                 currentLives--;
-                if (currentLives < 0)
+                Debug.Log($"PHS: Armor broken or gone. Lives now: {currentLives}");
+
+                if (currentLives < 0) // Vidas llegaron a -1 (es decir, perdió la última vida que era 0)
                 {
                     currentLives = 0; 
-                    PlayerEvents.RaiseHealthChanged(currentLives, 0); 
+                    currentArmor = 0;
+                    PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
+                    isDead = true; // Marcar para Game Over
+                    if (_activeRespawnSequence != null) StopCoroutine(_activeRespawnSequence); // Detener cualquier respawn en curso
                     StartCoroutine(FinalDeathSequence());
                 }
-                else
+                else // Perdió una vida, pero aún quedan (currentLives >= 0)
                 {
-                    PlayerEvents.RaiseHealthChanged(currentLives, maxArmorPerLife); 
-                    StartCoroutine(LoseLifeAndRespawnSequence());
+                    // Aunque currentLives pueda ser 0 aquí, no es Game Over inmediato,
+                    // sino que es la "última vida" que se acaba de perder. El Game Over es si baja de 0.
+                    // Si currentLives es 0 DESPUÉS de decrementar, significa que acaba de perder su ÚLTIMA vida.
+                    // En muchos juegos, esto también es Game Over. Si quieres "0 vidas = game over",
+                    // la condición de arriba sería currentLives <= 0.
+                    // Asumamos que "perder una vida" significa que aún no es game over inmediato si currentLives >= 0.
+
+                    currentArmor = maxArmorPerLife; // Restaurar armadura para la "nueva vida" que va a usar
+                    PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); 
+                    if (_activeRespawnSequence != null) StopCoroutine(_activeRespawnSequence);
+                    _activeRespawnSequence = StartCoroutine(LoseLifeAndRespawnSequence()); // Nueva corrutina con fades
                 }
             }
-            else
+            else // Solo se dañó la armadura
             {
+                PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
                 StartCoroutine(BeginInvulnerability());
             }
         }
         
-         private IEnumerator LoseLifeAndRespawnSequence()
+         private IEnumerator LoseLifeAndRespawnSequence() 
         {
             Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence STARTED");
-            isDead = true; // Temporalmente "muerto" para esta secuencia
-            isInvulnerable = true;
+            isInvulnerable = true; 
 
-            InputManager.Instance?.DisableAllControls();
+            InputManager.Instance?.DisableAllControls(); 
             if (playerMovement != null) playerMovement.enabled = false;
+            playerVisualController?.HideArmObject();
 
-            // Opcional: Ocultar el brazo/arma
-            playerVisualController?.HideArmObject(); // Necesitarás añadir HideArmObject() a PlayerVisualController
-
-            // Disparar animación de Stun/HitRecoilHeavy
-            if (playerAnimator != null && !string.IsNullOrEmpty(loseLifeStunTrigger))
+            // 1. Animación de Herido
+            if (playerAnimator != null && !string.IsNullOrEmpty(loseLifeHurtTrigger))
             {
-                Debug.Log($"[{Time.frameCount}] PHS: Triggering '{loseLifeStunTrigger}' animation.");
-                playerAnimator.SetTrigger(loseLifeStunTrigger);
-                // Esperar a que la animación de stun se complete o una duración fija
-                yield return new WaitForSeconds(0.6f); // Ajusta esta duración
+                playerAnimator.SetTrigger(loseLifeHurtTrigger);
             }
-            else
-            {
-                yield return new WaitForSeconds(0.5f); // Delay si no hay animación de stun
-            }
+            yield return new WaitForSeconds(hurtStateDuration); 
             
-            // Opcional: Hacer invisible al jugador brevemente durante el "teletransporte"
-            if (playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = false;
-            // yield return new WaitForSeconds(0.1f); // Pequeño delay opcional
-
-            // Mover al checkpoint
-            Vector3 respawnPosition = CheckpointManager.GetCurrentRespawnPosition();
-            Debug.Log($"[{Time.frameCount}] PHS: Teleporting to respawn position: {respawnPosition}");
-            transform.root.position = respawnPosition; // Mover el Player_root completo
-
-            // Resetear arma
-            if (playerWeaponBase != null)
+            // 2. Fade a Negro
+            Debug.Log($"[{Time.frameCount}] PHS: Fading to black for respawn.");
+            if (ScreenFader.Instance != null)
             {
-                playerWeaponBase.EquipInitialUpgrade();
-                Debug.Log($"[{Time.frameCount}] PHS: Weapon reset to initial.");
-            }
-
-            // Hacer visible al jugador de nuevo
-            if (playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = true;
-            // Opcional: Reactivar el brazo/arma (si se ocultó)
-            playerVisualController?.ShowArmObject(); // Necesitarás añadir ShowArmObject() a PlayerVisualController
-
-            // Resetear armadura y actualizar UI
-            currentArmor = maxArmorPerLife; // Restaura armadura a tope para la nueva "vida"
-            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); // currentLives ya fue decrementado en TakeDamage
-
-            // Disparar animación de Respawn
-            if (playerAnimator != null && !string.IsNullOrEmpty(respawnAnimationTrigger))
-            {
-                Debug.Log($"[{Time.frameCount}] PHS: Triggering '{respawnAnimationTrigger}' animation.");
-                playerAnimator.SetTrigger(respawnAnimationTrigger);
-                // Esperar a que la animación de respawn se complete o una duración fija
-                yield return new WaitForSeconds(0.5f); // Ajusta esta duración
+                // Esperar a que la corrutina de fade termine
+                yield return ScreenFader.Instance.FadeToBlack(screenFadeDurationForRespawn); 
             }
             else
             {
-                 yield return new WaitForSeconds(0.3f); // Delay si no hay animación de respawn
+                Debug.LogWarning("PHS: ScreenFader.Instance not found! Skipping fade to black.");
+                yield return new WaitForSeconds(screenFadeDurationForRespawn); // Simular espera si no hay fader
             }
 
-            // Reactivar controles y movimiento
+            // 3. Durante el Negro: Mover al Checkpoint, Ocultar Sprite Temporalmente, Resetear Arma
+            if (playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = false; 
+
+            transform.root.position = CheckpointManager.GetCurrentRespawnPosition(); 
+            
+            if (playerWeaponBase != null) playerWeaponBase.EquipInitialUpgrade();
+            // currentArmor ya se reseteó o se mantuvo en TakeDamage.
+
+            // 4. Fade de Vuelta (Aparecer)
+            // Hacer visible el sprite justo ANTES de que el fade comience a aclararse
+            if (playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = true; 
+            playerVisualController?.ShowArmObject();
+
+            Debug.Log($"[{Time.frameCount}] PHS: Fading to clear for respawn.");
+            if (ScreenFader.Instance != null)
+            {
+                // Esperar a que la corrutina de fade termine
+                yield return ScreenFader.Instance.FadeToClear(screenFadeDurationForRespawn);
+            }
+            else
+            {
+                Debug.LogWarning("PHS: ScreenFader.Instance not found! Skipping fade to clear.");
+                yield return new WaitForSeconds(screenFadeDurationForRespawn); // Simular espera
+            }
+
+            // 5. Animación de Reaparición (Teleport In)
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); 
+
+            if (playerAnimator != null && !string.IsNullOrEmpty(respawnAppearTrigger))
+            {
+                playerAnimator.SetTrigger(respawnAppearTrigger);
+            }
+            yield return new WaitForSeconds(respawnStateDuration); 
+            
+            // 6. Reactivar todo
             if (playerMovement != null) playerMovement.enabled = true;
             InputManager.Instance?.EnablePlayerControls();
             
-            isDead = false; // Ya no está "muerto"
-            Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence FINISHED. Player is back.");
-            StartCoroutine(BeginInvulnerability()); // Iniciar invulnerabilidad post-respawn
+            _activeRespawnSequence = null; 
+            Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence FINISHED.");
+            StartCoroutine(BeginInvulnerability()); 
         }
 
         private IEnumerator FinalDeathSequence()
@@ -249,9 +275,9 @@ namespace Scripts.Player.Core
             // También podrías querer resetear el arma aquí si el juego permite "continuar" desde un game over
             // volviendo al checkpoint pero con el arma inicial. Por ahora, lo dejamos así.
 
-            if (playerAnimator != null && !string.IsNullOrEmpty(deathAnimationTrigger))
+            if (playerAnimator != null && !string.IsNullOrEmpty(finalDeathAnimationTrigger))
             {
-                playerAnimator.SetTrigger(deathAnimationTrigger);
+                playerAnimator.SetTrigger(finalDeathAnimationTrigger);
             }
             
             PlayerEvents.RaisePlayerDeath(); 

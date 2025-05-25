@@ -232,12 +232,15 @@ MonoBehaviour:
   playerBodySpriteRenderer: {fileID: 609864197953944947}
   invulnerabilityFlashInterval: 0.1
   playerAnimator: {fileID: 2885523442813928405}
-  deathAnimationTrigger: Die
-  respawnAnimationTrigger: Respawn
+  loseLifeHurtTrigger: HurtTrigger
+  hurtStateDuration: 0.1
+  respawnAppearTrigger: RespawnAppearTrigger
+  respawnStateDuration: 1
+  screenFadeDurationForRespawn: 1
+  finalDeathAnimationTrigger: Die
   playerFocusedCamera: {fileID: 0}
   deathCameraZoomSize: 3
   deathCameraZoomDuration: 1.5
-  loseLifeStunTrigger: StunTrigger
 --- !u!1 &5195280029038726180
 GameObject:
   m_ObjectHideFlags: 0
@@ -500,8 +503,8 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 436cd4b201021bb4c9c75b3ad3747267, type: 3}
   m_Resource: {fileID: 8300000, guid: 436cd4b201021bb4c9c75b3ad3747267, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0
-  m_Pitch: 0.025927832
+  m_Volume: 0.45478916
+  m_Pitch: 1.0506729
   Loop: 0
   Mute: 0
   Spatialize: 0
