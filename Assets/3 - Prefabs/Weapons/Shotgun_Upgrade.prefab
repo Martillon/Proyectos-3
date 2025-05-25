@@ -45,8 +45,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
-  fireSounds: []
-  audioSource: {fileID: 7530060451397391055, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
+  fireSounds:
+  - name: Shoot
+    clip: {fileID: 8300000, guid: 436cd4b201021bb4c9c75b3ad3747267, type: 3}
+    loop: 0
+    randomPitch: 1
+    pitch: 0
+    randomVolume: 1
+    volume: 0
+  audioSource: {fileID: 6919313978240196861, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
   projectilePrefab: {fileID: 5437270158944902891, guid: 1a8dd97ca1292214bbfca2260ad2a11c, type: 3}
   projectilesPerShot: 5
   spreadAngle: 20
