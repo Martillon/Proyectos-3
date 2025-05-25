@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpForce: 5
+  jumpForce: 5.7
   fallMultiplier: 2.5
   coyoteTimeDuration: 0.1
 --- !u!114 &4490356189428783854
@@ -237,6 +237,7 @@ MonoBehaviour:
   playerFocusedCamera: {fileID: 0}
   deathCameraZoomSize: 3
   deathCameraZoomDuration: 1.5
+  loseLifeStunTrigger: StunTrigger
 --- !u!1 &5195280029038726180
 GameObject:
   m_ObjectHideFlags: 0

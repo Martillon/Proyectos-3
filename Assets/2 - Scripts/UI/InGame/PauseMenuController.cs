@@ -139,18 +139,21 @@ namespace Scripts.UI.InGame
 
         private void HandleResumeClicked() 
         { 
+            Debug.Log("PauseMenuController: Game resumed.", this); // For debugging
             uiSoundFeedback?.PlayClick(); 
             ResumeGame(); 
         }
 
         private void HandleRestartLevelClicked() 
         { 
+            Debug.Log("PauseMenuController: Level restarted.", this); // For debugging
             uiSoundFeedback?.PlayClick(); 
             RestartLevel(); 
         }
 
         private void HandleMainMenuClicked() 
         { 
+            Debug.Log("PauseMenuController: Navigating to Main Menu.", this); // For debugging
             uiSoundFeedback?.PlayClick(); 
             GoToMainMenu(); 
         }
@@ -209,4 +212,3 @@ namespace Scripts.UI.InGame
         public void PlayButtonSelectSound() => uiSoundFeedback?.PlaySelect();
     }
 }
-// --- END OF FILE PauseMenuController.cs ---

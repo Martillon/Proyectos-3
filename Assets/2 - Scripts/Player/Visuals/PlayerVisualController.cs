@@ -130,6 +130,28 @@ namespace Scripts.Player.Visuals // Nuevo namespace
                 armSpriteRenderer.flipY = (targetFacingDirection < 0f); // O .flipX
             }
         }
+        
+        public void HideArmObject()
+        {
+            if (aimableArmObject != null)
+            {
+                Debug.Log($"[{Time.frameCount}] PVC: Hiding Arm Object.");
+                aimableArmObject.SetActive(false);
+            }
+        }
+
+        public void ShowArmObject()
+        {
+            if (aimableArmObject != null)
+            {
+                // La lógica en Update/HandleArmVisibilityAndFlip decidirá si realmente debe mostrarse
+                // basado en el estado actual (agachado, apuntando abajo en el aire, etc.)
+                // Aquí solo lo "preparamos" para ser visible si las condiciones lo permiten.
+                // O, si siempre debe mostrarse después de respawn (y no está agachado inmediatamente):
+                aimableArmObject.SetActive(true); 
+                Debug.Log($"[{Time.frameCount}] PVC: Showing Arm Object.");
+            }
+        }
 
         private void HandleArmVisibilityAndFlip()
         {

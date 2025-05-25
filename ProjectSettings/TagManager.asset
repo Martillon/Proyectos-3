@@ -9,6 +9,7 @@ TagManager:
   - PickUp
   - Enemy
   - Bullet
+  - Enviroment
   layers:
   - Default
   - TransparentFX
@@ -23,7 +24,7 @@ TagManager:
   - DamagePlayer
   - Hittable - Enemy
   - DamageEnemy
-  - 
+  - PlayerInteract
   - 
   - 
   - 

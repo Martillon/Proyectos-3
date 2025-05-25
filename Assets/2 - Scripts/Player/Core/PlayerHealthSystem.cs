@@ -5,7 +5,8 @@ using Scripts.Items.Checkpoint;
 using Unity.Cinemachine;
 using UnityEngine;
 using Scripts.Player.Movement;
-using Scripts.Player.Movement.Motor; // Asumo que PlayerMovement2D es para deshabilitar el movimiento
+using Scripts.Player.Movement.Motor;
+using Scripts.Player.Visuals; // Asumo que PlayerMovement2D es para deshabilitar el movimiento
 using Scripts.Player.Weapons; // <--- NUEVO: Para acceder a WeaponBase
 
 namespace Scripts.Player.Core
@@ -28,18 +29,22 @@ namespace Scripts.Player.Core
         [SerializeField] private CinemachineCamera playerFocusedCamera;
         [SerializeField] private float deathCameraZoomSize = 3f;
         [SerializeField] private float deathCameraZoomDuration = 1.5f;
+        [Tooltip("Nombre del trigger para la animación de 'stun' al perder una vida (no la muerte final).")]
+        [SerializeField] private string loseLifeStunTrigger = "StunTrigger";
 
         // --- Referencias a otros componentes del jugador ---
         private PlayerMotor playerMovement;
-        private WeaponBase playerWeaponBase;   // <--- NUEVO: Referencia al sistema de armas
-
+        private WeaponBase playerWeaponBase;   
+        private PlayerVisualController playerVisualController; // NUEVO: Para controlar el brazo/arma
+        
         private int currentLives;
         private int currentArmor;
         private bool isInvulnerable = false;
         private bool isDead = false;
         private float initialCameraOrthographicSize;
         private Coroutine invulnerabilityFlashCoroutine;
-
+        
+        
         private void Awake()
         {
             // Intenta obtener PlayerMovement2D del mismo GameObject o de un padre si es necesario.
@@ -64,7 +69,16 @@ namespace Scripts.Player.Core
                 // y LogicContainer_Weapons también es hijo directo de Player_root
                 playerWeaponBase = transform.parent.GetComponentInChildren<WeaponBase>(true);
             }
-
+            
+            if(playerRoot != null)
+            {
+                playerMovement = playerRoot.GetComponentInChildren<PlayerMotor>(true); // Busca en Player_root y todos sus hijos (incluyendo inactivos)
+                playerVisualController = playerRoot.GetComponentInChildren<PlayerVisualController>(true); // Busca en Player_root y todos sus hijos (incluyendo inactivos)
+            }
+            else
+            {
+                Debug.LogError("PlayerHealthSystem: Player root not found in hierarchy! Cannot access PlayerMotor or PlayerVisualController.", this);
+            }
 
             if (playerWeaponBase == null)
             {
@@ -152,52 +166,76 @@ namespace Scripts.Player.Core
             }
         }
         
-        private IEnumerator LoseLifeAndRespawnSequence()
+         private IEnumerator LoseLifeAndRespawnSequence()
         {
-            isDead = true; 
-            isInvulnerable = true; 
+            Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence STARTED");
+            isDead = true; // Temporalmente "muerto" para esta secuencia
+            isInvulnerable = true;
 
             InputManager.Instance?.DisableAllControls();
             if (playerMovement != null) playerMovement.enabled = false;
 
-            if (playerAnimator != null && !string.IsNullOrEmpty(deathAnimationTrigger))
-            {
-                playerAnimator.SetTrigger(deathAnimationTrigger);
-                yield return new WaitForSeconds(0.75f); 
-            }
-            
-            if (playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = false; 
-            yield return new WaitForSeconds(0.25f); 
+            // Opcional: Ocultar el brazo/arma
+            playerVisualController?.HideArmObject(); // Necesitarás añadir HideArmObject() a PlayerVisualController
 
-            transform.position = CheckpointManager.GetCurrentRespawnPosition();
-            
-            // *** NUEVO: Resetear el arma al arma inicial ***
-            if (playerWeaponBase != null)
+            // Disparar animación de Stun/HitRecoilHeavy
+            if (playerAnimator != null && !string.IsNullOrEmpty(loseLifeStunTrigger))
             {
-                // Debug.Log("PlayerHealthSystem: Resetting weapon to initial after losing a life.");
-                playerWeaponBase.EquipInitialUpgrade(); // Necesitaremos añadir este método a WeaponBase
+                Debug.Log($"[{Time.frameCount}] PHS: Triggering '{loseLifeStunTrigger}' animation.");
+                playerAnimator.SetTrigger(loseLifeStunTrigger);
+                // Esperar a que la animación de stun se complete o una duración fija
+                yield return new WaitForSeconds(0.6f); // Ajusta esta duración
             }
             else
             {
-                // Debug.LogWarning("PlayerHealthSystem: WeaponBase reference missing, cannot reset weapon.");
+                yield return new WaitForSeconds(0.5f); // Delay si no hay animación de stun
+            }
+            
+            // Opcional: Hacer invisible al jugador brevemente durante el "teletransporte"
+            if (playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = false;
+            // yield return new WaitForSeconds(0.1f); // Pequeño delay opcional
+
+            // Mover al checkpoint
+            Vector3 respawnPosition = CheckpointManager.GetCurrentRespawnPosition();
+            Debug.Log($"[{Time.frameCount}] PHS: Teleporting to respawn position: {respawnPosition}");
+            transform.root.position = respawnPosition; // Mover el Player_root completo
+
+            // Resetear arma
+            if (playerWeaponBase != null)
+            {
+                playerWeaponBase.EquipInitialUpgrade();
+                Debug.Log($"[{Time.frameCount}] PHS: Weapon reset to initial.");
             }
 
+            // Hacer visible al jugador de nuevo
             if (playerBodySpriteRenderer != null) playerBodySpriteRenderer.enabled = true;
+            // Opcional: Reactivar el brazo/arma (si se ocultó)
+            playerVisualController?.ShowArmObject(); // Necesitarás añadir ShowArmObject() a PlayerVisualController
 
-            currentArmor = maxArmorPerLife;
-            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
+            // Resetear armadura y actualizar UI
+            currentArmor = maxArmorPerLife; // Restaura armadura a tope para la nueva "vida"
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); // currentLives ya fue decrementado en TakeDamage
 
+            // Disparar animación de Respawn
             if (playerAnimator != null && !string.IsNullOrEmpty(respawnAnimationTrigger))
             {
-                 playerAnimator.SetTrigger(respawnAnimationTrigger);
-                 yield return new WaitForSeconds(0.5f); 
+                Debug.Log($"[{Time.frameCount}] PHS: Triggering '{respawnAnimationTrigger}' animation.");
+                playerAnimator.SetTrigger(respawnAnimationTrigger);
+                // Esperar a que la animación de respawn se complete o una duración fija
+                yield return new WaitForSeconds(0.5f); // Ajusta esta duración
+            }
+            else
+            {
+                 yield return new WaitForSeconds(0.3f); // Delay si no hay animación de respawn
             }
 
+            // Reactivar controles y movimiento
             if (playerMovement != null) playerMovement.enabled = true;
             InputManager.Instance?.EnablePlayerControls();
             
-            isDead = false; 
-            StartCoroutine(BeginInvulnerability());
+            isDead = false; // Ya no está "muerto"
+            Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence FINISHED. Player is back.");
+            StartCoroutine(BeginInvulnerability()); // Iniciar invulnerabilidad post-respawn
         }
 
         private IEnumerator FinalDeathSequence()

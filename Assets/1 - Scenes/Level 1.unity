@@ -14460,7 +14460,7 @@ Transform:
   m_GameObject: {fileID: 471890983}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.276668, y: -6.6644278, z: -7.2008433}
+  m_LocalPosition: {x: -14.273596, y: -6.6644278, z: -7.2008433}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -23165,7 +23165,7 @@ Transform:
   m_GameObject: {fileID: 1031398355}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14.276668, y: -6.6644278, z: -7.2008433}
+  m_LocalPosition: {x: -14.273596, y: -6.6644278, z: -7.2008433}
   m_LocalScale: {x: 1, y: 0.9818, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -35216,6 +35216,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2452416624767161543, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
+      propertyPath: playerFocusedCamera
+      value: 
+      objectReference: {fileID: 471890986}
     - target: {fileID: 2758304495769058431, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
       propertyPath: m_SortingOrder
       value: 9
@@ -35231,10 +35235,6 @@ PrefabInstance:
     - target: {fileID: 8786531173402896837, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
       propertyPath: groundCheckRadius
       value: 0.55
-      objectReference: {fileID: 0}
-    - target: {fileID: 8919980472734502440, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
-      propertyPath: jumpForce
-      value: 5.7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
