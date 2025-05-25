@@ -38,7 +38,7 @@ namespace Scripts.Core
         // Animator Parameters / Triggers (Examples)
         public const string AnimDieTrigger = "Die";
         public const string AnimRespawnTrigger = "Respawn";
-        // Add other animator parameters
+        public const string AnimVictoryTrigger = "Victory"; 
         
         //Layers
         public const string GroundLayerName = "Ground";

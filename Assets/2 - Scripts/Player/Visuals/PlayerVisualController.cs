@@ -39,7 +39,7 @@ namespace Scripts.Player.Visuals // Nuevo namespace
         private readonly int animIsCrouchingHash = Animator.StringToHash("isCrouching");
         private readonly int animVerticalSpeedHash = Animator.StringToHash("VerticalSpeed"); // Si usas para Fall/Jump blend
         private readonly int animDieTriggerHash = Animator.StringToHash(GameConstants.AnimDieTrigger);
-        private readonly int animVictoryTriggerHash = Animator.StringToHash(GameConstants.AnimRespawnTrigger); // O AnimVictoryTrigger
+        private readonly int animVictoryTriggerHash = Animator.StringToHash(GameConstants.AnimVictoryTrigger); // O AnimVictoryTrigger
 
 
         void Awake()
@@ -182,6 +182,7 @@ namespace Scripts.Player.Visuals // Nuevo namespace
 
         private void PlayVictoryAnimation(string levelId) // Parámetro de evento no usado aquí
         {
+            HideArmObject();
             if (bodyAnimator != null) bodyAnimator.SetTrigger(animVictoryTriggerHash);
             if (aimableArmObject != null) aimableArmObject.SetActive(false); // Ocultar brazo en victoria
         }
