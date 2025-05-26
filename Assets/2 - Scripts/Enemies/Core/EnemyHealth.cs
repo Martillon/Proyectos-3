@@ -5,6 +5,7 @@ using System.Collections;
 using Scripts.Enemies.Melee;
 using Scripts.Enemies.Ranged;
 using Scripts.Enemies.Visuals;
+using static UnityEngine.Random;
 
 // Ajusta el namespace si es diferente
 namespace Scripts.Enemies.Core 
@@ -14,11 +15,17 @@ namespace Scripts.Enemies.Core
         [Header("Health Settings")]
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private bool destroyOnDeath = true;
+        [SerializeField] private bool hideOnDeath = false;
+        [SerializeField] private int timeBeforeDestroy = 5; 
 
         [Header("Damage Feedback")]
         [SerializeField] private float damageInvulnerabilityDuration = 0.5f;
         [SerializeField] private Color damageFlashColor = Color.red;
         [SerializeField] private int damageFlashCount = 3;
+        
+        [Header("Drop Settings")]
+        [SerializeField] private bool dropItemsOnDeath = true; 
+        [SerializeField] private GameObject[] itemsToDrop; 
 
         private float currentHealth;
         private bool isDead = false;
@@ -32,6 +39,8 @@ namespace Scripts.Enemies.Core
         private EnemyAttackMelee meleeAttacker;
         private EnemyAttackRanged rangedAttacker;
         // Or a more generic IEnemyAttack attackerComponent;
+        
+        
 
         private void Awake()
         {
@@ -141,18 +150,36 @@ namespace Scripts.Enemies.Core
             if(rangedAttacker != null) rangedAttacker.enabled = false;
             // if(attackerComponent != null && attackerComponent is MonoBehaviour mb) mb.enabled = false;
 
-            // TODO: Trigger death animation, play sound, spawn effects
-
+            StartCoroutine(WaitBeforeDestroy());
+            
+            if (dropItemsOnDeath && itemsToDrop != null && itemsToDrop.Length > 0)
+            {
+                if(itemsToDrop.Length == 1) 
+                {
+                    Instantiate(itemsToDrop[0], transform.position, Quaternion.identity);
+                }
+                else
+                {
+                    int randomIndex = Range(0, itemsToDrop.Length);
+                    Instantiate(itemsToDrop[randomIndex], transform.position, Quaternion.identity);
+                }
+            }
+            
             if (destroyOnDeath)
             {
                 Destroy(gameObject, 0.1f); // Short delay for effects
             }
-            else
+            else if(hideOnDeath)
             {
                 gameObject.SetActive(false); // For pooling
             }
         }
 
+        private IEnumerator WaitBeforeDestroy()
+        {
+            yield return new WaitForSeconds(timeBeforeDestroy);
+        }
+        
         public void ResetHealthAndRevive()
         {
             currentHealth = maxHealth;

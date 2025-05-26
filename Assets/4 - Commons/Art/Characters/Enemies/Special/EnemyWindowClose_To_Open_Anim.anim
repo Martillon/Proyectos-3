@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: EnemyWindowOpenClose_Anim
+  m_Name: EnemyWindowClose_To_Open_Anim
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -22,15 +22,15 @@ AnimationClip:
     curve:
     - time: 0
       value: {fileID: -1729514657, guid: 950ab80b2f40f134e9abf5f185f85233, type: 3}
-    - time: 0.05
+    - time: 0.016666668
       value: {fileID: -439882384, guid: 950ab80b2f40f134e9abf5f185f85233, type: 3}
-    - time: 0.1
+    - time: 0.033333335
       value: {fileID: 881665826, guid: 950ab80b2f40f134e9abf5f185f85233, type: 3}
-    - time: 0.15
+    - time: 0.05
       value: {fileID: -2145668740, guid: 950ab80b2f40f134e9abf5f185f85233, type: 3}
-    - time: 0.2
+    - time: 0.06666667
       value: {fileID: -438128676, guid: 950ab80b2f40f134e9abf5f185f85233, type: 3}
-    - time: 0.25
+    - time: 0.083333336
       value: {fileID: 976742284, guid: 950ab80b2f40f134e9abf5f185f85233, type: 3}
     attribute: m_Sprite
     path: 
@@ -65,7 +65,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.26666668
+    m_StopTime: 0.1
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
