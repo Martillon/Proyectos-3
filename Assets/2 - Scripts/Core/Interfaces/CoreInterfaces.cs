@@ -27,6 +27,11 @@ namespace Scripts.Core.Interfaces
         float GetDamage();
     }
     
+    public interface IInstakillable
+    {
+        void ApplyInstakill(); // Nombre más genérico que TriggerInstakill
+    }
+    
     /// <summary>
     /// Interface for objects that can restore life completely.
     /// Typically used by life pickups or checkpoints.

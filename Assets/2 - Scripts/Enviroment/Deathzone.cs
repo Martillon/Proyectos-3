@@ -1,71 +1,75 @@
-// --- START OF FILE DeathZone.cs ---
 using UnityEngine;
-using Scripts.Core; // For GameConstants
-using Scripts.Player.Core; // For PlayerHealthSystem
-// No es estrictamente necesario acceder a PlayerHealthSystem directamente si usamos una interfaz o un método más genérico.
+using Scripts.Core; // Para GameConstants
+using Scripts.Core.Interfaces;
+using Scripts.Player.Core; // Para IDamageable
 
 namespace Scripts.Environment // Or Scripts.Hazards, Scripts.Gameplay
 {
-    /// <summary>
-    /// Represents a zone that causes the player to "die" (lose a life or instakill) upon entry.
-    /// Typically placed below the playable area to handle falls.
-    /// </summary>
     [RequireComponent(typeof(Collider2D))]
     public class DeathZone : MonoBehaviour
     {
         [Header("Death Zone Settings")]
-        [Tooltip("If true, entering this zone will instantly trigger the player's final death sequence, regardless of remaining lives. If false, it will behave like taking a hit (lose armor/life).")]
-        [SerializeField] private bool isInstakill = false;
-
-        [Tooltip("Optional: Amount of 'damage' to apply if not instakill. PlayerHealthSystem might interpret any damage as '1 hit'.")]
-        [SerializeField] private float damageAmountIfNotInstakill = 1; // PHS typically treats any hit as 1 armor/life loss
+        [Tooltip("If true, entering this zone will attempt to instakill the entity. If false, it will apply standard damage.")]
+        [SerializeField] private bool isInstakill = true;
+        [Tooltip("Amount of 'damage' to apply if not instakill.")]
+        [SerializeField] private float damageAmountIfNotInstakill = 9999f; // Daño alto para asegurar muerte/pérdida de vida
 
         private void Awake()
         {
             Collider2D col = GetComponent<Collider2D>();
-            if (col == null)
-            {
-                Debug.LogError($"DeathZone on '{gameObject.name}' is missing a Collider2D component.", this);
-                enabled = false; // Disable script if no collider
-                return;
-            }
-            if (!col.isTrigger)
-            {
-                // Debug.LogWarning($"DeathZone on '{gameObject.name}': Collider2D is not set to 'Is Trigger'. Forcing it to true for proper functionality.", this); // Uncomment for debugging
-                col.isTrigger = true;
-            }
+            if (col == null) { /* ... error ... */ enabled = false; return; }
+            if (!col.isTrigger) { col.isTrigger = true; }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.CompareTag(GameConstants.PlayerTag))
-            {
-                // Debug.Log($"DeathZone: Player '{other.name}' entered.", this); // Uncomment for debugging
-                PlayerHealthSystem playerHealth = other.GetComponent<PlayerHealthSystem>();
+            // No filtramos por tag aquí, dejamos que las interfaces decidan si el objeto puede ser afectado.
+            // Podrías añadir un filtro de layer si quieres que la DeathZone solo afecte a ciertas layers (ej. "Player", "Enemies").
 
-                if (playerHealth != null)
+            Debug.Log($"DeathZone: OnTriggerEnter2D with {other.gameObject.name} (Layer: {LayerMask.LayerToName(other.gameObject.layer)})");
+
+            if (isInstakill)
+            {
+                // Intentar obtener IInstakillable del objeto que colisionó o de sus padres
+                IInstakillable instakillableEntity = other.GetComponentInParent<IInstakillable>();
+                // GetComponentInParent también revisa el componente en el mismo objeto 'other' primero.
+
+                if (instakillableEntity != null)
                 {
-                    if (isInstakill)
+                    Debug.Log($"DeathZone: Found IInstakillable on {other.gameObject.name}. Applying Instakill.");
+                    instakillableEntity.ApplyInstakill();
+                }
+                else
+                {
+                    // Fallback si no es IInstakillable pero podría ser IDamageable (menos común para instakill zones)
+                    IDamageable damageableEntity = other.GetComponentInParent<IDamageable>();
+                    if (damageableEntity != null)
                     {
-                        // To trigger an instakill, we need a way for PlayerHealthSystem
-                        // to go directly to the final death sequence.
-                        // Let's add a new public method to PlayerHealthSystem for this.
-                        playerHealth.TriggerInstakill();
-                        // Debug.Log($"DeathZone: Instakill triggered for Player '{other.name}'.", this); // Uncomment for debugging
+                        Debug.LogWarning($"DeathZone: {other.gameObject.name} is not IInstakillable. Applying massive damage as fallback for instakill.");
+                        damageableEntity.TakeDamage(damageAmountIfNotInstakill * 10); // Daño muy masivo
                     }
                     else
                     {
-                        // Behave like a normal hit: lose armor, then life, then game over.
-                        // PlayerHealthSystem's TakeDamage will handle the logic.
-                        playerHealth.TakeDamage(damageAmountIfNotInstakill); // Amount might be ignored by PHS if it's "1 hit" logic
-                        // Debug.Log($"DeathZone: Standard damage/life loss triggered for Player '{other.name}'.", this); // Uncomment for debugging
+                         Debug.Log($"DeathZone: {other.gameObject.name} is neither IInstakillable nor IDamageable. No action taken for instakill.");
                     }
                 }
-                // else Debug.LogWarning($"DeathZone: Player '{other.name}' entered, but no PlayerHealthSystem component found.", this); // Uncomment for debugging
+            }
+            else // No es instakill, aplicar daño normal
+            {
+                IDamageable damageableEntity = other.GetComponentInParent<IDamageable>();
+                if (damageableEntity != null)
+                {
+                    Debug.Log($"DeathZone: Applying standard damage ({damageAmountIfNotInstakill}) to {other.gameObject.name}.");
+                    damageableEntity.TakeDamage(damageAmountIfNotInstakill);
+                }
+                else
+                {
+                    Debug.Log($"DeathZone: {other.gameObject.name} is not IDamageable. No standard damage applied.");
+                }
             }
         }
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         // Optional: Gizmo to visualize the death zone in the editor
         private void OnDrawGizmos()
         {
@@ -111,7 +115,7 @@ namespace Scripts.Environment // Or Scripts.Hazards, Scripts.Gameplay
                 }
             }
         }
-#endif
+    #endif
     }
 }
 // --- END OF FILE DeathZone.cs ---

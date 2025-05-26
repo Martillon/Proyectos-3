@@ -9,7 +9,7 @@ using Scripts.Enemies.Visuals;
 // Ajusta el namespace si es diferente
 namespace Scripts.Enemies.Core 
 {
-    public class EnemyHealth : MonoBehaviour, IDamageable
+    public class EnemyHealth : MonoBehaviour, IDamageable, IInstakillable
     {
         [Header("Health Settings")]
         [SerializeField] private float maxHealth = 100f;
@@ -175,8 +175,19 @@ namespace Scripts.Enemies.Core
 
             gameObject.SetActive(true);
         }
+        
+        public void ApplyInstakill()
+        {
+            Debug.Log($"EnemyHealth on '{gameObject.name}': ApplyInstakill received. Calling Die().");
+            // Para un enemigo, instakill usualmente significa simplemente morir.
+            // No hay "vidas" que perder ni respawn en checkpoint.
+            if (!isDead) // Solo llamar a Die si no está ya muriendo/muerto
+            {
+                currentHealth = 0; // Opcional, para asegurar que TakeDamage no se meta si algo más lo llama
+                Die();
+            }
+        }
 
         public bool IsDead => isDead;
     }
 }
-// --- END OF FILE EnemyHealth.cs ---

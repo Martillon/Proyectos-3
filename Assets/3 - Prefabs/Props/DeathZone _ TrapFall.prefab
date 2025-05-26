@@ -92,4 +92,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isInstakill: 0
-  damageAmountIfNotInstakill: 1
+  damageAmountIfNotInstakill: 3

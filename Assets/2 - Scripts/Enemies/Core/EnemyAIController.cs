@@ -11,7 +11,6 @@ using Scripts.Enemies.Ranged; // Para EnemyHealth (si no está en el mismo names
 namespace Scripts.Enemies.Core // Ajusta el namespace
 {
     [RequireComponent(typeof(EnemyHealth))]
-    // [RequireComponent(typeof(Rigidbody2D))] // EnemyMovementComponent ya lo requiere
     public class EnemyAIController : MonoBehaviour
     {
         public enum EnemyBehaviorType { Melee, Ranged }
@@ -141,7 +140,7 @@ namespace Scripts.Enemies.Core // Ajusta el namespace
 
                 if (distanceToPlayer <= engagementRange && canPhysicallyAttack)
                 {
-                    Debug.Log("AI STATE: DECIDING TO ATTACK");
+                    //Debug.Log("AI STATE: DECIDING TO ATTACK");
                     // ESTADO: INICIAR ATAQUE
                     movementComponent.SetSteeringBehavior(stayStillBehavior);
                     // SetCanMove(false) será llamado por el script de ataque al iniciar.
@@ -158,14 +157,14 @@ namespace Scripts.Enemies.Core // Ajusta el namespace
                 }
                 else if (distanceToPlayer <= engagementRange && !canPhysicallyAttack)
                 {
-                    Debug.Log("AI STATE: IN ENGAGEMENT RANGE, BUT CANNOT ATTACK");
+                    //Debug.Log("AI STATE: IN ENGAGEMENT RANGE, BUT CANNOT ATTACK");
                     // ESTADO: EN RANGO DE ENGAGEMENT, PERO NO PUEDE ATACAR (COOLDOWN, ETC.)
                     movementComponent.SetSteeringBehavior(stayStillBehavior);
                     FaceTarget(); // Mantenerse orientado al jugador
                 }
                 else // Fuera de engagementRange (o no puede atacar por otras razones y está lejos)
                 {
-                    Debug.Log("AI STATE: CHASING (or out of range)");
+                    //Debug.Log("AI STATE: CHASING (or out of range)");
                     // ESTADO: PERSIGUIENDO
                     if (chaseBehavior != null) {
                          movementComponent.SetSteeringBehavior(chaseBehavior);

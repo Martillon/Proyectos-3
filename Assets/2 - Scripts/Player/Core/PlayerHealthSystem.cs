@@ -11,7 +11,7 @@ using Scripts.Player.Weapons; // <--- NUEVO: Para acceder a WeaponBase
 
 namespace Scripts.Player.Core
 {
-    public class PlayerHealthSystem : MonoBehaviour, IHealLife, IHealArmor, IDamageable
+    public class PlayerHealthSystem : MonoBehaviour, IHealLife, IHealArmor, IDamageable, IInstakillable
     {
         [Header("Health Configuration")]
         [SerializeField] private int maxLives = 3;
@@ -55,7 +55,7 @@ namespace Scripts.Player.Core
         private float initialCameraOrthographicSize;
         private Coroutine _activeRespawnSequence;
         private Coroutine invulnerabilityFlashCoroutine;
-        
+        private Rigidbody2D playerRb;
         
         private void Awake()
         {
@@ -112,6 +112,15 @@ namespace Scripts.Player.Core
                 if (playerAnimator == null)
                 {
                      Debug.LogWarning("PlayerHealthSystem: Player Animator not found or assigned. Death/respawn animations might not play.", this);
+                }
+            }
+            
+            if(playerRb == null)
+            {
+                playerRb = playerRoot.GetComponent<Rigidbody2D>();
+                if (playerRb == null)
+                {
+                    Debug.LogError("PlayerHealthSystem: Rigidbody2D not found on player hierarchy! Cannot reset velocity on damage.", this);
                 }
             }
 
@@ -192,10 +201,28 @@ namespace Scripts.Player.Core
             }
         }
         
+        // Implementación de IInstakillable
+        public void ApplyInstakill()
+        {
+            Debug.Log($"[{Time.frameCount}] PHS: ApplyInstakill called on {gameObject.name}.");
+            if (isDead || _activeRespawnSequence != null) return; // Si ya está muerto o en secuencia, no hacer nada
+
+            // Forzar directamente la secuencia de muerte final
+            currentLives = 0;
+            currentArmor = 0;
+            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor);
+            isDead = true; // Marcar para Game Over
+            if (_activeRespawnSequence != null) StopCoroutine(_activeRespawnSequence);
+            StartCoroutine(FinalDeathSequence());
+        }
+        
          private IEnumerator LoseLifeAndRespawnSequence() 
         {
-            Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence STARTED");
+            //Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence STARTED");
             isInvulnerable = true; 
+            
+            playerRb.linearVelocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
 
             InputManager.Instance?.DisableAllControls(); 
             if (playerMovement != null) playerMovement.enabled = false;
@@ -209,7 +236,7 @@ namespace Scripts.Player.Core
             yield return new WaitForSeconds(hurtStateDuration); 
             
             // 2. Fade a Negro
-            Debug.Log($"[{Time.frameCount}] PHS: Fading to black for respawn.");
+            //Debug.Log($"[{Time.frameCount}] PHS: Fading to black for respawn.");
             if (ScreenFader.Instance != null)
             {
                 // Esperar a que la corrutina de fade termine
@@ -260,7 +287,7 @@ namespace Scripts.Player.Core
             InputManager.Instance?.EnablePlayerControls();
             
             _activeRespawnSequence = null; 
-            Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence FINISHED.");
+            //Debug.Log($"[{Time.frameCount}] PHS: LoseLifeAndRespawnSequence FINISHED.");
             StartCoroutine(BeginInvulnerability()); 
         }
 
@@ -384,11 +411,7 @@ namespace Scripts.Player.Core
 
         public void TriggerInstakill()
         {
-            if (isDead) return;
-            currentLives = 0; 
-            currentArmor = 0; 
-            PlayerEvents.RaiseHealthChanged(currentLives, currentArmor); 
-            StartCoroutine(FinalDeathSequence());
+            ApplyInstakill();
         }
     }
 }
