@@ -1,30 +1,25 @@
-// --- START OF FILE LevelExit.cs (Modificado) ---
+// En Scripts/Levels/LevelExit.cs
 using UnityEngine;
-using Scripts.Core; // For GameConstants, InputManager
-using Scripts.Player.Core; // For PlayerEvents (o GameEvents si lo moviste)
-using UnityEngine.SceneManagement; // For SceneManager (Unity's)
+using Scripts.Core; // Para GameConstants, InputManager
+using Scripts.Player.Core;
+using Scripts.Player.Visuals; // Para PlayerEvents
+using UnityEngine.SceneManagement; // Para SceneManager
 
 namespace Scripts.Levels
 {
-    /// <summary>
-    /// Detects when the player reaches the end of a level.
-    /// It marks the level as completed via LevelProgressionManager and
-    /// raises an event for other systems (like LevelCompleteUIController) to handle the UI and transition.
-    /// </summary>
     [RequireComponent(typeof(Collider2D))]
     public class LevelExit : MonoBehaviour
     {
-        // [Header("Feedback (Optional - if direct feedback still desired here)")]
-        // [SerializeField] private GameObject exitReachedVFX; // e.g., a sparkle at the exit point
-        // [SerializeField] private Sounds exitReachedSFX;
-        // [SerializeField] private AudioSource audioSourceForSFX;
-
         private bool hasBeenTriggered = false;
 
         private void Awake()
         {
             Collider2D col = GetComponent<Collider2D>();
-            if (col != null && !col.isTrigger) col.isTrigger = true;
+            if (col != null && !col.isTrigger)
+            {
+                Debug.LogWarning($"LevelExit on '{gameObject.name}': Collider is not set to 'Is Trigger'. Forcing it.", this);
+                col.isTrigger = true;
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -35,26 +30,39 @@ namespace Scripts.Levels
             }
 
             hasBeenTriggered = true;
-            // Debug.Log($"LevelExit: Player entered exit trigger for level '{SceneManager.GetActiveScene().name}'.", this); // Uncomment for debugging
+            Debug.Log($"LevelExit: Player '{other.name}' entered exit for level '{SceneManager.GetActiveScene().name}'.");
 
-            // 1. Disable player input immediately to prevent movement during sequence
-            InputManager.Instance?.DisableAllControls();
+            // 1. Deshabilitar input del jugador
+            InputManager.Instance?.DisableAllControls(); // O DisablePlayerControls si quieres que la UI siga funcionando para algo más
 
-            // 2. Mark level as completed and unlock next (this also saves progression)
+            // 2. Detener movimiento físico del jugador
+            Rigidbody2D playerRb = GetPlayerRigidbody(other);
+            if (playerRb != null)
+            {
+                Debug.Log($"LevelExit: Zeroing player Rigidbody velocity. Was: {playerRb.linearVelocity}");
+                playerRb.linearVelocity = Vector2.zero;
+                playerRb.angularVelocity = 0f;
+                // Opcional: Podrías intentar forzar al jugador a una posición "grounded" aquí si es necesario
+                // para la pose de victoria, pero suele ser mejor que la animación no lo requiera estrictamente.
+            }
+
+            // 3. Marcar nivel como completado
             string currentLevelIdentifier = SceneManager.GetActiveScene().name;
             LevelProgressionManager.Instance?.CompleteLevel(currentLevelIdentifier);
 
-            // 3. Play any immediate feedback at the exit point itself (optional)
-            // if (exitReachedVFX != null) Instantiate(exitReachedVFX, transform.position, Quaternion.identity);
-            // exitReachedSFX?.Play(audioSourceForSFX);
+            // 4. Lanzar el evento global de nivel completado
+            // La UI y otros sistemas reaccionarán a esto.
+            PlayerEvents.RaiseLevelCompleted(currentLevelIdentifier);
 
-            // 4. Raise the event for UI and other systems to handle the "Level Complete" sequence
-            PlayerEvents.RaiseLevelCompleted(currentLevelIdentifier); // Or GameEvents.RaiseLevelCompleted
+            // Opcional: Desactivar este objeto para que no se pueda triggerear de nuevo en esta sesión del nivel
+            // gameObject.SetActive(false); 
+        }
 
-            // The LevelExit's job is done here. LevelCompleteUIController will take over.
-            // We might want to disable this LevelExit trigger object after it's used once per scene load.
-            // gameObject.SetActive(false); // Or just rely on hasBeenTriggered
+        // Helper para obtener el Rigidbody del jugador de forma más robusta
+        private Rigidbody2D GetPlayerRigidbody(Collider2D playerCollider)
+        {
+            if (playerCollider.attachedRigidbody != null) return playerCollider.attachedRigidbody;
+            return playerCollider.GetComponentInParent<Rigidbody2D>();
         }
     }
 }
-// --- END OF FILE LevelExit.cs ---

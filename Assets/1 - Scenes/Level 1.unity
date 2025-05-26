@@ -15360,7 +15360,7 @@ Transform:
   m_GameObject: {fileID: 471890983}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -19.686268, y: -6.6644278, z: -7.2008433}
+  m_LocalPosition: {x: 122.50293, y: -6.6644278, z: -7.2008433}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24748,7 +24748,7 @@ Transform:
   m_GameObject: {fileID: 1031398355}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -19.686268, y: -6.6644278, z: -7.2008433}
+  m_LocalPosition: {x: 122.50293, y: -6.6644278, z: -7.2008433}
   m_LocalScale: {x: 1, y: 0.9818, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -37778,7 +37778,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1376491531330643131, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -22.59
+      value: 119.6
       objectReference: {fileID: 0}
     - target: {fileID: 1376491531330643131, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
       propertyPath: m_LocalPosition.y
@@ -77740,7 +77740,7 @@ GameObject:
   - component: {fileID: 1898211707}
   - component: {fileID: 1898211706}
   m_Layer: 13
-  m_Name: Bar-celona_0
+  m_Name: Bar - End
   m_TagString: Enviroment
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77792,7 +77792,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.84589386, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -77802,7 +77802,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 7.34375, y: 4}
+  m_Size: {x: 5.6519623, y: 4}
   m_EdgeRadius: 0
 --- !u!95 &1898211708
 Animator:

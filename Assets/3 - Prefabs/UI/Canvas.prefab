@@ -1482,12 +1482,11 @@ MonoBehaviour:
   messageGroup: {fileID: 424369207050932515}
   buttonsGroup: {fileID: 5581111107732344652}
   inGameHUD: {fileID: 3241619042829254349}
-  screenFadeInDuration: 1
+  backgroundFadeDuration: 0.5
+  delayBeforeUIShow: 4
   delayBeforeMessage: 0.5
   delayAfterMessageBeforeButtons: 1.5
   backgroundOverlayTargetAlpha: 0.7
-  triggerPlayerVictoryAnimation: 0
-  playerVictoryAnimationTrigger: Victory
   btn_Continue: {fileID: 2207879659996254763}
   btn_RetryLevel: {fileID: 3483681919985748394}
   btn_MainMenu: {fileID: 6360597819717132505}

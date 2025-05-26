@@ -37,7 +37,6 @@ namespace Scripts.Player.Visuals // Nuevo namespace
         private readonly int animIsMovingHash = Animator.StringToHash("isMoving");
         private readonly int animIsGroundedHash = Animator.StringToHash("isGrounded");
         private readonly int animIsCrouchingHash = Animator.StringToHash("isCrouching");
-        private readonly int animVerticalSpeedHash = Animator.StringToHash("VerticalSpeed"); // Si usas para Fall/Jump blend
         private readonly int animDieTriggerHash = Animator.StringToHash(GameConstants.AnimDieTrigger);
         private readonly int animVictoryTriggerHash = Animator.StringToHash(GameConstants.AnimVictoryTrigger); // O AnimVictoryTrigger
 
@@ -133,9 +132,9 @@ namespace Scripts.Player.Visuals // Nuevo namespace
         
         public void HideArmObject()
         {
+            Debug.Log($"[{Time.frameCount}] PVC: Hiding Arm Object.");
             if (aimableArmObject != null)
             {
-                Debug.Log($"[{Time.frameCount}] PVC: Hiding Arm Object.");
                 aimableArmObject.SetActive(false);
             }
         }
@@ -184,8 +183,6 @@ namespace Scripts.Player.Visuals // Nuevo namespace
         {
             HideArmObject();
             if (bodyAnimator != null) bodyAnimator.SetTrigger(animVictoryTriggerHash);
-            if (aimableArmObject != null) aimableArmObject.SetActive(false); // Ocultar brazo en victoria
         }
     }
 }
-// --- END OF FILE PlayerVisualController.cs ---
