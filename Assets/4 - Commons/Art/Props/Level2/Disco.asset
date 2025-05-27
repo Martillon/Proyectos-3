@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
+  m_Name: Disco
+  m_EditorClassIdentifier: 
+  m_AnimatedSprites:
+  - {fileID: -25204821, guid: d71f18ead6a06e849afc9d79c6f2c356, type: 3}
+  - {fileID: -338747279, guid: d71f18ead6a06e849afc9d79c6f2c356, type: 3}
+  - {fileID: -1338442579, guid: d71f18ead6a06e849afc9d79c6f2c356, type: 3}
+  - {fileID: 70839542, guid: d71f18ead6a06e849afc9d79c6f2c356, type: 3}
+  - {fileID: 514902018, guid: d71f18ead6a06e849afc9d79c6f2c356, type: 3}
+  - {fileID: -400497685, guid: d71f18ead6a06e849afc9d79c6f2c356, type: 3}
+  - {fileID: 1067476633, guid: d71f18ead6a06e849afc9d79c6f2c356, type: 3}
+  - {fileID: 268917240, guid: d71f18ead6a06e849afc9d79c6f2c356, type: 3}
+  m_MinSpeed: 0.49
+  m_MaxSpeed: 0.49
+  m_AnimationStartTime: 0
+  m_AnimationStartFrame: 0
+  m_TileColliderType: 0
+  m_TileAnimationFlags: 0
