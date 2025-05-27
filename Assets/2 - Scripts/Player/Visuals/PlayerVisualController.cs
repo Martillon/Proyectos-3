@@ -137,6 +137,10 @@ namespace Scripts.Player.Visuals // Nuevo namespace
             {
                 aimableArmObject.SetActive(false);
             }
+            else
+            {
+                Debug.LogWarning("PVC: AimableArmObject not found. Cannot hide it.");
+            }
         }
 
         public void ShowArmObject()

@@ -113,11 +113,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d8ec6c1170386458d867d801a4189e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 1
   destroyOnDeath: 1
+  remainVisibleAsDefeated: 0
   damageInvulnerabilityDuration: 0.5
   damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
   damageFlashCount: 3
+  vulnerableOnlyInSpecificAnimStates: 0
+  vulnerableAnimStateNames: []
+  animatorForVulnerabilityCheck: {fileID: 0}
 --- !u!114 &929098596303190552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,10 +139,16 @@ MonoBehaviour:
   engagementRange: 1.41
   playerTarget: {fileID: 0}
   canPatrol: 1
-  initialChaseSpeed: 3
-  patrolSpeed: 1.5
+  moveSpeed: 2.5
   patrolWaitTime: 2
   patrolMoveTime: 3
+  windowEnemyAnimator: {fileID: 0}
+  animParamIsOpen: '-'
+  animParamAimDirectionX: '-'
+  animTriggerActualAttack: '-'
+  useConeDetectionForWindow: 0
+  coneDetectionAngle: 120
+  coneForwardDirectionLocal: {x: 0, y: -1}
   visualsContainerTransform: {fileID: 6474659553659411030}
 --- !u!1 &1195470107870535031
 GameObject:
@@ -238,7 +248,6 @@ GameObject:
   - component: {fileID: 2874932770264156511}
   - component: {fileID: 4266961567163223511}
   - component: {fileID: 2949370398347482099}
-  - component: {fileID: 4137821626109636759}
   m_Layer: 11
   m_Name: Visuals
   m_TagString: Hittable
@@ -369,7 +378,7 @@ MonoBehaviour:
   attackRange: 4.74
   attackCooldown: 2
   fallbackFireSequenceDuration: 1
-  requireLineOfSight: 1
+  requireLineOfSightForFreeAim: 1
   lineOfSightBlockers:
     serializedVersion: 2
     m_Bits: 8
@@ -379,20 +388,3 @@ MonoBehaviour:
   projectilesPerBurst: 1
   delayBetweenBurstShots: 0.1
   attackAnimationTriggerName: triggerAttack
---- !u!114 &4137821626109636759
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6777068847934875245}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53d8ec6c1170386458d867d801a4189e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
-  destroyOnDeath: 1
-  damageInvulnerabilityDuration: 0.5
-  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
-  damageFlashCount: 3

@@ -116,9 +116,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 1
   destroyOnDeath: 1
+  remainVisibleAsDefeated: 0
   damageInvulnerabilityDuration: 0.5
   damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
   damageFlashCount: 3
+  vulnerableOnlyInSpecificAnimStates: 0
+  vulnerableAnimStateNames: []
+  animatorForVulnerabilityCheck: {fileID: 0}
 --- !u!114 &4385238541744696503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,10 +140,16 @@ MonoBehaviour:
   engagementRange: 1.5
   playerTarget: {fileID: 1376491531330643131, guid: 5b95ceca9f440a04b8b59dcf67218875, type: 3}
   canPatrol: 1
-  initialChaseSpeed: 3
-  patrolSpeed: 1.5
+  moveSpeed: 2.5
   patrolWaitTime: 2
   patrolMoveTime: 3
+  windowEnemyAnimator: {fileID: 0}
+  animParamIsOpen: '-'
+  animParamAimDirectionX: '-'
+  animTriggerActualAttack: '-'
+  useConeDetectionForWindow: 0
+  coneDetectionAngle: 120
+  coneForwardDirectionLocal: {x: 0, y: -1}
   visualsContainerTransform: {fileID: 7822150496977189788}
 --- !u!1 &4769778746121539728
 GameObject:

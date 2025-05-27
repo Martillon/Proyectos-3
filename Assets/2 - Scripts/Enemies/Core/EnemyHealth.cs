@@ -1,66 +1,121 @@
-// --- START OF FILE EnemyHealth.cs ---
+// En Scripts/Enemies/Core/EnemyHealth.cs
 using UnityEngine;
-using Scripts.Core.Interfaces; // For IDamageable
+using Scripts.Core.Interfaces; // Para IDamageable e IInstakillable
 using System.Collections;
 using Scripts.Enemies.Melee;
+using Scripts.Enemies.Movement;
 using Scripts.Enemies.Ranged;
-using Scripts.Enemies.Visuals;
-using static UnityEngine.Random;
 
-// Ajusta el namespace si es diferente
 namespace Scripts.Enemies.Core 
 {
+    // Asegúrate que la referencia al Animator para vulnerabilidad sea correcta
+    // Si este script está en el Root, y el Animator en Visuals (hijo), GetComponentInChildren está bien.
     public class EnemyHealth : MonoBehaviour, IDamageable, IInstakillable
     {
         [Header("Health Settings")]
         [SerializeField] private float maxHealth = 100f;
+        [Tooltip("Si es true, el GameObject se destruye al morir. Si es false, se desactiva (útil para pooling o enemigos que dejan un 'cadáver').")]
         [SerializeField] private bool destroyOnDeath = true;
-        [SerializeField] private bool hideOnDeath = false;
-        [SerializeField] private int timeBeforeDestroy = 5; 
+        [Tooltip("Específico para enemigos como el de ventana: si es true, permanece visible (animación de derrota) en lugar de destruirse/desactivarse completamente.")]
+        [SerializeField] private bool remainVisibleAsDefeated = false;
+
 
         [Header("Damage Feedback")]
         [SerializeField] private float damageInvulnerabilityDuration = 0.5f;
         [SerializeField] private Color damageFlashColor = Color.red;
         [SerializeField] private int damageFlashCount = 3;
-        
-        [Header("Drop Settings")]
-        [SerializeField] private bool dropItemsOnDeath = true; 
-        [SerializeField] private GameObject[] itemsToDrop; 
+
+        [Header("Vulnerability (Optional - e.g., for Window Enemy)")]
+        [Tooltip("Si es true, el enemigo solo puede recibir daño cuando su Animator está en uno de los estados especificados.")]
+        [SerializeField] private bool vulnerableOnlyInSpecificAnimStates = false;
+        [Tooltip("Nombres de los estados del Animator en los que este enemigo es vulnerable.")]
+        [SerializeField] private string[] vulnerableAnimStateNames = { "Open - Aim", "Attack" }; 
+        [Tooltip("Referencia al Animator usado para chequear los estados de vulnerabilidad. Si es null, intentará encontrar uno en los hijos.")]
+        [SerializeField] private Animator animatorForVulnerabilityCheck;
+
 
         private float currentHealth;
         private bool isDead = false;
         private bool isInvulnerableFromDamage = false;
 
-        private SpriteRenderer spriteRenderer;
-        private Color originalSpriteColor;
-        private Coroutine damageFeedbackCoroutine;
+        private SpriteRenderer _spriteRenderer; // Referencia al sprite principal para el flash
+        private Color _originalSpriteColor;
+        private Coroutine _damageFeedbackCoroutine;
 
-        // References to disable attacks during hit stun
-        private EnemyAttackMelee meleeAttacker;
-        private EnemyAttackRanged rangedAttacker;
-        // Or a more generic IEnemyAttack attackerComponent;
-        
-        
+        // Referencias a componentes de ataque para deshabilitarlos durante hit stun
+        private EnemyAttackMelee _meleeAttacker;
+        private EnemyAttackRanged _rangedAttacker;
+        private EnemyAIController _aiController; // Para deshabilitar IA en Die
 
         private void Awake()
         {
             currentHealth = maxHealth;
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            if (spriteRenderer != null)
-            {
-                originalSpriteColor = spriteRenderer.color;
-            }
-            // else: Error already logged if missing
 
-            meleeAttacker = GetComponent<EnemyAttackMelee>();
-            rangedAttacker = GetComponent<EnemyAttackRanged>();
-            // attackerComponent = GetComponent<IEnemyAttack>(); // If using a generic interface
+            // Intentar obtener el SpriteRenderer principal (usualmente en Visuals)
+            // Si este script está en el Root, y Visuals es un hijo con el sprite:
+            Transform visualsTransform = transform.Find("Visuals"); // Asumiendo un hijo llamado "Visuals"
+            if (visualsTransform != null)
+            {
+                _spriteRenderer = visualsTransform.GetComponentInChildren<SpriteRenderer>(true);
+            }
+            if (_spriteRenderer == null) // Fallback
+            {
+                _spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
+            }
+
+            if (_spriteRenderer != null) _originalSpriteColor = _spriteRenderer.color;
+            else Debug.LogWarning($"EnemyHealth on {gameObject.name}: SpriteRenderer not found for damage flash.", this);
+
+            _meleeAttacker = GetComponent<EnemyAttackMelee>() ?? GetComponentInChildren<EnemyAttackMelee>(true);
+            _rangedAttacker = GetComponent<EnemyAttackRanged>() ?? GetComponentInChildren<EnemyAttackRanged>(true);
+            _aiController = GetComponent<EnemyAIController>();
+
+
+            if (vulnerableOnlyInSpecificAnimStates && animatorForVulnerabilityCheck == null)
+            {
+                // Si es vulnerable condicionalmente y no se asignó Animator, intentar encontrarlo
+                if (visualsTransform != null) animatorForVulnerabilityCheck = visualsTransform.GetComponentInChildren<Animator>(true);
+                if (animatorForVulnerabilityCheck == null) animatorForVulnerabilityCheck = GetComponentInChildren<Animator>(true);
+
+                if (animatorForVulnerabilityCheck == null)
+                {
+                    Debug.LogError($"EnemyHealth on {gameObject.name}: 'vulnerableOnlyInSpecificAnimStates' es true, pero 'animatorForVulnerabilityCheck' no está asignado y no se pudo encontrar. Se deshabilitará la vulnerabilidad condicional.", this);
+                    vulnerableOnlyInSpecificAnimStates = false;
+                }
+            }
         }
 
         public void TakeDamage(float amount)
         {
             if (isDead || isInvulnerableFromDamage) return;
 
+            if (vulnerableOnlyInSpecificAnimStates && animatorForVulnerabilityCheck != null)
+            {
+                AnimatorStateInfo stateInfo = animatorForVulnerabilityCheck.GetCurrentAnimatorStateInfo(0);
+                bool isInVulnerableState = false;
+                string currentAnimStateNameForDebug = GetCurrentAnimatorStateName(animatorForVulnerabilityCheck); // Usar tu helper
+
+                Debug.Log($"[{Time.frameCount}] EnemyHealth: Checking vulnerability. Current Animator State: '{currentAnimStateNameForDebug}' (Hash: {stateInfo.fullPathHash}, ShortNameHash: {stateInfo.shortNameHash})");
+
+                foreach (string vulnerableStateName in vulnerableAnimStateNames)
+                {
+                    // Debug.Log($"Comparing with vulnerable state: '{vulnerableStateName}'"); // Mucho log, usar con cuidado
+                    if (stateInfo.IsName(vulnerableStateName)) // IsName compara con el nombre completo del estado (ej. Base Layer.Open - Aim)
+                    {
+                        isInVulnerableState = true;
+                        Debug.Log($"[{Time.frameCount}] EnemyHealth: MATCH! Enemy IS in vulnerable state: '{vulnerableStateName}'");
+                        break;
+                    }
+                }
+                if (!isInVulnerableState)
+                {
+                    string vulnerableStatesList = string.Join(", ", vulnerableAnimStateNames);
+                    Debug.Log($"EnemyHealth on {gameObject.name}: Damage IGNORED. Not in a vulnerable animation state. Current: '{currentAnimStateNameForDebug}'. Vulnerable states are: [{vulnerableStatesList}]");
+                    return; 
+                }
+            }
+
+            //Debug.Log($"EnemyHealth on {gameObject.name}: Taking {amount} damage. Current health: {currentHealth}");
             currentHealth -= amount;
 
             if (currentHealth <= 0f)
@@ -70,151 +125,119 @@ namespace Scripts.Enemies.Core
             }
             else
             {
-                if (damageFeedbackCoroutine != null)
-                {
-                    StopCoroutine(damageFeedbackCoroutine);
-                }
-                damageFeedbackCoroutine = StartCoroutine(DamageFeedbackSequence());
+                if (_damageFeedbackCoroutine != null) StopCoroutine(_damageFeedbackCoroutine);
+                _damageFeedbackCoroutine = StartCoroutine(DamageFeedbackSequence());
             }
         }
 
         private IEnumerator DamageFeedbackSequence()
         {
             isInvulnerableFromDamage = true;
-            bool meleeWasEnabled = meleeAttacker != null && meleeAttacker.enabled;
-            bool rangedWasEnabled = rangedAttacker != null && rangedAttacker.enabled;
+            // Guardar estado original de los componentes de ataque
+            bool meleeWasEnabled = _meleeAttacker != null && _meleeAttacker.enabled;
+            bool rangedWasEnabled = _rangedAttacker != null && _rangedAttacker.enabled;
 
-            if (meleeWasEnabled) meleeAttacker.enabled = false;
-            if (rangedWasEnabled) rangedAttacker.enabled = false;
+            if (meleeWasEnabled) _meleeAttacker.enabled = false;
+            if (rangedWasEnabled) _rangedAttacker.enabled = false;
 
-            if (spriteRenderer != null && damageFlashCount > 0 && damageInvulnerabilityDuration > 0)
+            if (_spriteRenderer != null && damageFlashCount > 0 && damageInvulnerabilityDuration > 0)
             {
                 float flashPartDuration = damageInvulnerabilityDuration / (damageFlashCount * 2f);
                 for (int i = 0; i < damageFlashCount; i++)
                 {
-                    spriteRenderer.color = damageFlashColor;
+                    _spriteRenderer.color = damageFlashColor;
                     yield return new WaitForSeconds(flashPartDuration);
-                    spriteRenderer.color = originalSpriteColor;
+                    _spriteRenderer.color = _originalSpriteColor;
                     yield return new WaitForSeconds(flashPartDuration);
                 }
-                spriteRenderer.color = originalSpriteColor;
+                _spriteRenderer.color = _originalSpriteColor; // Asegurar color original al final
             }
-            else
+            else // Si no hay flash, solo esperar la duración de invulnerabilidad
             {
                 yield return new WaitForSeconds(damageInvulnerabilityDuration);
             }
 
-            if (meleeWasEnabled && meleeAttacker != null) meleeAttacker.enabled = true;
-            if (rangedWasEnabled && rangedAttacker != null) rangedAttacker.enabled = true;
+            // Restaurar estado de los componentes de ataque
+            if (meleeWasEnabled && _meleeAttacker != null) _meleeAttacker.enabled = true;
+            if (rangedWasEnabled && _rangedAttacker != null) _rangedAttacker.enabled = true;
             
             isInvulnerableFromDamage = false;
-            damageFeedbackCoroutine = null;
+            _damageFeedbackCoroutine = null;
         }
 
         private void Die()
         {
             if (isDead) return;
-            isDead = true;
+            isDead = true; 
+            Debug.Log($"EnemyHealth on '{gameObject.name}': DIE sequence initiated.");
 
-            if (damageFeedbackCoroutine != null)
-            {
-                StopCoroutine(damageFeedbackCoroutine);
-                if (spriteRenderer != null) spriteRenderer.color = originalSpriteColor;
-            }
+            if (_damageFeedbackCoroutine != null) { StopCoroutine(_damageFeedbackCoroutine); }
+            if (_spriteRenderer != null) { _spriteRenderer.color = _originalSpriteColor; }
 
-            Collider2D col = GetComponent<Collider2D>();
-            if (col != null) col.enabled = false;
+            // Deshabilitar IA y componentes de ataque
+            if (_aiController != null) _aiController.enabled = false;
+            if (_meleeAttacker != null) _meleeAttacker.enabled = false;
+            if (_rangedAttacker != null) _rangedAttacker.enabled = false;
+            
+            // Deshabilitar movimiento y física de forma segura
+            EnemyMovementComponent movComp = GetComponentInChildren<EnemyMovementComponent>(true); // Buscar en hijos por si está allí
+            if (movComp != null) movComp.enabled = false; // Deshabilitar el componente que controla el RB
 
+            Collider2D mainCollider = GetComponent<Collider2D>();
+            if (mainCollider != null) mainCollider.enabled = false; 
+            
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
             if (rb != null) 
             {
-                rb.linearVelocity = Vector2.zero; // Stop any existing movement
-                rb.angularVelocity = 0f;   // Stop any existing rotation
-                rb.bodyType = RigidbodyType2D.Static; // Make the body static so it doesn't move or fall
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+                rb.bodyType = RigidbodyType2D.Kinematic; // Hacerlo Kinematic para que no caiga ni sea afectado por física, pero permita que la animación de muerte lo mueva si es necesario. Static lo congela completamente.
             }
             
-            EnemyVisualController visualController = GetComponentInChildren<EnemyVisualController>(); // O una referencia directa si es más fácil
-            if (visualController != null)
-            {
-                visualController.TriggerDeathAnimation();
-            }
-            else
-            {
-                // Fallback: Intenta encontrar Animator y disparar trigger directamente si no hay VisualController
-                Animator animator = GetComponentInChildren<Animator>();
-                if (animator != null) animator.SetTrigger("Die"); // Usa tu nombre de trigger
+            // Disparar animación de muerte (Animator debería estar en Visuals)
+            Animator animatorToUse = animatorForVulnerabilityCheck != null ? animatorForVulnerabilityCheck : GetComponentInChildren<Animator>(true);
+            if (animatorToUse != null) {
+                animatorToUse.SetTrigger("Die"); // Asumiendo un trigger "Die"
             }
 
-            // Disable attack components explicitly if they exist
-            if(meleeAttacker != null) meleeAttacker.enabled = false;
-            if(rangedAttacker != null) rangedAttacker.enabled = false;
-            // if(attackerComponent != null && attackerComponent is MonoBehaviour mb) mb.enabled = false;
 
-            StartCoroutine(WaitBeforeDestroy());
-            
-            if (dropItemsOnDeath && itemsToDrop != null && itemsToDrop.Length > 0)
+            // Decidir qué hacer con el GameObject
+            if (remainVisibleAsDefeated)
             {
-                if(itemsToDrop.Length == 1) 
-                {
-                    Instantiate(itemsToDrop[0], transform.position, Quaternion.identity);
-                }
-                else
-                {
-                    int randomIndex = Range(0, itemsToDrop.Length);
-                    Instantiate(itemsToDrop[randomIndex], transform.position, Quaternion.identity);
-                }
+                Debug.Log($"EnemyHealth on '{gameObject.name}': Marked as defeated, will remain visible.");
+                // El objeto permanece, pero está lógicamente muerto y sus componentes principales desactivados.
+                // Podrías desactivar este script de EnemyHealth también para evitar más interacciones:
+                // this.enabled = false; 
             }
-            
-            if (destroyOnDeath)
+            else if (destroyOnDeath)
             {
-                Destroy(gameObject, 0.1f); // Short delay for effects
+                Destroy(gameObject, 2f); // Dar tiempo para la animación de muerte
             }
-            else if(hideOnDeath)
+            else // Desactivar para pooling
             {
-                gameObject.SetActive(false); // For pooling
+                gameObject.SetActive(false);
             }
         }
 
-        private IEnumerator WaitBeforeDestroy()
+        public void ApplyInstakill() // Implementación de IInstakillable
         {
-            yield return new WaitForSeconds(timeBeforeDestroy);
+            Debug.Log($"EnemyHealth on '{gameObject.name}': ApplyInstakill called.");
+            if (isDead) return; // Ya está muerto/muriendo
+
+            currentHealth = 0; // Asegurar que la salud sea cero
+            Die(); // Llamar a la secuencia de muerte normal
         }
         
-        public void ResetHealthAndRevive()
-        {
-            currentHealth = maxHealth;
-            isDead = false;
-            isInvulnerableFromDamage = false;
-            if (spriteRenderer != null) spriteRenderer.color = originalSpriteColor;
+        public bool IsDeadPublic => isDead; // Propiedad pública si otros necesitan leerlo fácilmente
 
-            Collider2D col = GetComponent<Collider2D>();
-            if (col != null) col.enabled = true;
-
-            Rigidbody2D rb = GetComponent<Rigidbody2D>();
-            if (rb != null) 
-            {
-                rb.bodyType = RigidbodyType2D.Dynamic; // Restore to dynamic for physics
-            }
-
-            if (meleeAttacker != null) meleeAttacker.enabled = true;
-            if (rangedAttacker != null) rangedAttacker.enabled = true;
-            // if(attackerComponent != null && attackerComponent is MonoBehaviour mb) mb.enabled = true;
-
-            gameObject.SetActive(true);
+        // Helper para debug
+        private string GetCurrentAnimatorStateName(Animator anim) {
+            if (anim == null || !anim.gameObject.activeInHierarchy || anim.runtimeAnimatorController == null || anim.IsInTransition(0)) return "Unknown/Transitioning";
+            try {
+                if (anim.GetCurrentAnimatorClipInfoCount(0) > 0 && anim.GetCurrentAnimatorClipInfo(0).Length > 0) {
+                    return anim.GetCurrentAnimatorClipInfo(0)[0].clip.name;
+                } return anim.GetCurrentAnimatorStateInfo(0).fullPathHash.ToString(); // Fallback a hash si no hay clip info
+            } catch { return "ErrorGettingStateName"; }
         }
-        
-        public void ApplyInstakill()
-        {
-            Debug.Log($"EnemyHealth on '{gameObject.name}': ApplyInstakill received. Calling Die().");
-            // Para un enemigo, instakill usualmente significa simplemente morir.
-            // No hay "vidas" que perder ni respawn en checkpoint.
-            if (!isDead) // Solo llamar a Die si no está ya muriendo/muerto
-            {
-                currentHealth = 0; // Opcional, para asegurar que TakeDamage no se meta si algo más lo llama
-                Die();
-            }
-        }
-
-        public bool IsDead => isDead;
     }
 }

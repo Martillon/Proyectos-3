@@ -5,7 +5,8 @@ using Scripts.Enemies.Movement.SteeringBehaviors; // Para ISteeringBehavior2D
 using Scripts.Enemies.Movement.SteeringBehaviors.Implementations; // Para las clases concretas
 using Scripts.Enemies.Core;
 using Scripts.Enemies.Melee;
-using Scripts.Enemies.Ranged; // Para EnemyHealth (si no está en el mismo namespace)
+using Scripts.Enemies.Ranged;
+using Scripts.Enemies.Visuals; // Para EnemyHealth (si no está en el mismo namespace)
 // Añade using para tus scripts de ataque Melee/Ranged
 
 namespace Scripts.Enemies.Core // Ajusta el namespace
@@ -13,243 +14,336 @@ namespace Scripts.Enemies.Core // Ajusta el namespace
     [RequireComponent(typeof(EnemyHealth))]
     public class EnemyAIController : MonoBehaviour
     {
-        public enum EnemyBehaviorType { Melee, Ranged }
+        public enum EnemyBehaviorType { Melee, RangedMobile, RangedStaticWindow }
 
         [Header("AI Core Settings")]
-        [SerializeField] private EnemyBehaviorType behaviorType = EnemyBehaviorType.Melee;
+        [SerializeField] public EnemyBehaviorType behaviorType = EnemyBehaviorType.Melee; // Público para que otros lo lean si es necesario
         [Tooltip("Range within which the enemy detects the player.")]
         [SerializeField] private float detectionRange = 10f;
         [Tooltip("Range within which the enemy will stop approaching and start attacking (if applicable).")]
         [SerializeField] private float engagementRange = 1.5f;
         [Tooltip("Transform of the player. If null, will try to find GameObject with 'Player' tag.")]
-        [SerializeField]
-        public Transform playerTarget;
+        [SerializeField] public Transform playerTarget;  // Público para que behaviors puedan accederlo si es necesario (vía aiController.playerTarget)
+
+        [Header("Mobile Enemy Settings")]
+        [Tooltip("Aplicable si el behaviorType NO es RangedStaticWindow.")]
         [SerializeField] private bool canPatrol = true;
-        [Tooltip("Speed of the enemy when chasing the player.")]
-        [SerializeField] private float initialChaseSpeed = 3f;
+        [Tooltip("Velocidad base para movimiento (patrulla, persecución).")]
+        [SerializeField] private float moveSpeed = 2.5f; 
 
-        [Header("Patrol Behavior Config")]
-        [SerializeField] private float patrolSpeed = 1.5f;
+        [Header("Patrol Behavior Config (For Mobile)")]
         [SerializeField] private float patrolWaitTime = 2f;
-        [SerializeField] private float patrolMoveTime = 3f; // Tiempo máximo moviéndose en una dirección antes de esperar
+        [SerializeField] private float patrolMoveTime = 3f;
 
-        // (ChaseSpeed y otros parámetros de behaviors específicos podrían ir aquí o ser manejados de otra forma)
+        [Header("Window Enemy Animator (Required if RangedStaticWindow)")]
+        [Tooltip("El Animator que controla las animaciones de la ventana (abrir, cerrar, apuntar, atacar).")]
+        [SerializeField] private Animator windowEnemyAnimator; 
+        [Tooltip("Nombre del parámetro Bool en el Animator de ventana para 'isOpen'.")]
+        [SerializeField]
+        public string animParamIsOpen = "isOpen";
+        [Tooltip("Nombre del parámetro Float para 'aimDirectionX'.")]
+        [SerializeField]
+        public string animParamAimDirectionX = "aimDirectionX";
+        [Tooltip("Nombre del parámetro Trigger para iniciar el ataque desde el estado de apuntar.")]
+        [SerializeField]
+        public string animTriggerActualAttack = "Attack"; 
 
+        [Header("Cone Detection (Primarily for Window Enemy)")]
+        [Tooltip("Usar detección en cono si isStaticWindowEnemy es true.")]
+        [SerializeField] private bool useConeDetectionForWindow = true; 
+        [SerializeField] private float coneDetectionAngle = 120f;
+        [Tooltip("Dirección central del cono en espacio LOCAL del enemigo. (0, -1) es abajo.")]
+        [SerializeField] private Vector2 coneForwardDirectionLocal = Vector2.down;
+
+        [Header("Visuals & Animation Control")]
+        [Tooltip("El Transform del GameObject 'Visuals' que será escalado para flipear (móviles) y que DEBE tener EnemyVisualController.")]
+        [SerializeField] public Transform visualsContainerTransform; // Ya lo tenías
+        private EnemyVisualController _visualController;
 
         // Component References
-        private EnemyMovementComponent movementComponent;
-        private EnemyHealth enemyHealth;
-        private StayStillBehavior2D stayStillBehavior;
-        private PatrolBehavior2D patrolBehavior;
-        private ChaseBehavior2D chaseBehavior; 
-        private EnemyAttackMelee meleeAttacker; 
-        private EnemyAttackRanged rangedAttacker; 
+        private EnemyMovementComponent _movementComponent;
+        private EnemyHealth _enemyHealth;
+        private EnemyAttackMelee _meleeAttacker;
+        private EnemyAttackRanged _rangedAttacker;
+
+        // Steering Behaviors
+        private StayStillBehavior2D _stayStillBehavior;
+        private PatrolBehavior2D _patrolBehavior;
+        private ChaseBehavior2D _chaseBehavior;
 
         // State
-        private bool isPlayerDetected = false;
-        public bool IsFacingRight { get; private set; } = true; // El movimiento lo gestionará
-        public bool CanMove { get; private set; } = true; // Para pausar movimiento durante ataques, etc.
+        private bool _isPlayerDetected = false;
+        public bool IsFacingRight { get; private set; } = true;
+        public bool CanMove { get; private set; } = true;
+        private bool _currentWindowOpenState = false;
 
-        public bool IsDead => enemyHealth != null && enemyHealth.IsDead; // Propiedad de conveniencia
+        // Hashes
+        private int _animHashIsOpen;
+        private int _animHashAimDirectionX;
+        private int _animHashTriggerActualAttack;
 
+        public bool IsDead => _enemyHealth != null && _enemyHealth.IsDeadPublic; // Usar propiedad pública de EnemyHealth
+        public bool isStaticWindowEnemy => behaviorType == EnemyBehaviorType.RangedStaticWindow;
 
         private void Awake()
         {
-            movementComponent = GetComponentInChildren<EnemyMovementComponent>();
-            enemyHealth = GetComponent<EnemyHealth>();
-            // meleeAttacker = GetComponent<EnemyAttackMelee>();
-            // rangedAttacker = GetComponent<EnemyAttackRanged>();
+            _enemyHealth = GetComponent<EnemyHealth>();
+            // ... (Obtener playerTarget) ...
 
-            if (playerTarget == null)
+            // Obtener VisualController (DEBE estar en visualsContainerTransform o sus hijos)
+            if (visualsContainerTransform != null)
             {
-                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-                if (playerObject != null) playerTarget = playerObject.transform;
-                // else Debug.LogWarning($"EnemyAIController on '{gameObject.name}': Player target not found.", this);
+                _visualController = visualsContainerTransform.GetComponentInChildren<EnemyVisualController>(true);
+            }
+            if (_visualController == null) // Fallback si visualsContainerTransform no está asignado pero hay un EVC en los hijos del root
+            {
+                _visualController = GetComponentInChildren<EnemyVisualController>(true);
+            }
+            if (_visualController == null && isStaticWindowEnemy) // Crítico para el de ventana
+            {
+                Debug.LogError($"AIController ({gameObject.name}): EnemyVisualController no encontrado! La lógica de animación de ventana fallará.");
             }
 
-            // Initialize steering behaviors
-            stayStillBehavior = new StayStillBehavior2D();
-            patrolBehavior = new PatrolBehavior2D(patrolSpeed, patrolWaitTime, patrolMoveTime);
-            chaseBehavior = new ChaseBehavior2D(initialChaseSpeed, playerTarget, engagementRange);
-            meleeAttacker = GetComponentInChildren<EnemyAttackMelee>();
-            rangedAttacker = GetComponentInChildren<EnemyAttackRanged>();
-            // Asegurarse de que el movimiento no esté en StayStill al inicio
-            if (chaseBehavior != null) // Asegurarse de que chaseBehavior esté inicializado
-            {
-                chaseBehavior.UpdateTarget(playerTarget); 
-                // chaseBehavior.UpdateChaseSpeed(currentChaseSpeed); // Si tienes una variable para la velocidad de chase
-                // Corrección: Deberías pasar la velocidad de chase configurada
-                chaseBehavior.UpdateChaseSpeed(initialChaseSpeed); 
-                chaseBehavior.UpdateStoppingDistance(engagementRange); // Importante pasar el engagementRange
-            }
 
-            // Asegurar que el visualsContainerTransform esté asignado si Flip lo usa
-            if (visualsContainerTransform == null) // Asumiendo que tienes esta variable
+            if (!isStaticWindowEnemy)
             {
-                 Transform visuals = transform.Find("Visuals"); // Intenta encontrarlo por nombre
-                 if (visuals != null) visualsContainerTransform = visuals;
-                 // else Debug.LogError("Visuals child GameObject not found for flipping!", this);
+                _movementComponent = GetComponentInChildren<EnemyMovementComponent>();
+                // ... (validación y creación de _movementComponent si es null) ...
+                _patrolBehavior = new PatrolBehavior2D(moveSpeed, patrolWaitTime, patrolMoveTime);
+                _chaseBehavior = new ChaseBehavior2D(moveSpeed, playerTarget, engagementRange);
             }
+            _stayStillBehavior = new StayStillBehavior2D();
+
+
+            // Obtener componentes de ataque
+            if (behaviorType == EnemyBehaviorType.Melee)
+                _meleeAttacker = GetComponent<EnemyAttackMelee>() ?? GetComponentInChildren<EnemyAttackMelee>(true);
+            else 
+                _rangedAttacker = GetComponent<EnemyAttackRanged>() ?? GetComponentInChildren<EnemyAttackRanged>(true);
+            
+            // ... (Validaciones de componentes de ataque) ...
+
+            // Ya no inicializamos hashes del Animator aquí, lo hace EnemyVisualController
         }
 
         private void Update()
         {
             if (IsDead)
             {
-                movementComponent.SetSteeringBehavior(stayStillBehavior);
+                _movementComponent?.SetSteeringBehavior(_stayStillBehavior);
                 return;
             }
 
-            // Actualizar parámetros de behaviors si pueden cambiar dinámicamente
-            patrolBehavior.UpdatePatrolParameters(patrolSpeed, patrolWaitTime, patrolMoveTime);
-            if (chaseBehavior != null) // Asegurarse de que chaseBehavior esté inicializado
-            {
-                chaseBehavior.UpdateTarget(playerTarget); 
-                // chaseBehavior.UpdateChaseSpeed(currentChaseSpeed); // Si tienes una variable para la velocidad de chase
-            }
-
-
-            HandleDetection(); // Actualiza isPlayerDetected
-
-            // Si un ataque está en progreso, CanMove será false. El movementComponent ya usa stayStill.
-            // La lógica principal aquí es decidir si *iniciar* un ataque o cambiar de comportamiento de movimiento.
-            if (!CanMove) 
-            {
-                // Ya está atacando o en una secuencia que bloquea el movimiento.
-                // EnemyMovementComponent debería estar usando StayStillBehavior debido a CanMove.
-                // No necesitamos hacer más aquí respecto al cambio de behavior.
+            if (playerTarget == null) { // Si el jugador es destruido o no encontrado
+                _isPlayerDetected = false;
+                 if (isStaticWindowEnemy) HandleWindowEnemyLogic(); // Para que se cierre
+                 else if (_movementComponent != null) {
+                    if (canPatrol && _patrolBehavior != null) _movementComponent.SetSteeringBehavior(_patrolBehavior);
+                    else _movementComponent.SetSteeringBehavior(_stayStillBehavior);
+                 }
                 return;
             }
 
-            if (isPlayerDetected)
+            if (isStaticWindowEnemy) HandleWindowEnemyLogic();
+            else HandleMobileEnemyLogic();
+        }
+
+        private void HandleMobileEnemyLogic()
+        {
+            if (_movementComponent == null) return;
+
+            _patrolBehavior?.UpdatePatrolParameters(moveSpeed, patrolWaitTime, patrolMoveTime);
+            if (_chaseBehavior != null) {
+                _chaseBehavior.UpdateTarget(playerTarget);
+                _chaseBehavior.UpdateChaseSpeed(moveSpeed);
+                _chaseBehavior.UpdateStoppingDistance(engagementRange);
+            }
+
+            HandleDetection(); // Para enemigos móviles, usa detección circular
+
+            if (!CanMove) { _movementComponent.SetSteeringBehavior(_stayStillBehavior); return; }
+
+            if (_isPlayerDetected)
             {
                 float distanceToPlayer = Vector2.Distance(transform.position, playerTarget.position);
                 bool canPhysicallyAttack = false;
 
-                if (behaviorType == EnemyBehaviorType.Melee && meleeAttacker != null)
-                {
-                    canPhysicallyAttack = meleeAttacker.CanInitiateAttack(playerTarget);
-                    //Debug.Log($"AI - Melee Check: distanceToPlayer({distanceToPlayer}) " +
-                      //        $"<= engagementRange({engagementRange})? {distanceToPlayer <= engagementRange}. " +
-                        //      $"canPhysicallyAttack? {canPhysicallyAttack}");
-                }
-                else if (behaviorType == EnemyBehaviorType.Ranged && rangedAttacker != null)
-                {
-                    canPhysicallyAttack = rangedAttacker.CanInitiateAttack(playerTarget);
-                }
+                if (behaviorType == EnemyBehaviorType.Melee && _meleeAttacker != null)
+                    canPhysicallyAttack = _meleeAttacker.CanInitiateAttack(playerTarget);
+                else if (behaviorType == EnemyBehaviorType.RangedMobile && _rangedAttacker != null)
+                    canPhysicallyAttack = _rangedAttacker.CanInitiateAttack(playerTarget);
 
                 if (distanceToPlayer <= engagementRange && canPhysicallyAttack)
                 {
-                    //Debug.Log("AI STATE: DECIDING TO ATTACK");
-                    // ESTADO: INICIAR ATAQUE
-                    movementComponent.SetSteeringBehavior(stayStillBehavior);
-                    // SetCanMove(false) será llamado por el script de ataque al iniciar.
-                    FaceTarget(); // Orientarse justo antes de atacar
-
-                    if (behaviorType == EnemyBehaviorType.Melee)
-                    {
-                        meleeAttacker.TryAttack(playerTarget);
-                    }
-                    else if (behaviorType == EnemyBehaviorType.Ranged)
-                    {
-                        rangedAttacker.TryAttack(playerTarget);
-                    }
+                    _movementComponent.SetSteeringBehavior(_stayStillBehavior);
+                    FaceTarget(); 
+                    if (behaviorType == EnemyBehaviorType.Melee) _meleeAttacker.TryAttack(playerTarget);
+                    else if (behaviorType == EnemyBehaviorType.RangedMobile) _rangedAttacker.TryAttack(playerTarget);
                 }
                 else if (distanceToPlayer <= engagementRange && !canPhysicallyAttack)
                 {
-                    //Debug.Log("AI STATE: IN ENGAGEMENT RANGE, BUT CANNOT ATTACK");
-                    // ESTADO: EN RANGO DE ENGAGEMENT, PERO NO PUEDE ATACAR (COOLDOWN, ETC.)
-                    movementComponent.SetSteeringBehavior(stayStillBehavior);
-                    FaceTarget(); // Mantenerse orientado al jugador
+                    _movementComponent.SetSteeringBehavior(_stayStillBehavior);
+                    FaceTarget(); 
                 }
-                else // Fuera de engagementRange (o no puede atacar por otras razones y está lejos)
+                else 
                 {
-                    //Debug.Log("AI STATE: CHASING (or out of range)");
-                    // ESTADO: PERSIGUIENDO
-                    if (chaseBehavior != null) {
-                         movementComponent.SetSteeringBehavior(chaseBehavior);
-                    } else { // Fallback si chaseBehavior no está listo (debería estarlo)
-                         movementComponent.SetSteeringBehavior(stayStillBehavior);
-                         FaceTarget();
+                    if (_chaseBehavior != null) _movementComponent.SetSteeringBehavior(_chaseBehavior);
+                    else _movementComponent.SetSteeringBehavior(_stayStillBehavior);
+                }
+            }
+            else 
+            {
+                if (canPatrol && _patrolBehavior != null) _movementComponent.SetSteeringBehavior(_patrolBehavior);
+                else _movementComponent.SetSteeringBehavior(_stayStillBehavior);
+            }
+        }
+
+        private void HandleWindowEnemyLogic()
+        {
+            if (_visualController == null || _rangedAttacker == null || playerTarget == null) return;
+            
+            HandleDetection(); // Usa detección en cono
+
+            bool shouldTryToOpen = _isPlayerDetected && CanMove; // Intención inicial de abrir si detecta y no está ya en una secuencia de SetCanMove(false)
+            bool isCurrentlyAttackingOrFiring = _rangedAttacker.IsFiring(); // Leer el estado de EnemyAttackRanged
+
+            bool desiredWindowOpenState;
+
+            if (isCurrentlyAttackingOrFiring)
+            {
+                desiredWindowOpenState = true; // Si está disparando, DEBE permanecer abierto
+            }
+            else
+            {
+                desiredWindowOpenState = _isPlayerDetected && CanMove; // Si no está disparando, abrir si detecta y puede moverse/iniciar
+            }
+
+            // Actualizar el estado de la ventana en el Animator si ha cambiado el estado deseado
+            if (_currentWindowOpenState != desiredWindowOpenState)
+            {
+                _currentWindowOpenState = desiredWindowOpenState;
+                _visualController.SetWindowOpenState(_currentWindowOpenState);
+                Debug.Log($"[{Time.frameCount}] WindowEnemy AI: Setting Animator 'isOpen' to {_currentWindowOpenState}. Reason: PlayerDetected={_isPlayerDetected}, CanMove={CanMove}, IsAttackingOrFiring={isCurrentlyAttackingOrFiring}");
+            }
+
+            // Lógica de Ataque: Solo si la ventana está abierta (o se supone que lo está) y no está ya disparando
+            if (_currentWindowOpenState && CanMove && !isCurrentlyAttackingOrFiring) 
+            {
+                AnimatorStateInfo currentAnimatorState = GetCurrentAnimatorStateIfPossible();
+                bool isInAimableState = currentAnimatorState.IsName("Open - Aim") || currentAnimatorState.IsName("Open"); 
+                                            
+                if (isInAimableState && _rangedAttacker.CanInitiateAttack(playerTarget))
+                {
+                    Vector2 bestFireDir = _rangedAttacker.GetCalculatedBestFixedDirection(playerTarget.position);
+                    float aimParamXValue = 0f;
+                    if (Mathf.Abs(bestFireDir.x) < 0.1f && bestFireDir.y < -0.1f) aimParamXValue = 0f; 
+                    else if (bestFireDir.x < -0.1f) aimParamXValue = -1f; 
+                    else if (bestFireDir.x > 0.1f) aimParamXValue = 1f;  
+                    
+                    _visualController.SetWindowAimDirection(aimParamXValue);
+                    _visualController.TriggerWindowAttack(); // Dispara el trigger para la animación/estado de Attack
+                    
+                    // TryAttack iniciará la corrutina que pone CanMove=false y isCurrentlyFiring=true
+                    _rangedAttacker.TryAttack(playerTarget); 
+                }
+            }
+        }
+
+        // Helper para obtener el estado del animator de forma segura
+        private AnimatorStateInfo GetCurrentAnimatorStateIfPossible()
+        {
+            if (_visualController != null) {
+                Animator anim = _visualController.GetBodyAnimator(); // Asumiendo que GetBodyAnimator devuelve el animator correcto
+                if (anim != null && anim.gameObject.activeInHierarchy && anim.runtimeAnimatorController != null) {
+                    if (!anim.IsInTransition(0)) { // Solo si no está en transición
+                        return anim.GetCurrentAnimatorStateInfo(0);
                     }
                 }
             }
-            else // No detectado
-            {
-                if (canPatrol)
-                {
-                    movementComponent.SetSteeringBehavior(patrolBehavior);
-                }
-                else
-                {
-                    movementComponent.SetSteeringBehavior(stayStillBehavior);
-                }
-            }
+            return default; // Devuelve un estado inválido si no se puede obtener
         }
 
         private void HandleDetection()
         {
-            if (playerTarget == null)
+            if (playerTarget == null) { _isPlayerDetected = false; return; }
+            float dist = Vector2.Distance(transform.position, playerTarget.position);
+
+            if (dist > detectionRange) { _isPlayerDetected = false; return; }
+
+            // Si está dentro del rango circular, comprobar cono si aplica
+            if (isStaticWindowEnemy && useConeDetectionForWindow) 
             {
-                isPlayerDetected = false;
-                return;
+                Vector2 dirToPlayer = (playerTarget.position - transform.position).normalized;
+                // La dirección del cono es local, transformarla a world space
+                Vector2 worldConeFwd = transform.TransformDirection(coneForwardDirectionLocal.normalized);
+                if (worldConeFwd == Vector2.zero) worldConeFwd = transform.up * (coneForwardDirectionLocal.y > 0 ? 1 : -1); // Fallback si transform.TransformDirection da cero (ej. escala Z cero)
+
+
+                float angleToPlayer = Vector2.Angle(worldConeFwd, dirToPlayer);
+                _isPlayerDetected = (angleToPlayer <= coneDetectionAngle / 2f);
+            } 
+            else // Detección circular para enemigos móviles o si el de ventana no usa cono
+            {
+                _isPlayerDetected = true; // Ya sabemos que dist <= detectionRange
             }
-            // TODO: Implementar detección en cono si es necesario (para enemigo de ventana)
-            float distanceToPlayer = Vector2.Distance(transform.position, playerTarget.position);
-            isPlayerDetected = (distanceToPlayer <= detectionRange);
         }
 
-        private void FaceTarget()
+        private void FaceTarget() 
         {
-            if (playerTarget == null || !CanMove) return; // No orientar si no puede moverse (ej. atacando)
+            if (playerTarget == null || !CanMove || isStaticWindowEnemy) return; // No orientar si no puede moverse o es de ventana
 
-            if (playerTarget.position.x > transform.position.x && !IsFacingRight)
-            {
-                Flip();
-            }
-            else if (playerTarget.position.x < transform.position.x && IsFacingRight)
-            {
-                Flip();
-            }
+            if (playerTarget.position.x > transform.position.x && !IsFacingRight) Flip();
+            else if (playerTarget.position.x < transform.position.x && IsFacingRight) Flip();
         }
 
-        // Variable para el contenedor de los visuales (sprites, animator)
-        [Header("Visuals")]
-        [Tooltip("El Transform del GameObject que contiene los elementos visuales y que será escalado para flipear.")]
-        [SerializeField] private Transform visualsContainerTransform;
-
-        public void Flip()
+        public void Flip() 
         {
+            if (isStaticWindowEnemy) return; // Enemigo de ventana no flipea así
+
             IsFacingRight = !IsFacingRight;
-            if (visualsContainerTransform != null)
-            {
+            if (visualsContainerTransform != null) {
                 visualsContainerTransform.localScale = new Vector3(
                     visualsContainerTransform.localScale.x * -1f,
                     visualsContainerTransform.localScale.y,
-                    visualsContainerTransform.localScale.z
-                );
-            }
-            else // Fallback si visualsContainerTransform no está asignado
-            {
-                 transform.Rotate(0f, 180f, 0f); // Esto podría no funcionar bien con sprites 2D
-                 Debug.LogWarning("EnemyAIController: visualsContainerTransform not set for Flip(), using transform.Rotate as fallback.", this);
-            }
+                    visualsContainerTransform.localScale.z);
+            } else { Debug.LogWarning($"AIController on {gameObject.name}: visualsContainerTransform not set for Flip()."); }
         }
         
-        public void SetCanMove(bool canEnemyMove)
-        {
-            this.CanMove = canEnemyMove;
-        }
+        public void SetCanMove(bool canMove) { this.CanMove = canMove; }
 
         // Gizmos para rangos (puedes copiar/adaptar de tu versión anterior)
         #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
+            // Detection & Engagement Ranges
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, detectionRange);
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, engagementRange);
+
+            // Cone Detection Gizmo (si aplica)
+            if (isStaticWindowEnemy && useConeDetectionForWindow)
+            {
+                Gizmos.color = Color.blue;
+                Vector3 forward = transform.TransformDirection(coneForwardDirectionLocal.normalized);
+                if (forward == Vector3.zero)
+                    forward = transform.forward; // Fallback si coneForwardDirectionLocal es cero
+
+                Quaternion upRayRotation =
+                    Quaternion.AngleAxis(-coneDetectionAngle / 2,
+                        transform.forward); // Rotar alrededor del Z local para 2D
+                Quaternion downRayRotation = Quaternion.AngleAxis(coneDetectionAngle / 2, transform.forward);
+
+                Vector3 upRayDirection = upRayRotation * forward;
+                Vector3 downRayDirection = downRayRotation * forward;
+
+                Gizmos.DrawRay(transform.position, upRayDirection * detectionRange);
+                Gizmos.DrawRay(transform.position, downRayDirection * detectionRange);
+                // Dibujar arcos es más complejo, una línea entre los extremos del cono puede ayudar
+                Gizmos.DrawLine(transform.position + upRayDirection * detectionRange,
+                    transform.position + downRayDirection * detectionRange);
+            }
         }
-        #endif
+#endif
     }
 }
