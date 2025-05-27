@@ -41,6 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7196327574389532994}
   - component: {fileID: 7441955375545382063}
+  - component: {fileID: 4005807001944410199}
   - component: {fileID: 88111449933347648}
   - component: {fileID: 705883875954424295}
   m_Layer: 11
@@ -97,7 +98,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -113,6 +114,33 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.66799927, y: 0.98399997}
   m_EdgeRadius: 0
+--- !u!50 &4005807001944410199
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4081927737680552251}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 7
 --- !u!114 &88111449933347648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,9 +181,9 @@ MonoBehaviour:
   engagementRange: 1.5
   playerTarget: {fileID: 0}
   canPatrol: 0
-  moveSpeed: 2.5
-  patrolWaitTime: 2
-  patrolMoveTime: 3
+  moveSpeed: 0
+  patrolWaitTime: 0
+  patrolMoveTime: 0
   windowEnemyAnimator: {fileID: 8224846601374688988}
   animParamIsOpen: isOpen
   animParamAimDirectionX: aimDirectionX

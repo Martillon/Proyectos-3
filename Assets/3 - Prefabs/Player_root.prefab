@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   groundCheckOrigin: {fileID: 1376491531330643131}
-  groundCheckRadius: 0.85
+  groundCheckRadius: 0.6
   groundDetectionLayerMask:
     serializedVersion: 2
     m_Bits: 8
