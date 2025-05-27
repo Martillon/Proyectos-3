@@ -159,7 +159,7 @@ MonoBehaviour:
   windowEnemyAnimator: {fileID: 8224846601374688988}
   animParamIsOpen: isOpen
   animParamAimDirectionX: aimDirectionX
-  animTriggerActualAttack: Attack
+  animTriggerActualAttack: triggerAttack
   useConeDetectionForWindow: 1
   coneDetectionAngle: 95
   coneForwardDirectionLocal: {x: 0, y: -1}
