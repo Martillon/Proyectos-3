@@ -1,7 +1,9 @@
 using UnityEngine;
 using Scripts.Player.Weapons.Interfaces;
-using Scripts.Core; 
-using Scripts.Player.Core; 
+using Scripts.Core;
+using Scripts.Core.Audio;
+using Scripts.Player.Core;
+using Scripts.Player.Weapons.Upgrades;
 using UnityEngine.InputSystem;
 
 namespace Scripts.Player.Weapons
@@ -34,10 +36,11 @@ namespace Scripts.Player.Weapons
         private float semiAutoFireTimer;
 
         private bool isShootActionPressed;
+        private AudioSource audioSource;
 
         private void Awake()
         {
-            // ... (resto de Awake sin cambios relevantes a esta adición) ...
+            audioSource = GetComponent<AudioSource>(); if(!audioSource) Debug.LogWarning("WB: AudioSource not found on WeaponBase, sound playback will not work.", this);
             if (firePoint == null) Debug.LogError($"WeaponBase ({gameObject.name}): 'FirePoint' is not assigned!", this);
             if (aimResolver == null)
             {
@@ -151,7 +154,6 @@ namespace Scripts.Player.Weapons
         
         private void RotateTransformToAim(Transform objectToRotate, Vector2 direction)
         {
-            // ... (sin cambios relevantes a esta adición) ...
             if (objectToRotate != null && direction.sqrMagnitude > 0.01f)
             {
                 float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -202,6 +204,7 @@ namespace Scripts.Player.Weapons
             {
                 if (isShootActionPressed && currentUpgradeInterface.CanFire())
                 {
+                    PlayWeaponFireSound();
                     automaticWeapon.HandleAutomaticFire(firePoint, aimResolver.CurrentDirection);
                 }
             }
@@ -209,6 +212,7 @@ namespace Scripts.Player.Weapons
             {
                 if (singleShotRequestedThisFrame && semiAutoFireTimer <= 0 && currentUpgradeInterface.CanFire())
                 {
+                    PlayWeaponFireSound();
                     if (currentUpgradeInterface is IBurstWeapon burstWeapon)
                     {
                         burstWeapon.StartBurst(firePoint, aimResolver.CurrentDirection);
@@ -220,6 +224,45 @@ namespace Scripts.Player.Weapons
                     semiAutoFireTimer = Mathf.Max(semiAutoFireCooldown, currentUpgradeInterface.GetFireCooldown());
                 }
             }
+        }
+        
+        /// <summary>
+        /// Reproduce el sonido de disparo configurado en la mejora de arma actual.
+        /// </summary>
+        private void PlayWeaponFireSound()
+        {
+            if (currentUpgradeInterface == null || audioSource == null)
+            {
+                if (currentUpgradeInterface != null && audioSource == null)
+                    Debug.LogWarning($"WB: Intentando reproducir sonido pero 'weaponFireAudioSource' es null.", this);
+                return;
+            }
+
+            // currentUpgradeInterface debe ser casteado a BaseWeaponUpgrade para acceder a GetFireSounds()
+            // o IWeaponUpgrade debe tener GetFireSounds().
+            // Es mejor si IWeaponUpgrade define el contrato para los sonidos.
+            // Vamos a añadir GetFireSounds() a IWeaponUpgrade.
+
+            Sounds[] fireSounds = null;
+            if (currentUpgradeInterface is BaseWeaponUpgrade baseUpgrade) // Chequeo seguro
+            {
+                fireSounds = baseUpgrade.GetFireSounds();
+            }
+            // else if (currentUpgradeInterface is ISoundProviderForWeapon soundProvider) // Alternativa con otra interfaz
+            // {
+            //     fireSounds = soundProvider.GetSounds();
+            // }
+
+
+            if (fireSounds != null && fireSounds.Length > 0)
+            {
+                Sounds soundToPlay = fireSounds[Random.Range(0, fireSounds.Length)];
+                audioSource.clip = soundToPlay.clip;
+                audioSource.volume = soundToPlay.volume;
+                audioSource.pitch = soundToPlay.pitch;
+                audioSource.PlayOneShot(audioSource.clip);
+            }
+            // else Debug.LogWarning($"WB: No fire sounds defined for current upgrade '{currentUpgradeInterface.GetType().Name}' or AudioSource missing.", this);
         }
 
         private void OnValidate()

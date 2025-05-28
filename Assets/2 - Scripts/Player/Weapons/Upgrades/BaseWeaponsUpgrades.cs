@@ -16,9 +16,7 @@ namespace Scripts.Player.Weapons.Upgrades
         [Tooltip("Base damage inflicted by each projectile from this weapon upgrade.")]
         [SerializeField] protected float damage = 1f;
         [Tooltip("Audio clips to play when firing. If multiple, one is chosen randomly.")]
-        [SerializeField] protected Sounds[] fireSounds;
-        [Tooltip("AudioSource component for playing weapon sounds. If null, attempts to find one on this GameObject or its parent.")]
-        [SerializeField] protected AudioSource audioSource;
+        [SerializeField] protected Sounds[] soundsToPlayOnFire;
 
         [Header("Projectile Settings")]
         [Tooltip("The prefab for the projectile this weapon fires. Must have a PlayerProjectile component.")]
@@ -51,16 +49,6 @@ namespace Scripts.Player.Weapons.Upgrades
             {
                 Debug.LogError($"WeaponUpgrade '{this.GetType().Name}': Assigned Projectile Prefab '{projectilePrefab.name}' is missing a PlayerProjectile component!", this);
             }
-
-            if (audioSource == null)
-            {
-                audioSource = GetComponent<AudioSource>();
-                if (audioSource == null && transform.parent != null) // Check parent if not on self
-                {
-                    audioSource = GetComponentInParent<AudioSource>();
-                }
-                // if (audioSource == null) Debug.LogWarning($"WeaponUpgrade '{this.GetType().Name}': AudioSource not found.", this); // Uncomment for debugging
-            }
         }
 
         /// <summary>
@@ -87,8 +75,6 @@ namespace Scripts.Player.Weapons.Upgrades
                 // Debug.LogError($"WeaponUpgrade '{this.GetType().Name}': Cannot fire, ProjectilePrefab or FirePoint is null.", this); // Uncomment for debugging
                 return;
             }
-
-            PlayPrimaryFireSound(); // Play sound once for the "shot action"
 
             for (int i = 0; i < projectilesPerShot; i++)
             {
@@ -123,19 +109,12 @@ namespace Scripts.Player.Weapons.Upgrades
             }
             // else: Error already logged in Awake if prefab is misconfigured.
         }
-
-        /// <summary>
-        /// Plays a fire sound from the configured list.
-        /// </summary>
-        protected void PlayPrimaryFireSound()
+        
+        public Sounds[] GetFireSounds()
         {
-            if (fireSounds != null && fireSounds.Length > 0 && audioSource != null)
-            {
-                Sounds soundToPlay = fireSounds[Random.Range(0, fireSounds.Length)];
-                soundToPlay?.Play(audioSource); // Uses the Play method from your Sounds class
-            }
+            return soundsToPlayOnFire;
         }
-
+        
         /// <summary>
         /// Gets the fire cooldown specific to this weapon upgrade.
         /// For semi-auto weapons, this might be minimal as WeaponBase handles the main semi-auto cooldown.

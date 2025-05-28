@@ -1,4 +1,6 @@
 // --- START OF FILE WeaponInterfaces.cs ---
+
+using Scripts.Core.Audio;
 using UnityEngine;
 
 namespace Scripts.Player.Weapons.Interfaces
@@ -28,6 +30,12 @@ namespace Scripts.Player.Weapons.Interfaces
         /// </summary>
         /// <returns>The fire cooldown in seconds.</returns>
         float GetFireCooldown();
+
+        /// <summary>
+        /// Retrieves the set of sound effects to be played when the weapon fires.
+        /// </summary>
+        /// <returns>An array of Sounds representing the fire sound effects.</returns>
+        Sounds[] GetFireSounds();
     }
 
     /// <summary>

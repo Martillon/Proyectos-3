@@ -49,9 +49,6 @@ namespace Scripts.Player.Weapons.Upgrades.Implementations
         {
             // The CanFire() method (overridden below) ensures this is only called when the minigun's internal cooldown has passed.
             // WeaponBase ensures the shoot button is held and calls currentUpgrade.CanFire().
-
-            // Play sound per bullet for minigun
-            PlayPrimaryFireSound(); // Inherited from BaseWeaponUpgrade
             
             // SpawnProjectile is inherited from BaseWeaponUpgrade.
             // The firePoint should already be rotated by WeaponBase before this is called.

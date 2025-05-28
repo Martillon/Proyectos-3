@@ -39,9 +39,6 @@ namespace Scripts.Player.Weapons.Upgrades.Implementations
 
         private IEnumerator BurstFireSequenceCoroutine(Transform firePoint, Vector2 direction)
         {
-            // Play a sound once at the start of the burst, or adjust to play per bullet if desired.
-            PlayPrimaryFireSound(); // Inherited from BaseWeaponUpgrade
-
             for (int i = 0; i < bulletsInBurst; i++)
             {
                 // SpawnProjectile is inherited from BaseWeaponUpgrade.

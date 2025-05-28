@@ -1,6 +1,7 @@
 /// En Scripts/Enemies/Ranged/EnemyAttackRanged.cs
 using UnityEngine;
 using System.Collections;
+using Scripts.Core.Audio;
 using Scripts.Enemies.Core; 
 
 namespace Scripts.Enemies.Ranged
@@ -46,12 +47,17 @@ namespace Scripts.Enemies.Ranged
         [SerializeField] private string attackAnimationTriggerName = "triggerAttack"; 
         private Animator _enemyAnimator; // Animator en este GO o en un hijo (ej. en Visuals)
 
+        [Header("Audio settings")]
+        [Tooltip("Optional: Audio clip for the attack windup sound effect (SFX).")]
+        [SerializeField] private Sounds[] attackSounds;
+        
         // Internal State
         private float _lastAttackTimestamp;
         private EnemyAIController _aiController; // Referencia al AIController principal en el Root
         private bool _isCurrentlyInAttackSequence = false;
         private Coroutine _attackSequenceCoroutine;
         private Transform _currentTargetForSequence;
+        private AudioSource _audioSource; 
 
         private void Awake()
         {
@@ -64,6 +70,7 @@ namespace Scripts.Enemies.Ranged
             // if (_aiController != null && _aiController.visualsContainerTransform != null) 
             // _enemyAnimator = _aiController.visualsContainerTransform.GetComponentInChildren<Animator>(true);
 
+            _audioSource = GetComponent<AudioSource>();
 
             if (_aiController == null) Debug.LogError($"EAR on '{gameObject.name}': EnemyAIController not found on parent!", this);
             if (projectilePrefab == null) Debug.LogError($"EAR on '{gameObject.name}': Projectile Prefab is not assigned.", this);
@@ -140,6 +147,7 @@ namespace Scripts.Enemies.Ranged
         {
             if (!_isCurrentlyInAttackSequence || _currentTargetForSequence == null) return;
             SpawnProjectilesLogic(_currentTargetForSequence);
+            PlayAttackSound(); 
         }
 
         public void OnRangedAttackAnimationFinished() { FinishRangedAttack(); }
@@ -234,7 +242,23 @@ namespace Scripts.Enemies.Ranged
             }
             return bestDir.sqrMagnitude > 0.001f ? bestDir.normalized : (_aiController.IsFacingRight ? Vector2.right : Vector2.left);
         }
-
+        
+        private void PlayAttackSound()
+        {
+            if (_audioSource != null && attackSounds.Length > 0)
+            {
+                Sounds soundToPlay = attackSounds[Random.Range(0, attackSounds.Length)];
+                _audioSource.clip = soundToPlay.clip;
+                _audioSource.volume = soundToPlay.volume;
+                _audioSource.pitch = soundToPlay.pitch;
+                _audioSource.PlayOneShot(_audioSource.clip);
+            }
+            else
+            {
+                Debug.LogWarning($"[{Time.frameCount}] EnemyAttackMelee: No audio source or sounds assigned for attack SFX.", this);
+            }
+        }
+        
         public bool IsFiring() => _isCurrentlyInAttackSequence;
 
         #if UNITY_EDITOR

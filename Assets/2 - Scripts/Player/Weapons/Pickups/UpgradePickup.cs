@@ -1,5 +1,6 @@
+using Scripts.Core.Audio;
 using UnityEngine;
-using Scripts.Player.Weapons.Interfaces; 
+using Scripts.Player.Weapons.Interfaces;
 
 namespace Scripts.Player.Weapons.Pickups
 {
@@ -10,12 +11,17 @@ namespace Scripts.Player.Weapons.Pickups
         [SerializeField] private GameObject upgradePrefab;
 
         [Header("Collision Settings")]
-        [SerializeField] private LayerMask collidableWithLayers; 
+        [SerializeField] private LayerMask collidableWithLayers;
+        [Tooltip("Time in seconds before the pickup is destroyed after being collected.")]
+        [SerializeField] private float timeDelayBeforeDestroy = 5f;
 
         [Header("Visual & Audio Feedback (Optional)")]
         [SerializeField] private GameObject pickupEffectPrefab;
+        [SerializeField] private Sounds[] pickupSounds; 
 
         private Collider2D _collider;
+        private AudioSource _audioSource;
+        private SpriteRenderer _spriteRenderer;
 
         private void Awake()
         {
@@ -25,6 +31,12 @@ namespace Scripts.Player.Weapons.Pickups
                 Debug.LogWarning($"UpgradePickup '{gameObject.name}': Collider2D is not set to 'Is Trigger'. Setting it now.", this);
                 _collider.isTrigger = true;
             }
+            
+            _audioSource = GetComponent<AudioSource>(); if(!_audioSource)
+                Debug.LogWarning($"UpgradePickup '{gameObject.name}': No AudioSource found.", this);
+            
+            _spriteRenderer = GetComponentInChildren<SpriteRenderer>(); if(!_spriteRenderer)
+                Debug.LogWarning($"UpgradePickup '{gameObject.name}': No sprite renderer found.", this);
 
             if (upgradePrefab == null)
             {
@@ -52,6 +64,8 @@ namespace Scripts.Player.Weapons.Pickups
             {
                 return; // No es la capa correcta
             }
+            
+            PlayPickupSound();
 
             // --- MODIFICACIÓN IMPORTANTE AQUÍ ---
             // En lugar de other.GetComponentInChildren, necesitamos encontrar el "root" del jugador
@@ -97,8 +111,25 @@ namespace Scripts.Player.Weapons.Pickups
             {
                 Instantiate(pickupEffectPrefab, transform.position, Quaternion.identity);
             }
+            
+            if (_spriteRenderer != null) _spriteRenderer.enabled = false;
+            if (_collider != null) _collider.enabled = false;
+            
+            Destroy(gameObject, timeDelayBeforeDestroy);
+        }
 
-            Destroy(gameObject);
+        private void PlayPickupSound()
+        {
+            if (_audioSource == null || pickupSounds == null || pickupSounds.Length == 0) return;
+
+            // Play a random sound from the pickupSounds array
+            int randomIndex = Random.Range(0, pickupSounds.Length);
+            Sounds soundToPlay = pickupSounds[randomIndex];
+
+            if (soundToPlay != null)
+            {
+                _audioSource.PlayOneShot(soundToPlay.clip, soundToPlay.volume);
+            }
         }
     }
 }

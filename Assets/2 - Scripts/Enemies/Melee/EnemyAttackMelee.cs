@@ -1,6 +1,7 @@
 // --- START OF FILE EnemyAttackMelee.cs ---
 using UnityEngine;
 using System.Collections;
+using Scripts.Core.Audio;
 using Scripts.Enemies.Core;
 
 // No longer needs Scripts.Core.Interfaces directly if hitbox handles damage
@@ -21,7 +22,11 @@ namespace Scripts.Enemies.Melee
         [Tooltip("Reference to the GameObject containing the EnemyMeleeHitbox script and its trigger collider.")]
         [SerializeField] private EnemyMeleeHitbox meleeHitbox;
         [Tooltip("Name of the attack animation trigger parameter in the Animator.")]
-        [SerializeField] private string attackAnimationTriggerName = "MeleeAttackTrigger"; // e.g., "Attack", "Swing"
+        [SerializeField] private string attackAnimationTriggerName = "MeleeAttackTrigger";
+
+        [Header("Audio settings")]
+        [Tooltip("Optional: Audio clip for the attack windup sound effect (SFX).")]
+        [SerializeField] private Sounds[] attackSounds;
 
         // [Header("Optional Feedback")]
         // [SerializeField] private Sounds attackWindupSFX; // Sound for starting the attack
@@ -31,11 +36,13 @@ namespace Scripts.Enemies.Melee
         private EnemyAIController aiController;
         private Animator enemyAnimator;
         private bool isCurrentlyInAttackSequence = false;
+        private AudioSource audioSourceForSFX;
 
         private void Awake()
         {
             aiController = GetComponentInParent<EnemyAIController>();
             enemyAnimator = GetComponent<Animator>();
+            audioSourceForSFX = GetComponent<AudioSource>();
             // if (audioSourceForSFX == null) audioSourceForSFX = GetComponent<AudioSource>();
 
             if (aiController == null)
@@ -146,6 +153,7 @@ namespace Scripts.Enemies.Melee
             if (meleeHitbox != null)
             {
                 meleeHitbox.Activate(damageAmount);
+                PlayAttackSound();
             }
         }
 
@@ -194,6 +202,22 @@ namespace Scripts.Enemies.Melee
                 return false;
             }
             return IsTargetInAttackInitiationRange(target);
+        }
+        
+        private void PlayAttackSound()
+        {
+            if (audioSourceForSFX != null && attackSounds.Length > 0)
+            {
+                Sounds soundToPlay = attackSounds[Random.Range(0, attackSounds.Length)];
+                audioSourceForSFX.clip = soundToPlay.clip;
+                audioSourceForSFX.volume = soundToPlay.volume;
+                audioSourceForSFX.pitch = soundToPlay.pitch;
+                audioSourceForSFX.PlayOneShot(audioSourceForSFX.clip);
+            }
+            else
+            {
+                Debug.LogWarning($"[{Time.frameCount}] EnemyAttackMelee: No audio source or sounds assigned for attack SFX.", this);
+            }
         }
 
 #if UNITY_EDITOR
