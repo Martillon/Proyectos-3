@@ -139,7 +139,7 @@ namespace Scripts.UI.LevelSelection // New namespace
                 }
 
                 // Set button text (e.g., "Level 1", "Level 2")
-                buttonText.text = $"Level {i + 1}"; // Or use a display name from LevelStatus if you add one
+                buttonText.text = $"Mission {i}"; // Or use a display name from LevelStatus if you add one
 
                 bool isUnlocked = LevelProgressionManager.Instance.IsLevelUnlocked(levelIdentifier);
                 bool isCompleted = LevelProgressionManager.Instance.IsLevelCompleted(levelIdentifier);

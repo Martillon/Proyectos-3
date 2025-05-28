@@ -167,6 +167,7 @@ MonoBehaviour:
   mainMenuSceneName: Main Menu
   programSceneName: Program
   levels:
+  - Level 0
   - Level 1
 --- !u!1 &971524171
 GameObject:
