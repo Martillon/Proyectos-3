@@ -32,9 +32,6 @@ namespace Scripts.Levels
             hasBeenTriggered = true;
             Debug.Log($"LevelExit: Player '{other.name}' entered exit for level '{SceneManager.GetActiveScene().name}'.");
 
-            // 1. Deshabilitar input del jugador
-            InputManager.Instance?.DisableAllControls(); // O DisablePlayerControls si quieres que la UI siga funcionando para algo más
-
             // 2. Detener movimiento físico del jugador
             Rigidbody2D playerRb = GetPlayerRigidbody(other);
             if (playerRb != null)

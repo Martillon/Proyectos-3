@@ -81,7 +81,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   jumpForce: 5.7
-  fallMultiplier: 2.5
+  fallMultiplier: 1.5
   coyoteTimeDuration: 0.1
 --- !u!114 &4490356189428783854
 MonoBehaviour:
@@ -117,7 +117,7 @@ MonoBehaviour:
   wallCheckDistance: 0.5
   wallDetectionLayerMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!114 &4516621579600153257
 MonoBehaviour:
@@ -134,7 +134,7 @@ MonoBehaviour:
   standingColliderGO: {fileID: 6727546462888763051}
   crouchingColliderGO: {fileID: 7332891486622959373}
   aimableArmPivotTransform: {fileID: 6264034608520597866}
-  armPivotStandingLocalPos: {x: -0, y: 0.24, z: 0}
+  armPivotStandingLocalPos: {x: 0, y: 0.24, z: 0}
   armPivotCrouchingLocalPos: {x: 0, y: -0.3, z: 0}
   firepointOffsetFromArmPivot: {x: 0.5, y: 0, z: 0}
 --- !u!114 &7913986734316917696

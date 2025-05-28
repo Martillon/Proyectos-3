@@ -8,6 +8,7 @@ namespace Scripts.Player.Weapons
 {
     public class AimDirectionResolver : MonoBehaviour
     {
+        private float xThreshold = 1f; // Umbral para considerar input horizontal significativo
         [Header("References")]
         [Tooltip("Reference to the PlayerStateManager to get player state.")]
         [SerializeField] private PlayerStateManager playerStateManager; // <--- CAMBIO: Referencia principal
@@ -71,51 +72,66 @@ namespace Scripts.Player.Weapons
         // CalculateAimDirection ya toma los booleanos de estado como parámetros, por lo que su lógica interna no cambia.
         private Vector2 CalculateAimDirection(float inputX, float inputY, bool isGrounded, bool isCrouching, bool isLocked, bool isDropping)
         {
-            if (isDropping)
+            if (isDropping) //Si est cayendo
             {
-                return new Vector2(_lastNonZeroHorizontalInput, 0f).normalized;
+                return new Vector2(_lastNonZeroHorizontalInput, 0f).normalized; //Vector 2 normalizado entre el último horizontal input y 0
             }
             Vector2 resolvedDirection = _currentCalculatedAimDirection;
-            if (inputY > 0)
+            if (inputY > 0) //Si el input es arriba
             {
-                resolvedDirection = (inputX != 0) ? new Vector2(inputX, 1f).normalized : Vector2.up;
+                if ( Mathf.Abs(inputX) >=  xThreshold || Mathf.Abs(inputX) >=  xThreshold) // Si hay inputX, apunta diagonal arriba. Sino, apunta recto arriba.
+                {
+                    resolvedDirection=  new Vector2(inputX, 1f).normalized;
+                }
+                else
+                {
+                    resolvedDirection = Vector2.up;
+                }
             }
             else if (inputY < 0) // Presionando Abajo
             {
-                if (isLocked) // <<<< SI ESTAMOS AQUÍ
+                if (isLocked) // <<<< SI ESTAMOS BLOQUEADOS
                 {
                     // Si hay inputX, apunta diagonal abajo. Sino, apunta recto abajo.
                     resolvedDirection = (inputX != 0) ? new Vector2(inputX, -1f).normalized : Vector2.down;
                 }
                 else // No Bloqueado + Presionando Abajo
                 {
-                    if (isCrouching) // <<<< Y SI ESTAMOS AQUÍ TAMBIÉN (ESTADO ACTUAL PROBLEMÁTICO)
+                    if (isCrouching) // <<<< Y SI ESTAMOS AQUÍ TAMBIÉN 
                     {
                         // Si hay inputX, apunta diagonal abajo. Sino (solo abajo), apunta horizontalmente adelante.
                         resolvedDirection = (inputX != 0) ? new Vector2(inputX, -1f).normalized : new Vector2(_lastNonZeroHorizontalInput, 0f);
                     }
-                    else if (!isGrounded)
+                    else if (!isGrounded) //Si no estamos agachados
                     {
-                        resolvedDirection = (inputX != 0) ? new Vector2(inputX, -1f).normalized : Vector2.down;
+                        if (Mathf.Abs(inputX) !=  0) // Si hay inputX, apunta diagonal abajo. Sino, apunta recto abajo.
+                        {
+                            resolvedDirection=  new Vector2(inputX, 1f).normalized;
+                        }
+                        else
+                        {
+                            resolvedDirection = Vector2.down;
+                        }
                     } 
-                    else if (isGrounded && inputX == 0)
+                    else if (isGrounded && inputX == 0) // Si estamos en el suelo, no bloqueados, no agachados y sin inputX
                     {
-                        resolvedDirection = new Vector2(_lastNonZeroHorizontalInput, 0f);
+                        resolvedDirection = new Vector2(_lastNonZeroHorizontalInput, 0f); // Mantener la última dirección horizontal
                     }
                 }
             }
-            else if (inputX != 0)
+            else if (inputX != 0) //Si el último input es horizontal
             {
-                resolvedDirection = new Vector2(inputX, 0f);
+                resolvedDirection = new Vector2(inputX, 0f); // Mantener la dirección horizontal
             }
             else
             {
-                if (isGrounded && !isLocked && !isCrouching)
+                if (isGrounded && !isLocked && !isCrouching) // Si estamos en el suelo, no bloqueados y no agachados
                 {
+                    // Mantener la última dirección horizontal
                     resolvedDirection = new Vector2(_lastNonZeroHorizontalInput, 0f);
                 }
             }
-            
+            // Normalizar la dirección resuelta para evitar problemas de magnitud
             return resolvedDirection.sqrMagnitude > 0.001f ? resolvedDirection.normalized : new Vector2(_lastNonZeroHorizontalInput, 0f).normalized;
         }
 

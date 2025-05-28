@@ -108,6 +108,8 @@ namespace Scripts.UI.InGame
             levelCompleteMusicOrStinger?.Play(uiAudioSource);
             // La animación de victoria del jugador y la detención del Rigidbody son manejados por LevelExit y PlayerVisualController.
 
+            InputManager.Instance?.DisableAllControls(); // Desactivar controles de UI para evitar inputs durante la secuencia
+            
             // 1. Esperar un poco después de que el jugador haya alcanzado la salida y su animación de victoria comience.
             if (delayBeforeUIShow > 0)
             {
@@ -167,6 +169,7 @@ namespace Scripts.UI.InGame
             
             //Debug.Log($"[{Time.frameCount}] LCUIC: UI secuencia completa. Time.timeScale = 0.");
             Time.timeScale = 0f;
+            
         }
 
         private IEnumerator FadeImageAlpha(Image image, float targetAlpha, float duration)
@@ -233,11 +236,12 @@ namespace Scripts.UI.InGame
                 if (currentIndex != -1 && currentIndex + 1 < SceneLoader.Instance.levels.Length)
                 {
                     nextLevelToLoad = SceneLoader.Instance.levels[currentIndex + 1];
+                    Debug.Log("LCUIC: Current level index: " + currentIndex + ", Next level to load: " + nextLevelToLoad);
                 }
 
                 if (!string.IsNullOrEmpty(nextLevelToLoad) && LevelProgressionManager.Instance.IsLevelUnlocked(nextLevelToLoad))
                 {
-                    //Debug.Log($"LCUIC: Continuing to next level: {nextLevelToLoad}");
+                    Debug.Log($"LCUIC: Continuing to next level: {nextLevelToLoad}");
                     SceneLoader.Instance.LoadLevelByName(nextLevelToLoad);
                 }
                 else
