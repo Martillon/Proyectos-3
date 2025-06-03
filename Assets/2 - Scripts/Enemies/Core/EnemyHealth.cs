@@ -95,7 +95,7 @@ namespace Scripts.Enemies.Core
                 bool isInVulnerableState = false;
                 string currentAnimStateNameForDebug = GetCurrentAnimatorStateName(animatorForVulnerabilityCheck); // Usar tu helper
 
-                Debug.Log($"[{Time.frameCount}] EnemyHealth: Checking vulnerability. Current Animator State: '{currentAnimStateNameForDebug}' (Hash: {stateInfo.fullPathHash}, ShortNameHash: {stateInfo.shortNameHash})");
+                //Debug.Log($"[{Time.frameCount}] EnemyHealth: Checking vulnerability. Current Animator State: '{currentAnimStateNameForDebug}' (Hash: {stateInfo.fullPathHash}, ShortNameHash: {stateInfo.shortNameHash})");
 
                 foreach (string vulnerableStateName in vulnerableAnimStateNames)
                 {
@@ -103,14 +103,14 @@ namespace Scripts.Enemies.Core
                     if (stateInfo.IsName(vulnerableStateName)) // IsName compara con el nombre completo del estado (ej. Base Layer.Open - Aim)
                     {
                         isInVulnerableState = true;
-                        Debug.Log($"[{Time.frameCount}] EnemyHealth: MATCH! Enemy IS in vulnerable state: '{vulnerableStateName}'");
+                        //Debug.Log($"[{Time.frameCount}] EnemyHealth: MATCH! Enemy IS in vulnerable state: '{vulnerableStateName}'");
                         break;
                     }
                 }
                 if (!isInVulnerableState)
                 {
                     string vulnerableStatesList = string.Join(", ", vulnerableAnimStateNames);
-                    Debug.Log($"EnemyHealth on {gameObject.name}: Damage IGNORED. Not in a vulnerable animation state. Current: '{currentAnimStateNameForDebug}'. Vulnerable states are: [{vulnerableStatesList}]");
+                    //Debug.Log($"EnemyHealth on {gameObject.name}: Damage IGNORED. Not in a vulnerable animation state. Current: '{currentAnimStateNameForDebug}'. Vulnerable states are: [{vulnerableStatesList}]");
                     return; 
                 }
             }

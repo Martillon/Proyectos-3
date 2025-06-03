@@ -396,7 +396,7 @@ MonoBehaviour:
     randomPitch: 0
     pitch: 1
     randomVolume: 0
-    volume: 1
+    volume: 0.25
 --- !u!82 &7204375653905184408
 AudioSource:
   m_ObjectHideFlags: 0

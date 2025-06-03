@@ -157,17 +157,76 @@ namespace Scripts.UI.InGame
 
             // 4. Mostrar Botones
             yield return new WaitForSecondsRealtime(delayAfterMessageBeforeButtons);
+
             if (buttonsGroup != null)
             {
+                // --- LÓGICA PARA HABILITAR/DESHABILITAR BOTÓN CONTINUAR ---
+                bool canContinueToNextLevel = false;
+                if (SceneLoader.Instance != null && !string.IsNullOrEmpty(_completedLevelIdentifier) && SceneLoader.Instance.levels != null)
+                {
+                    int currentIndex = -1;
+                    for (int i = 0; i < SceneLoader.Instance.levels.Length; i++)
+                    {
+                        if (SceneLoader.Instance.levels[i] == _completedLevelIdentifier)
+                        {
+                            currentIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (currentIndex != -1 && currentIndex + 1 < SceneLoader.Instance.levels.Length)
+                    {
+                        string nextLevelToLoad = SceneLoader.Instance.levels[currentIndex + 1];
+                        if (LevelProgressionManager.Instance != null && LevelProgressionManager.Instance.IsLevelUnlocked(nextLevelToLoad))
+                        {
+                            canContinueToNextLevel = true;
+                        }
+                    }
+                }
+
+                if (btn_Continue != null)
+                {
+                    btn_Continue.gameObject.SetActive(canContinueToNextLevel); // Ocultar si no se puede continuar
+                    // O si prefieres que se vea pero no sea clickeable:
+                    // btn_Continue.interactable = canContinueToNextLevel;
+                    Debug.Log($"LCUIC: Botón Continuar {(canContinueToNextLevel ? "Habilitado" : "Deshabilitado/Oculto")}.");
+                }
+                // --- FIN DE LÓGICA DE BOTÓN CONTINUAR ---
+
                 buttonsGroup.SetActive(true);
                 levelCompleteScreenCanvasGroup.interactable = true; 
                 levelCompleteScreenCanvasGroup.blocksRaycasts = true;
                 InputManager.Instance?.EnableUIControls();
+
+                // Seleccionar el primer botón apropiado
+                if (canContinueToNextLevel && btn_Continue != null && btn_Continue.gameObject.activeSelf)
+                {
+                    firstSelectedButtonOnComplete = btn_Continue; // Si el de continuar es el primero por defecto
+                }
+                else if (btn_RetryLevel != null && btn_RetryLevel.gameObject.activeSelf) // Si no hay continuar, o el asignado por defecto no es continuar
+                {
+                     // Si firstSelectedButtonOnComplete estaba asignado a btn_Continue y este se ocultó,
+                     // necesitamos seleccionar otro.
+                    if (firstSelectedButtonOnComplete == btn_Continue && !canContinueToNextLevel)
+                    {
+                         firstSelectedButtonOnComplete = btn_RetryLevel; // Seleccionar Reintentar como fallback
+                    }
+                    // Si firstSelectedButtonOnComplete ya estaba asignado a Reintentar u otro, se respeta
+                }
+                 else if (btn_MainMenu != null && btn_MainMenu.gameObject.activeSelf) // Fallback final
+                {
+                    if (firstSelectedButtonOnComplete == btn_Continue && !canContinueToNextLevel)
+                    {
+                        firstSelectedButtonOnComplete = btn_MainMenu;
+                    }
+                }
+                // Si firstSelectedButtonOnComplete es null después de esto, nada se seleccionará automáticamente.
+
                 firstSelectedButtonOnComplete?.Select();
-                //Debug.Log($"[{Time.frameCount}] LCUIC: ButtonsGroup activado. UI interactuable.");
+                Debug.Log($"[{Time.frameCount}] LCUIC: ButtonsGroup activado. UI interactuable.");
             }
             
-            //Debug.Log($"[{Time.frameCount}] LCUIC: UI secuencia completa. Time.timeScale = 0.");
+            Debug.Log($"[{Time.frameCount}] LCUIC: UI secuencia completa. Time.timeScale = 0.");
             Time.timeScale = 0f;
             
         }

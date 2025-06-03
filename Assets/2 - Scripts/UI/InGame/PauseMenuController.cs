@@ -125,7 +125,7 @@ namespace Scripts.UI.InGame
             Time.timeScale = 1f; 
             InputManager.Instance?.EnablePlayerControls(); 
             CheckpointManager.ResetCheckpointData(); 
-            SceneLoader.Instance?.LoadSceneByBuildIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex); 
+            SceneLoader.Instance?.ReloadCurrentLevelScene();
         }
         private void GoToMainMenu() 
         { 
