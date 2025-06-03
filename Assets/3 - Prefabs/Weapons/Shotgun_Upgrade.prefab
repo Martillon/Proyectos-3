@@ -52,7 +52,7 @@ MonoBehaviour:
     randomPitch: 0
     pitch: 1
     randomVolume: 0
-    volume: 1
+    volume: 0.15
   projectilePrefab: {fileID: 5437270158944902891, guid: 1a8dd97ca1292214bbfca2260ad2a11c, type: 3}
   projectilesPerShot: 5
   spreadAngle: 20
