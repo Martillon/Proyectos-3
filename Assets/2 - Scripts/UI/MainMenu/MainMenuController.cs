@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using Scripts.Core; // For SceneLoader, GameConstants, SettingsManager
 using Scripts.Core.Audio;
-using Scripts.UI.LevelSelection; // Namespace for LevelSelectorController
+using Scripts.UI.LevelSelection;
+using TMPro; // Namespace for LevelSelectorController
 
 namespace Scripts.UI.MainMenu
 {
@@ -38,6 +39,10 @@ namespace Scripts.UI.MainMenu
 
         [Header("UI Sounds")]
         [SerializeField] private UIAudioFeedback uiSoundPlayer;
+        
+        [Header("Version Info")]
+        [Tooltip("The version text to display in the main menu.")]
+        [SerializeField] private TMP_Text versionText;
 
         private void Awake()
         {
@@ -63,6 +68,8 @@ namespace Scripts.UI.MainMenu
             btn_ReturnFromCredits?.onClick.AddListener(() => { uiSoundPlayer?.PlayClick(); ShowThisMenuAgain(); });
 
             ShowThisMenuAgain(); // Start with the main menu panel active
+            
+            versionText.text = "Version: " + Application.version;
         }
 
         private void OnPlayButtonPressed()
