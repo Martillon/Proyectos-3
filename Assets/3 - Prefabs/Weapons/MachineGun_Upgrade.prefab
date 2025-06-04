@@ -47,7 +47,7 @@ MonoBehaviour:
   damage: 1
   soundsToPlayOnFire:
   - name: 
-    clip: {fileID: 8300000, guid: 436cd4b201021bb4c9c75b3ad3747267, type: 3}
+    clip: {fileID: 8300000, guid: 5457e189215261b44a0adc0ec205b6e3, type: 3}
     loop: 0
     randomPitch: 0
     pitch: 1
