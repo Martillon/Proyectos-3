@@ -9604,13 +9604,13 @@ MonoBehaviour:
   CameraDistance: 10
   DeadZoneDepth: 0
   Composition:
-    ScreenPosition: {x: -0.33, y: 0.15911436}
+    ScreenPosition: {x: -0.2927512, y: 0.2763666}
     DeadZone:
       Enabled: 1
       Size: {x: 0, y: 0}
     HardLimits:
       Enabled: 1
-      Size: {x: 0.06, y: 0.12}
+      Size: {x: 0.23499377, y: 0.41354552}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
   TargetOffset: {x: -0.03, y: 0.03, z: 0}
@@ -9672,7 +9672,7 @@ Transform:
   m_GameObject: {fileID: 471890983}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.196667, y: -6.6644278, z: -7.2008433}
+  m_LocalPosition: {x: -12.527767, y: -6.0781665, z: -7.2008433}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9691,7 +9691,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BoundingShape2D: {fileID: 369938482}
-  Damping: 0
+  Damping: 0.5
   SlowingDistance: 5
   OversizeWindow:
     Enabled: 0
@@ -19326,7 +19326,7 @@ Transform:
   m_GameObject: {fileID: 1031398355}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -12.196663, y: -5.875622, z: -7.2008433}
+  m_LocalPosition: {x: -12.490585, y: -5.875622, z: -7.2008433}
   m_LocalScale: {x: 1, y: 0.9818, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
