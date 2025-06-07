@@ -2,141 +2,136 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Linq; // Para LINQ (Contains) si lo usas, aunque no es estrictamente necesario aquí
+using System.Linq;
 
 namespace Scripts.Core
 {
+    /// <summary>
+    /// Manages loading and unloading of scenes. Designed to work with a persistent "Program"
+    /// scene and load/unload gameplay or menu scenes additively.
+    /// </summary>
     public class SceneLoader : MonoBehaviour
     {
-        private static SceneLoader _instance;
-        public static SceneLoader Instance => _instance;
+        public static SceneLoader Instance { get; private set; }
 
         [Header("Loading Screen")]
-        [Tooltip("Optional GameObject to activate during scene transitions.")]
-        [SerializeField] private GameObject loaderScreenObject;
+        [Tooltip("Optional. A GameObject to activate during scene transitions.")]
+        [SerializeField] private GameObject loadingScreenObject;
+        [Tooltip("The minimum time in seconds the loading screen will be displayed, to prevent jarringly fast transitions.")]
+        [SerializeField] private float minLoadingScreenDisplayTime = 5f;
 
         [Header("Scene Configuration")]
-        [Tooltip("Name of the main menu scene.")]
-        [SerializeField] private string mainMenuSceneName = GameConstants.MainMenuSceneName; // Asegúrate que GameConstants.MainMenuSceneName exista
-        [Tooltip("Name of the persistent program/manager scene that should never be unloaded.")]
-        [SerializeField] private string programSceneName = GameConstants.ProgramSceneName; // Asegúrate que GameConstants.ProgramSceneName exista
-        
+        [Tooltip("The name of the main menu scene.")]
+        [SerializeField] private string mainMenuSceneName = GameConstants.MainMenuSceneName;
+        [Tooltip("The name of the persistent manager scene that should never be unloaded.")]
+        [SerializeField] private string persistentSceneName = GameConstants.ProgramSceneName;
+
         [Header("Game Levels")]
-        [Tooltip("Array of scene names for all playable game levels, in order of progression.")]
-        public string[] levels; // Estos son NOMBRES de escena
+        [Tooltip("An array of scene names for all playable game levels, in the intended order of progression.")]
+        public string[] levels;
+        // Optimization: Using a HashSet for quick lookups if the number of levels becomes large.
+        private HashSet<string> _levelNameSet;
 
-        // Rastrea la escena de gameplay o menú que está actualmente "enfocada" o activa
-        public string CurrentLoadedGameplaySceneName { get; private set; }
+        // Tracks the currently active gameplay or menu scene.
+        public string CurrentGameplaySceneName { get; private set; }
 
-        private Coroutine _sceneOperationCoroutine; // Para evitar operaciones múltiples simultáneas
+        private Coroutine _sceneOperationCoroutine;
 
         private void Awake()
         {
-            if (_instance == null)
-            {
-                _instance = this;
-                DontDestroyOnLoad(gameObject);
-                if (loaderScreenObject != null) loaderScreenObject.SetActive(false);
-            }
-            else if (_instance != this)
+            if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
+                return;
             }
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // This manager must persist across scene loads.
+
+            if (loadingScreenObject != null)
+            {
+                loadingScreenObject.SetActive(false);
+            }
+
+            // Populate the HashSet for faster lookups.
+            _levelNameSet = new HashSet<string>(levels ?? new string[0]);
         }
 
         private void Start()
         {
-            // Determinar la escena inicial
-            bool onlyProgramSceneLoaded = SceneManager.sceneCount == 1 && SceneManager.GetActiveScene().name == programSceneName;
-            bool inNonCoreSceneWithoutMenu = SceneManager.GetActiveScene().name != programSceneName &&
-                                             SceneManager.GetActiveScene().name != mainMenuSceneName &&
-                                             !IsSceneLoaded(mainMenuSceneName);
+            // This logic handles starting the game from the editor in any scene.
+            // It ensures the Main Menu is loaded if no other gameplay/menu scene is present.
+            bool isOnlyPersistentSceneLoaded = SceneManager.sceneCount == 1 && SceneManager.GetActiveScene().name == persistentSceneName;
 
-            if (onlyProgramSceneLoaded || inNonCoreSceneWithoutMenu)
+            if (isOnlyPersistentSceneLoaded)
             {
-                 LoadMenu(); 
+                // If we start the game from the persistent scene, load the main menu.
+                LoadMenu();
             }
-            else if (IsSceneLoaded(mainMenuSceneName) && (levels == null || !levels.Contains(SceneManager.GetActiveScene().name)))
+            else
             {
-                CurrentLoadedGameplaySceneName = mainMenuSceneName;
-                // Asegurar que el menú sea la escena activa si no estamos en un nivel
-                Scene menuScene = SceneManager.GetSceneByName(mainMenuSceneName);
-                if (menuScene.IsValid() && menuScene.isLoaded && SceneManager.GetActiveScene() != menuScene)
+                // If we started in a different scene, figure out what it is.
+                Scene activeScene = SceneManager.GetActiveScene();
+                if (activeScene.name == mainMenuSceneName)
                 {
-                    SceneManager.SetActiveScene(menuScene);
+                    CurrentGameplaySceneName = mainMenuSceneName;
                 }
+                else if (_levelNameSet.Contains(activeScene.name))
+                {
+                    CurrentGameplaySceneName = activeScene.name;
+                }
+                // If the active scene is not the menu or a known level, it might be an unmanaged scene.
+                // The CurrentGameplaySceneName will remain as its last valid value or null.
             }
-            else if (levels != null && levels.Contains(SceneManager.GetActiveScene().name))
-            {
-                CurrentLoadedGameplaySceneName = SceneManager.GetActiveScene().name;
-            }
-             // Si no se cumple nada, CurrentLoadedGameplaySceneName podría ser null,
-             // lo cual se manejará en los métodos de carga.
         }
 
         public void LoadMenu()
         {
-            if (string.IsNullOrEmpty(mainMenuSceneName)) {
-                Debug.LogError("SceneLoader: MainMenuSceneName is not set in the inspector!");
+            if (string.IsNullOrEmpty(mainMenuSceneName))
+            {
+                Debug.LogError("SceneLoader: MainMenuSceneName is not set in the inspector!", this);
                 return;
             }
-            Debug.Log($"SceneLoader: Attempting to load Main Menu ('{mainMenuSceneName}').");
             InitiateLoadProcess(mainMenuSceneName);
         }
 
         public void LoadLevelByName(string levelSceneName)
         {
-            if (string.IsNullOrEmpty(levelSceneName)) {
-                Debug.LogError("SceneLoader: LoadLevelByName called with null or empty scene name.");
+            if (string.IsNullOrEmpty(levelSceneName) || !_levelNameSet.Contains(levelSceneName))
+            {
+                Debug.LogError($"SceneLoader: LoadLevelByName called with an invalid or unknown scene name: '{levelSceneName}'.", this);
                 return;
             }
-            Debug.Log($"SceneLoader: Attempting to load level by name: '{levelSceneName}'.");
             InitiateLoadProcess(levelSceneName);
         }
 
-        public void LoadLevelByIndex(int levelArrayIndex)
+        public void LoadLevelByOrderIndex(int levelIndex)
         {
-            if (levels == null || levelArrayIndex < 0 || levelArrayIndex >= levels.Length) {
-                Debug.LogError($"SceneLoader: LoadLevelByIndex - Invalid index {levelArrayIndex}. Levels array size: {levels?.Length}.");
+            if (levels == null || levelIndex < 0 || levelIndex >= levels.Length)
+            {
+                Debug.LogError($"SceneLoader: LoadLevelByOrderIndex - Invalid index {levelIndex}. Levels array size: {levels?.Length}.", this);
                 return;
             }
-            InitiateLoadProcess(levels[levelArrayIndex]);
+            InitiateLoadProcess(levels[levelIndex]);
         }
-        
-        public void ReloadCurrentLevelScene()
+
+        public void ReloadCurrentLevel()
         {
-            if (!string.IsNullOrEmpty(CurrentLoadedGameplaySceneName) &&
-                CurrentLoadedGameplaySceneName != mainMenuSceneName && // No "recargar" el menú como si fuera un nivel desde aquí
-                levels != null && levels.Contains(CurrentLoadedGameplaySceneName))
+            if (!string.IsNullOrEmpty(CurrentGameplaySceneName) && CurrentGameplaySceneName != mainMenuSceneName)
             {
-                Debug.Log($"SceneLoader: Reloading current level '{CurrentLoadedGameplaySceneName}'.");
-                InitiateLoadProcess(CurrentLoadedGameplaySceneName);
+                InitiateLoadProcess(CurrentGameplaySceneName);
             }
             else
             {
-                Debug.LogWarning($"SceneLoader: Cannot reload. No valid current gameplay level name stored, or it's the main menu: '{CurrentLoadedGameplaySceneName}'. Loading Main Menu instead.");
+                Debug.LogWarning($"SceneLoader: Cannot reload. No valid current gameplay level is loaded. Current: '{CurrentGameplaySceneName}'. Loading Main Menu instead.", this);
                 LoadMenu();
             }
-        }
-        
-        public void LoadSceneByBuildIndex(int sceneBuildIndex) // Usar con precaución
-        {
-            if (sceneBuildIndex < 0 || sceneBuildIndex >= SceneManager.sceneCountInBuildSettings) {
-                Debug.LogError($"SceneLoader: Invalid scene build index: {sceneBuildIndex}", this); return;
-            }
-            string scenePath = SceneUtility.GetScenePathByBuildIndex(sceneBuildIndex);
-            string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
-            if (string.IsNullOrEmpty(sceneName)) {
-                Debug.LogError($"SceneLoader: Could not get scene name for build index: {sceneBuildIndex}", this); return;
-            }
-            InitiateLoadProcess(sceneName);
         }
 
         private void InitiateLoadProcess(string sceneNameToLoad)
         {
             if (_sceneOperationCoroutine != null)
             {
-                Debug.LogWarning($"SceneLoader: Scene operation already in progress. Request for '{sceneNameToLoad}' ignored to prevent conflicts.");
+                Debug.LogWarning($"SceneLoader: Scene operation already in progress. Request to load '{sceneNameToLoad}' was ignored.", this);
                 return;
             }
             _sceneOperationCoroutine = StartCoroutine(LoadAndUnloadProcess(sceneNameToLoad));
@@ -144,109 +139,79 @@ namespace Scripts.Core
 
         private IEnumerator LoadAndUnloadProcess(string sceneNameToLoad)
         {
-            if (loaderScreenObject != null) loaderScreenObject.SetActive(true);
-            Debug.Log($"[{Time.frameCount}] SceneLoader: BEGIN LoadAndUnloadProcess for '{sceneNameToLoad}'.");
+            // --- Start of Transition ---
+            float loadStartTime = Time.realtimeSinceStartup; // Use realtime for unscaled timing
 
-            // --- PASO 1: Descargar escenas no deseadas ---
-            // (Esto incluye la instancia actual de sceneNameToLoad si estamos recargando)
-            List<Scene> scenesToUnload = new List<Scene>();
+            loadingScreenObject?.SetActive(true);
+            // We fade to black, and BEHIND the black screen, we do the loading.
+            yield return ScreenFader.Instance?.FadeToBlack();
+
+            // --- Step 1: Unload all scenes except the persistent one ---
+            List<AsyncOperation> unloadOperations = new List<AsyncOperation>();
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
-                Scene currentSceneInManager = SceneManager.GetSceneAt(i);
-                if (currentSceneInManager.isLoaded && currentSceneInManager.name != programSceneName)
+                Scene scene = SceneManager.GetSceneAt(i);
+                if (scene.isLoaded && scene.name != persistentSceneName)
                 {
-                    // Si estamos recargando la misma escena, la instancia actual debe descargarse.
-                    // Si estamos cargando una escena diferente, cualquier otra escena de nivel/menú que no sea la nueva también debe descargarse.
-                    if (currentSceneInManager.name == sceneNameToLoad || // Descargar si es la misma que vamos a (re)cargar
-                        currentSceneInManager.name != sceneNameToLoad) // O si es cualquier otra que no sea la ProgramScene y no la nueva
-                    {
-                        // Corrección: solo descargar si NO es la ProgramScene
-                        // Y si es la escena que queremos recargar O si no es la escena que queremos cargar (y tampoco es program)
-                        if (currentSceneInManager.name == sceneNameToLoad || 
-                           (currentSceneInManager.name != sceneNameToLoad && currentSceneInManager.name != programSceneName))
-                        {
-                             // El segundo check es redundante por el if exterior.
-                             // El objetivo es: descargar todo excepto ProgramScene. Si sceneNameToLoad ya está, se descargará.
-                             scenesToUnload.Add(currentSceneInManager);
-                        }
-                    }
+                    unloadOperations.Add(SceneManager.UnloadSceneAsync(scene));
                 }
             }
-            // Refinamiento de la lógica de descarga:
-            // Queremos descargar CUALQUIER escena que no sea programSceneName y no sea la que vamos a cargar A MENOS QUE
-            // la que vamos a cargar YA ESTÉ CARGADA (caso de reinicio), en cuyo caso TAMBIÉN la descargamos.
-            // Forma más simple: Descargar todo excepto ProgramScene. Luego cargar la nueva.
-            scenesToUnload.Clear(); // Empezar de nuevo la lista
-             for (int i = 0; i < SceneManager.sceneCount; i++)
+
+            foreach (var op in unloadOperations)
             {
-                Scene currentSceneInManager = SceneManager.GetSceneAt(i);
-                if (currentSceneInManager.isLoaded && currentSceneInManager.name != programSceneName)
-                {
-                    scenesToUnload.Add(currentSceneInManager);
-                }
+                if (op != null) while (!op.isDone) yield return null;
             }
+            yield return null; // Wait a frame for SceneManager to update.
 
-
-            if (scenesToUnload.Count > 0)
-            {
-                List<AsyncOperation> unloadOps = new List<AsyncOperation>();
-                Debug.Log($"[{Time.frameCount}] SceneLoader: Unloading {scenesToUnload.Count} scene(s): {string.Join(", ", scenesToUnload.Select(s => s.name))}");
-                foreach (Scene sceneToUnload in scenesToUnload)
-                {
-                    unloadOps.Add(SceneManager.UnloadSceneAsync(sceneToUnload));
-                }
-                foreach (AsyncOperation op in unloadOps)
-                {
-                    if (op != null) while (!op.isDone) yield return null;
-                }
-                Debug.Log($"[{Time.frameCount}] SceneLoader: Finished unloading scenes.");
-                yield return null; // Esperar un frame para que SceneManager se actualice bien
-            } else {
-                Debug.Log($"[{Time.frameCount}] SceneLoader: No scenes to unload (except possibly ProgramScene).");
-            }
-
-            // --- PASO 2: Cargar la nueva escena (o recargarla) ---
-            Debug.Log($"[{Time.frameCount}] SceneLoader: Loading scene '{sceneNameToLoad}' additively.");
+            // --- Step 2: Load the new scene additively ---
             AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneNameToLoad, LoadSceneMode.Additive);
-            if (loadOperation == null) { // Esto puede pasar si la escena no está en build settings
-                Debug.LogError($"SceneLoader: LoadSceneAsync for '{sceneNameToLoad}' returned null. Is the scene in Build Settings and spelled correctly?");
-                if (loaderScreenObject != null) loaderScreenObject.SetActive(false);
-                _sceneOperationCoroutine = null; 
-                yield break; // Salir de la corrutina
+            if (loadOperation == null)
+            {
+                Debug.LogError($"SceneLoader: LoadSceneAsync for '{sceneNameToLoad}' returned null. Is the scene in Build Settings?", this);
+                // Handle error gracefully
+                loadingScreenObject?.SetActive(false);
+                yield return ScreenFader.Instance?.FadeToClear();
+                _sceneOperationCoroutine = null;
+                yield break;
             }
+
             while (!loadOperation.isDone)
             {
-                // Opcional: Actualizar progreso de barra de carga aquí
                 yield return null;
             }
-            Debug.Log($"[{Time.frameCount}] SceneLoader: Scene '{sceneNameToLoad}' finished loading.");
-
-            // --- PASO 3: Establecer la escena cargada como activa ---
-            Scene targetScene = SceneManager.GetSceneByName(sceneNameToLoad);
-            if (targetScene.IsValid() && targetScene.isLoaded)
+            
+            // --- Step 3: Set the newly loaded scene as active ---
+            Scene newScene = SceneManager.GetSceneByName(sceneNameToLoad);
+            if (newScene.IsValid())
             {
-                SceneManager.SetActiveScene(targetScene);
-                CurrentLoadedGameplaySceneName = sceneNameToLoad; 
-                Debug.Log($"[{Time.frameCount}] SceneLoader: Scene '{sceneNameToLoad}' set as active. CurrentGameplayScene: {CurrentLoadedGameplaySceneName}");
+                SceneManager.SetActiveScene(newScene);
+                CurrentGameplaySceneName = sceneNameToLoad;
             }
             else
             {
-                Debug.LogError($"SceneLoader: Scene '{sceneNameToLoad}' NOT valid or loaded after attempt. Cannot set active.");
+                Debug.LogError($"SceneLoader: Scene '{sceneNameToLoad}' was not valid after loading.", this);
             }
 
-            if (loaderScreenObject != null) loaderScreenObject.SetActive(false);
-            _sceneOperationCoroutine = null; 
-            Debug.Log($"[{Time.frameCount}] SceneLoader: LoadAndUnloadProcess for '{sceneNameToLoad}' FULLY FINISHED.");
+            // --- Timing Control ---
+            float elapsedTime = Time.realtimeSinceStartup - loadStartTime;
+            if (elapsedTime < minLoadingScreenDisplayTime)
+            {
+                // Wait for the remaining time.
+                yield return new WaitForSecondsRealtime(minLoadingScreenDisplayTime - elapsedTime);
+            }
+            
+            // --- End of Transition ---
+            // Now that we've waited, we can fade back in.
+            yield return ScreenFader.Instance?.FadeToClear();
+            loadingScreenObject?.SetActive(false);
+            
+            _sceneOperationCoroutine = null;
         }
 
         public bool IsSceneLoaded(string sceneName)
         {
             if (string.IsNullOrEmpty(sceneName)) return false;
-            for (int i = 0; i < SceneManager.sceneCount; i++)
-            {
-                if (SceneManager.GetSceneAt(i).name == sceneName) return true; 
-            }
-            return false;
+            return SceneManager.GetSceneByName(sceneName).isLoaded;
         }
     }
 }

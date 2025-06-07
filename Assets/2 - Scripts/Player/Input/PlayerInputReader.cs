@@ -1,65 +1,52 @@
-// --- En PlayerInputReader.cs ---
 using UnityEngine;
 using Scripts.Core;
-using Scripts.Player.Core; // For InputManager, PlayerStateManager
+using Scripts.Player.Core;
+using UnityEngine.InputSystem;
 
-namespace Scripts.Player.Input 
+namespace Scripts.Player.Input
 {
+    /// <summary>
+    /// Reads raw input from the InputManager and updates the PlayerStateManager.
+    /// This component acts as a bridge between the input hardware and the player's state.
+    /// </summary>
     public class PlayerInputReader : MonoBehaviour
     {
-        private PlayerStateManager _playerStateManager;
-        private const float INPUT_THRESHOLD = 0.1f; 
-        private const float CROUCH_DOWN_THRESHOLD = -0.5f;
-
-        // Buffer para el input de salto
-        private bool _jumpPressedThisFrameBuffer;
-
-        void Awake()
-        {
-            _playerStateManager = GetComponentInParent<PlayerStateManager>();
-            if (_playerStateManager == null)
-            {
-                Debug.LogError("PlayerInputReader: PlayerStateManager not found!", this);
-                enabled = false; 
-            }
-        }
-
-        void Update()
-        {
-            if (_playerStateManager == null || InputManager.Instance?.Controls == null) return;
-
-            Vector2 rawMoveInput = InputManager.Instance.Controls.Player.Move.ReadValue<Vector2>();
-            // Guardar el estado de WasPressedThisFrame en el buffer
-            _jumpPressedThisFrameBuffer = InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame(); 
-            bool positionLockHeld = InputManager.Instance.Controls.Player.PositionLock.IsPressed();
-            bool shootPressedThisFrame = InputManager.Instance.Controls.Player.Shoot.WasPressedThisFrame();
-            bool shootHeld = InputManager.Instance.Controls.Player.Shoot.IsPressed();
-
-            bool jumpPressedThisFrame = InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame();
-            
-            float processedHorizontalInput = Mathf.Abs(rawMoveInput.x) > INPUT_THRESHOLD ? Mathf.Sign(rawMoveInput.x) : 0f;
-            float processedVerticalInput = Mathf.Abs(rawMoveInput.y) > INPUT_THRESHOLD ? Mathf.Sign(rawMoveInput.y) : 0f;
-            bool intendsToPressDownForCrouch = rawMoveInput.y < CROUCH_DOWN_THRESHOLD;
-
-            _playerStateManager.UpdateMovementInput(processedHorizontalInput, processedVerticalInput);
-            _playerStateManager.UpdateIntendsToPressDownState(intendsToPressDownForCrouch);
-            // Actualizar StateManager con el valor del buffer
-            _playerStateManager.UpdateJumpInputState(_jumpPressedThisFrameBuffer); 
-            _playerStateManager.UpdatePositionLockState(positionLockHeld);
-            _playerStateManager.UpdateShootInputState(shootPressedThisFrame, shootHeld);
-
-            if (_jumpPressedThisFrameBuffer)
-            {
-                // Debug.Log($"INPUT_READER Update: JumpPressedThisFrame = TRUE. Updating StateManager."); // Uncomment for debugging
-            }
-            
-            if (jumpPressedThisFrame) // Solo actualiza a true si realmente se presionó
-            {
-                _playerStateManager.UpdateJumpInputState(true); 
-                // Debug.Log($"INPUT_READER Update: JumpPressedThisFrame = TRUE. Updating StateManager.");
-            }
-        }
+        [Tooltip("Threshold for analog stick movement to be considered a directional press.")]
+        [SerializeField] private float inputThreshold = 0.25f;
+        [Tooltip("Threshold for the vertical axis to be considered an intentional 'down' press for crouching/dropping.")]
+        [SerializeField] private float crouchDownThreshold = -0.7f;
         
+        private PlayerStateManager _stateManager;
+
+        private void Awake()
+        {
+            // This component is critical, so we get the reference from the parent (Player_Root).
+            _stateManager = GetComponentInParent<PlayerStateManager>();
+            if (_stateManager == null)
+            {
+                Debug.LogError("PlayerInputReader: PlayerStateManager not found on parent! This component cannot function.", this);
+                enabled = false;
+            }
+        }
+
+        private void Update()
+        {
+            if (_stateManager == null || InputManager.Instance?.Controls == null) return;
+            
+            // Read values once per frame
+            Vector2 rawMoveInput = InputManager.Instance.Controls.Player.Move.ReadValue<Vector2>();
+            bool jumpPressed = InputManager.Instance.Controls.Player.Jump.WasPressedThisFrame();
+            bool shootPressed = InputManager.Instance.Controls.Player.Shoot.WasPressedThisFrame();
+            bool shootHeld = InputManager.Instance.Controls.Player.Shoot.IsPressed();
+            bool lockPositionHeld = InputManager.Instance.Controls.Player.PositionLock.IsPressed();
+
+            // Process and update state manager
+            float processedHorizontal = Mathf.Abs(rawMoveInput.x) > inputThreshold ? Mathf.Sign(rawMoveInput.x) : 0f;
+            _stateManager.SetMovementInput(processedHorizontal, rawMoveInput.y);
+            _stateManager.SetIntendsToPressDown(rawMoveInput.y < crouchDownThreshold);
+            _stateManager.SetJumpInput(jumpPressed);
+            _stateManager.SetShootInput(shootPressed, shootHeld);
+            _stateManager.SetPositionLockInput(lockPositionHeld);
+        }
     }
 }
-// --- END OF FILE PlayerInputReader.cs ---

@@ -1,14 +1,15 @@
-using UnityEngine; // Para Vector2
-
 namespace Scripts.Enemies.Movement.SteeringBehaviors
 {
-    public interface ISteeringBehavior2D
+    /// <summary>
+    /// Interface for all steering behaviors. Defines the contract for calculating a steering output.
+    /// </summary>
+    public interface ISteeringBehavior
     {
         /// <summary>
-        /// Calcula la salida de steering deseada.
+        /// Calculates the desired steering output based on the agent's context.
         /// </summary>
-        /// <param name="context">Referencia a EnemyMovementComponent para acceder a su estado y propiedades.</param>
-        /// <returns>La salida de steering con la velocidad deseada y si debe orientarse.</returns>
-        SteeringOutput2D GetSteering(EnemyMovementComponent context);
+        /// <param name="context">Provides information about the agent's current state (e.g., position, environment checks).</param>
+        /// <returns>A SteeringOutput struct containing the desired velocity.</returns>
+        SteeringOutput GetSteering(EnemyMovementComponent context);
     }
 }

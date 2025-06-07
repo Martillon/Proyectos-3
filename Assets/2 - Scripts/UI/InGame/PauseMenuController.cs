@@ -1,138 +1,124 @@
-// --- START OF FILE PauseMenuController.cs ---
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using Scripts.Core; 
+using UnityEngine.InputSystem;
+using Scripts.Core;
 using Scripts.Core.Audio;
-using Scripts.Checkpoints;
-using Scripts.Items.Checkpoint; // Namespace correcto para CheckpointManager
+using Scripts.Core.Checkpoint;
 
 namespace Scripts.UI.InGame
 {
+    /// <summary>
+    /// Manages the pause menu functionality, including pausing/resuming the game,
+    /// handling button actions, and managing input control schemes.
+    /// </summary>
     public class PauseMenuController : MonoBehaviour
     {
         [Header("UI References")]
-        [Tooltip("The main panel for the pause menu.")]
+        [Tooltip("The main GameObject for the pause menu panel.")]
         [SerializeField] private GameObject pauseMenuPanel;
-        [Tooltip("The button initially selected when the pause menu opens.")]
-        [SerializeField] private Button firstSelectedButtonPauseMenu;
+        [Tooltip("The button that should be selected by default when the menu opens.")]
+        [SerializeField] private Button firstSelectedButton;
 
-        [Header("Pause Menu Buttons")]
-        [SerializeField] private Button btn_Resume;
-        [SerializeField] private Button btn_RestartLevel;
-        [SerializeField] private Button btn_MainMenu;
+        [Header("Buttons")]
+        [SerializeField] private Button resumeButton;
+        [SerializeField] private Button restartButton;
+        [SerializeField] private Button mainMenuButton;
 
-        [Header("State")]
-        [SerializeField] private bool isPaused = false; 
-
-        [Header("Sound Feedback")]
+        [Header("Audio")]
         [SerializeField] private UIAudioFeedback uiSoundFeedback;
+
+        public bool IsPaused { get; private set; }
 
         private void Awake()
         {
-            if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
-        }
-
-        private void Start()
-        {
-            SubscribeToPauseInput();
+            // Ensure the menu is hidden on start.
+            if (pauseMenuPanel != null)
+            {
+                pauseMenuPanel.SetActive(false);
+            }
         }
 
         private void OnEnable()
         {
-            if (InputManager.Instance != null) {
-                 SubscribeToPauseInput(); 
+            // Subscribe to input and button events.
+            if (InputManager.Instance?.Controls != null)
+            {
+                InputManager.Instance.Controls.Player.PauseMenu.performed += OnPauseInput;
             }
-
-            btn_Resume?.onClick.AddListener(HandleResumeClicked);
-            btn_RestartLevel?.onClick.AddListener(HandleRestartLevelClicked);
-            btn_MainMenu?.onClick.AddListener(HandleMainMenuClicked);
+            resumeButton?.onClick.AddListener(ResumeGame);
+            restartButton?.onClick.AddListener(RestartLevel);
+            mainMenuButton?.onClick.AddListener(GoToMainMenu);
         }
 
         private void OnDisable()
         {
-            if (InputManager.Instance?.Controls?.Player.PauseMenu != null)
+            // Unsubscribe from all events.
+            if (InputManager.Instance?.Controls != null)
             {
-                InputManager.Instance.Controls.Player.PauseMenu.performed -= OnPauseInputPerformed;
+                InputManager.Instance.Controls.Player.PauseMenu.performed -= OnPauseInput;
             }
-
-            btn_Resume?.onClick.RemoveListener(HandleResumeClicked);
-            btn_RestartLevel?.onClick.RemoveListener(HandleRestartLevelClicked);
-            btn_MainMenu?.onClick.RemoveListener(HandleMainMenuClicked);
+            resumeButton?.onClick.RemoveListener(ResumeGame);
+            restartButton?.onClick.RemoveListener(RestartLevel);
+            mainMenuButton?.onClick.RemoveListener(GoToMainMenu);
         }
         
-        private void SubscribeToPauseInput()
+        private void OnPauseInput(InputAction.CallbackContext context)
         {
-            if (InputManager.Instance != null && InputManager.Instance.Controls?.Player.PauseMenu != null)
+            TogglePause();
+        }
+
+        public void TogglePause()
+        {
+            if (IsPaused)
             {
-                InputManager.Instance.Controls.Player.PauseMenu.performed -= OnPauseInputPerformed;
-                InputManager.Instance.Controls.Player.PauseMenu.performed += OnPauseInputPerformed;
+                ResumeGame();
+            }
+            else
+            {
+                PauseGame();
             }
         }
-
-        private void OnPauseInputPerformed(InputAction.CallbackContext context)
+        
+        private void PauseGame()
         {
-            TogglePauseMenu();
+            if (IsPaused) return;
+            IsPaused = true;
+            
+            Time.timeScale = 0f;
+            InputManager.Instance?.EnableUIControls();
+            
+            pauseMenuPanel?.SetActive(true);
+            firstSelectedButton?.Select();
+            uiSoundFeedback?.PlayOpen();
         }
 
-        private void TogglePauseMenu() 
-        { 
-            if (isPaused) ResumeGame(); 
-            else PauseGame(); 
+        private void ResumeGame()
+        {
+            if (!IsPaused) return;
+            IsPaused = false;
+            
+            Time.timeScale = 1f;
+            InputManager.Instance?.EnablePlayerControls();
+            
+            pauseMenuPanel?.SetActive(false);
+            uiSoundFeedback?.PlayClose();
         }
 
-        private void PauseGame() 
-        { 
-            isPaused = true; Time.timeScale = 0f; 
-            InputManager.Instance?.EnableUIControls(); 
-            pauseMenuPanel?.SetActive(true); 
-            firstSelectedButtonPauseMenu?.Select(); 
-            uiSoundFeedback?.PlayOpen(); 
+        private void RestartLevel()
+        {
+            uiSoundFeedback?.PlayClick();
+            // Important: Reset timescale before loading a new scene.
+            Time.timeScale = 1f;
+            CheckpointManager.ResetCheckpointData();
+            SceneLoader.Instance?.ReloadCurrentLevel();
         }
 
-        private void ResumeGame() 
-        { 
-            isPaused = false; Time.timeScale = 1f; 
-            InputManager.Instance?.EnablePlayerControls(); 
-            pauseMenuPanel?.SetActive(false); 
-            uiSoundFeedback?.PlayClose(); 
-        }
-
-        private void HandleResumeClicked() 
-        { 
-            Debug.Log("PauseMenuController: Game resumed.", this); // For debugging
-            uiSoundFeedback?.PlayClick(); 
-            ResumeGame(); 
-        }
-
-        private void HandleRestartLevelClicked() 
-        { 
-            Debug.Log("PauseMenuController: Level restarted.", this); // For debugging
-            uiSoundFeedback?.PlayClick(); 
-            RestartLevel(); 
-        }
-
-        private void HandleMainMenuClicked() 
-        { 
-            Debug.Log("PauseMenuController: Navigating to Main Menu.", this); // For debugging
-            uiSoundFeedback?.PlayClick(); 
-            GoToMainMenu(); 
-        }
-
-        // --- Level Loading Logic ---
-        private void RestartLevel() 
-        { 
-            Time.timeScale = 1f; 
-            InputManager.Instance?.EnablePlayerControls(); 
-            CheckpointManager.ResetCheckpointData(); 
-            SceneLoader.Instance?.ReloadCurrentLevelScene();
-        }
-        private void GoToMainMenu() 
-        { 
-            Time.timeScale = 1f; 
-            InputManager.Instance?.EnablePlayerControls(); 
-            CheckpointManager.ResetCheckpointData(); 
-            SceneLoader.Instance?.LoadMenu(); 
+        private void GoToMainMenu()
+        {
+            uiSoundFeedback?.PlayClick();
+            Time.timeScale = 1f;
+            CheckpointManager.ResetCheckpointData();
+            SceneLoader.Instance?.LoadMenu();
         }
     }
 }

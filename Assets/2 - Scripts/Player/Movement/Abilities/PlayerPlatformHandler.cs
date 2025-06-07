@@ -1,88 +1,83 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic; // Required for List
+using System.Collections.Generic;
 using Scripts.Player.Core;
-using Scripts.Environment.Interfaces; // Para ITraversablePlatform
+using Scripts.Environment.Interfaces;
 
 namespace Scripts.Player.Movement.Abilities
 {
+    /// <summary>
+    /// Handles the player's ability to drop down through one-way platforms.
+    /// </summary>
     public class PlayerPlatformHandler : MonoBehaviour
     {
-        [Header("Platform Drop Settings")]
-        [Tooltip("Duration for which the platform will become non-collidable when dropping through.")]
+        [Header("Settings")]
+        [Tooltip("How long the platform remains non-collidable when dropping through.")]
         [SerializeField] private float platformDisableDuration = 0.3f;
+        [Tooltip("A small downward velocity nudge to ensure the player detaches from the platform.")]
+        [SerializeField] private float dropVelocityNudge = -2f;
 
-        private PlayerStateManager _playerStateManager;
+        private PlayerStateManager _stateManager;
         private Rigidbody2D _rb;
-        private Coroutine _dropProcessCoroutine;
+        private Coroutine _dropCoroutine;
 
-        void Awake()
+        private void Awake()
         {
-            _playerStateManager = GetComponentInParent<PlayerStateManager>();
+            _stateManager = GetComponentInParent<PlayerStateManager>();
             _rb = GetComponentInParent<Rigidbody2D>();
-
-            if (_playerStateManager == null) Debug.LogError("PlayerPlatformHandler: PlayerStateManager not found!", this);
-            if (_rb == null) Debug.LogError("PlayerPlatformHandler: Rigidbody2D not found on parent!", this);
+            if (_stateManager == null) { Debug.LogError("PPH: PlayerStateManager not found!", this); enabled = false; }
+            if (_rb == null) { Debug.LogError("PPH: Rigidbody2D not found!", this); enabled = false; }
         }
 
-        void Update()
+        private void Update()
         {
-            if (_playerStateManager == null) return;
+            if (_stateManager == null) return;
 
-            bool canAttemptDrop = _playerStateManager.JumpInputDown && // <<< Input de salto está presionado
-                                 !_playerStateManager.IsDroppingFromPlatform &&
-                                 _playerStateManager.IsGrounded &&
-                                 _playerStateManager.IntendsToPressDown &&
-                                 _playerStateManager.IsOnOneWayPlatform &&
-                                 _playerStateManager.CurrentGroundPlatformColliders != null &&
-                                 _playerStateManager.CurrentGroundPlatformColliders.Count > 0;
+            // Conditions for initiating a drop-through
+            bool canAttemptDrop = _stateManager.JumpInputDown &&
+                                  _stateManager.IntendsToPressDown &&
+                                  _stateManager.IsGrounded &&
+                                  _stateManager.IsOnOneWayPlatform &&
+                                  !_stateManager.IsDroppingFromPlatform;
 
             if (canAttemptDrop)
             {
-                // *** ¡NUEVO! Consumir el input de salto inmediatamente ***
-                _playerStateManager.ConsumeJumpInput();
-                // Debug.Log("PlayerPlatformHandler: Consuming JumpInput due to platform drop initiation.");
-
-
-                List<ITraversablePlatform> platformsToDropThrough = new List<ITraversablePlatform>();
-                foreach (Collider2D groundCollider in _playerStateManager.CurrentGroundPlatformColliders)
-                {
-                    ITraversablePlatform platform = groundCollider.GetComponent<ITraversablePlatform>();
-                    if (platform != null)
-                    {
-                        platformsToDropThrough.Add(platform);
-                    }
-                }
-
-                if (platformsToDropThrough.Count > 0)
-                {
-                    if (_dropProcessCoroutine != null) StopCoroutine(_dropProcessCoroutine);
-                    _dropProcessCoroutine = StartCoroutine(ProcessDropSequence(platformsToDropThrough));
-                }
+                // Must consume the jump input to prevent a regular jump from also occurring.
+                _stateManager.ConsumeJumpInput();
+                
+                if (_dropCoroutine != null) StopCoroutine(_dropCoroutine);
+                _dropCoroutine = StartCoroutine(DropSequence());
             }
         }
 
-        private IEnumerator ProcessDropSequence(List<ITraversablePlatform> platforms)
+        private IEnumerator DropSequence()
         {
-            _playerStateManager.UpdateDroppingState(true);
+            // 1. Set the dropping state in the manager. This prevents other systems (like Motor) from interfering.
+            _stateManager.SetDroppingState(true);
 
-            if (_playerStateManager.IsCrouchVisualApplied)
+            // 2. Tell all platforms the player is currently on to become traversable.
+            // A temporary list is used to avoid issues if the source list changes during iteration.
+            List<Collider2D> platformsToDropThrough = new List<Collider2D>(_stateManager.CurrentGroundColliders);
+            foreach (var platformCollider in platformsToDropThrough)
             {
-                _playerStateManager.UpdateCrouchLogicState(false);
-                yield return null; 
+                if (platformCollider != null && platformCollider.TryGetComponent<ITraversablePlatform>(out var traversable))
+                {
+                    traversable.BecomeTemporarilyNonCollidable(platformDisableDuration);
+                }
             }
 
-            foreach (ITraversablePlatform platform in platforms)
+            // 3. Give a small downward nudge to ensure the player clears the platform collider area.
+            if (_rb != null)
             {
-                platform.BecomeTemporarilyNonCollidable(platformDisableDuration);
+                _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, dropVelocityNudge);
             }
+            
+            // 4. Wait for the platform to become solid again.
+            yield return new WaitForSeconds(platformDisableDuration);
 
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, -1.5f);
-
-            yield return new WaitForSeconds(platformDisableDuration + 0.1f);
-
-            _playerStateManager.UpdateDroppingState(false);
-            _dropProcessCoroutine = null;
+            // 5. Reset the state.
+            _stateManager.SetDroppingState(false);
+            _dropCoroutine = null;
         }
     }
 }

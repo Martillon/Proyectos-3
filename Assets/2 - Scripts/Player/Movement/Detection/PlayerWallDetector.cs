@@ -1,67 +1,63 @@
 using UnityEngine;
-using Scripts.Core;
-using Scripts.Player.Core; // For PlayerStateManager
+using Scripts.Player.Core;
 
 namespace Scripts.Player.Movement.Detectors
 {
     /// <summary>
-    /// Detects if the player is currently touching a wall on either side.
+    /// Detects if the player is touching a wall using raycasts.
     /// Updates the PlayerStateManager with this information.
     /// </summary>
     public class PlayerWallDetector : MonoBehaviour
     {
         [Header("Wall Check Configuration")]
-        [Tooltip("Transform representing the origin point for wall detection raycasts (usually player's center or slightly adjusted).")]
+        [Tooltip("The transform representing the origin for wall detection raycasts (usually the player's center).")]
         [SerializeField] private Transform wallCheckOrigin;
-        [Tooltip("Distance of the raycasts used to detect walls.")]
-        [SerializeField] private float wallCheckDistance = 0.1f;
-        [Tooltip("LayerMask defining what layers are considered 'Walls'.")]
-        [SerializeField] private LayerMask wallDetectionLayerMask; // Renamed for clarity
+        [Tooltip("The horizontal distance to cast the ray for detecting walls.")]
+        [SerializeField] private float wallCheckDistance = 0.5f;
+        [Tooltip("LayerMask defining what layers are considered walls.")]
+        [SerializeField] private LayerMask wallLayerMask;
 
-        [Header("Debug")]
+        [Header("Gizmos")]
         [SerializeField] private Color gizmoColor = Color.cyan;
 
-        private PlayerStateManager _playerStateManager;
-        private bool _isCurrentlyTouchingWall;
+        private PlayerStateManager _stateManager;
 
-        void Awake()
+        private void Awake()
         {
-            _playerStateManager = GetComponentInParent<PlayerStateManager>();
-            if (_playerStateManager == null)
+            _stateManager = GetComponentInParent<PlayerStateManager>();
+            if (_stateManager == null)
             {
-                Debug.LogError("PlayerWallDetector: PlayerStateManager not found! Wall detection state cannot be updated.", this);
+                Debug.LogError("PlayerWallDetector: PlayerStateManager not found! This component will be disabled.", this);
                 enabled = false;
                 return;
             }
             if (wallCheckOrigin == null)
             {
-                Debug.LogError("PlayerWallDetector: 'Wall Check Origin' not assigned. Wall detection will not work.", this);
+                Debug.LogError("PlayerWallDetector: 'Wall Check Origin' is not assigned.", this);
                 enabled = false;
             }
         }
 
-        void Update() // O FixedUpdate si prefieres sincronizarlo con la física para reacciones de pared
+        private void Update()
         {
-            if (_playerStateManager == null || wallCheckOrigin == null) return;
-
+            if (wallCheckOrigin == null) return;
             DetectWall();
-            _playerStateManager.UpdateWallState(_isCurrentlyTouchingWall);
         }
 
         private void DetectWall()
         {
-            Vector2 origin = wallCheckOrigin.position;
+            // It's often better to check against the direction the player is *facing* rather than both sides,
+            // unless you have mechanics like wall-sliding on your back. This version checks in the facing direction.
+            float facingDirection = _stateManager.FacingDirection;
             
-            // Se podría usar el FacingDirection del PlayerStateManager para solo chequear la pared de enfrente,
-            // pero chequear ambos lados es más general para mecánicas como el wall slide o wall jump.
-            bool hitLeft = Physics2D.Raycast(origin, Vector2.left, wallCheckDistance, wallDetectionLayerMask);
-            bool hitRight = Physics2D.Raycast(origin, Vector2.right, wallCheckDistance, wallDetectionLayerMask);
+            RaycastHit2D hit = Physics2D.Raycast(wallCheckOrigin.position, Vector2.right * facingDirection, wallCheckDistance, wallLayerMask);
 
-            _isCurrentlyTouchingWall = hitLeft || hitRight;
+            _stateManager.SetWallState(hit.collider != null);
 
-            // Debug.DrawRay(origin, Vector2.left * wallCheckDistance, hitLeft ? Color.red : gizmoColor);
-            // Debug.DrawRay(origin, Vector2.right * wallCheckDistance, hitRight ? Color.red : gizmoColor);
-            // if(_isCurrentlyTouchingWall) Debug.Log("PlayerWallDetector: Touching wall.");
+            // For debugging in scene view
+            #if UNITY_EDITOR
+            Debug.DrawRay(wallCheckOrigin.position, Vector2.right * facingDirection * wallCheckDistance, hit.collider != null ? Color.red : gizmoColor);
+            #endif
         }
 
 #if UNITY_EDITOR
@@ -71,6 +67,7 @@ namespace Scripts.Player.Movement.Detectors
             {
                 Gizmos.color = gizmoColor;
                 Vector2 origin = wallCheckOrigin.position;
+                // Draw lines for both directions in the editor for easy setup
                 Gizmos.DrawLine(origin, origin + Vector2.left * wallCheckDistance);
                 Gizmos.DrawLine(origin, origin + Vector2.right * wallCheckDistance);
             }
@@ -78,4 +75,3 @@ namespace Scripts.Player.Movement.Detectors
 #endif
     }
 }
-// --- END OF FILE PlayerWallDetector.cs ---

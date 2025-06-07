@@ -1,15 +1,13 @@
-// --- START OF FILE GameConstants.cs ---
-
 namespace Scripts.Core
 {
     /// <summary>
     /// Contains constant string values used throughout the game,
     /// such as PlayerPrefs keys, scene names, tags, and audio mixer parameters.
-    /// Helps prevent errors from typos and centralizes these values.
+    /// This helps prevent errors from typos and centralizes these values for easy management.
     /// </summary>
     public static class GameConstants
     {
-        // PlayerPrefs Keys
+        // --- PlayerPrefs Keys ---
         public const string PrefsMasterVolume = "Volume_Master";
         public const string PrefsMusicVolume = "Volume_Music";
         public const string PrefsSfxVolume = "Volume_SFX";
@@ -17,37 +15,53 @@ namespace Scripts.Core
         public const string PrefsResolutionHeight = "Resolution_Height";
         public const string PrefsVSync = "VSync";
         public const string PrefsDisplayMode = "DisplayMode";
-        // Add other PlayerPrefs keys as needed
+        // Add other PlayerPrefs keys as needed...
 
-        // Scene Names (Ensure these match your actual scene names in Build Settings)
-        public const string ProgramSceneName = "Program"; // Your persistent scene
+        // --- Scene Names ---
+        // Ensure these match your actual scene names in Build Settings.
+        public const string ProgramSceneName = "Program";
         public const string MainMenuSceneName = "MainMenu";
-        // Add level scene names if needed, or manage them in SceneLoader array
+        // Level scene names are managed in the SceneLoader's 'levels' array.
 
-        // Tags
+        // --- Tags ---
         public const string PlayerTag = "Player";
-        public const string HittableTag = "Hittable"; // For objects player projectiles can damage
-        public const string PlatformTag = "Platform"; // For one-way platforms
-        // Add other tags as needed
+        public const string HittableTag = "Hittable";
+        public const string PlatformTag = "Platform";
+        // Add other tags as needed...
 
-        // AudioMixer Parameter Names (Ensure these match exposed parameters in your AudioMixer)
+        // --- Layers ---
+        public const string GroundLayerName = "Ground";
+        public const string WallLayerName = "Walls";
+        public const string PlatformLayerName = "Platform";
+        public const string PlayerNonCollidingLayerName = "IgnorePlayer"; // For TraversablePlatform
+        // Add other layer names as needed...
+
+        // --- AudioMixer Parameter Names ---
+        // Ensure these match exposed parameters in your AudioMixer.
         public const string MixerMasterVolume = "MasterVolume";
         public const string MixerMusicVolume = "MusicVolume";
         public const string MixerSfxVolume = "SFXVolume";
 
-        // Animator Parameters / Triggers (Examples)
-        public const string AnimDieTrigger = "Die";
+        // --- Animator Parameters / Triggers ---
+        // Using strings here is fine, but for performance-critical animations,
+        // it's often better to cache these with Animator.StringToHash() in the respective controllers.
+        // Player
+        public const string AnimIsMoving = "isMoving";
+        public const string AnimIsGrounded = "isGrounded";
+        public const string AnimIsCrouching = "isCrouching";
+        public const string AnimVerticalSpeed = "verticalSpeed";
+        public const string AnimArmorHitTrigger = "ArmorHitTrigger";
+        public const string AnimLoseLifeTrigger = "Die"; // Can reuse 'Die' for losing a life
         public const string AnimRespawnTrigger = "Respawn";
-        public const string AnimVictoryTrigger = "Victory"; 
-        
-        //Layers
-        public const string GroundLayerName = "Ground";
-        public const string WallLayerName = "Walls";
-        public const string PlatformLayerName = "Platform";
+        public const string AnimVictoryTrigger = "Victory";
 
-        // Input Action Map Names (Less common to need constants for these, but possible)
-        // public const string InputMapPlayer = "Player";
-        // public const string InputMapUI = "UI";
+        // Enemy
+        public const string AnimDieTrigger = "Die";
+        public const string AnimMeleeAttackTrigger = "MeleeAttackTrigger";
+        public const string AnimRangedAttackTrigger = "RangedAttackTrigger";
+        // Window Enemy specific (example names)
+        public const string AnimWindowIsOpen = "isOpen";
+        public const string AnimWindowAimDirX = "aimDirectionX";
+        public const string AnimWindowAttack = "Attack";
     }
 }
-// --- END OF FILE GameConstants.cs ---

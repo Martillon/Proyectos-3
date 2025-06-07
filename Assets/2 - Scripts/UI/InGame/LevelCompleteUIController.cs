@@ -1,342 +1,177 @@
-// En Scripts/UI/InGame/LevelCompleteUIController.cs
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-// using TMPro; // Descomenta si usas TextMeshPro
+using System.Collections;
 using Scripts.Core;
-using Scripts.Player.Core;
 using Scripts.Core.Audio;
-using Scripts.Items.Checkpoint; // Para CheckpointManager
-using UnityEngine.SceneManagement;
-using Unity.Cinemachine; // Asegúrate de tener este using
+using Scripts.Core.Checkpoint;
+using Scripts.Player.Core;
 
 namespace Scripts.UI.InGame
 {
+    /// <summary>
+    /// Manages the "Level Complete" screen, which appears after the player reaches a level exit.
+    /// It handles the display sequence, audio feedback, and navigation options.
+    /// </summary>
     public class LevelCompleteUIController : MonoBehaviour
     {
         [Header("UI Panel References")]
-        [Tooltip("The main CanvasGroup for the entire Level Complete screen panel. Used for fading.")]
-        [SerializeField] private CanvasGroup levelCompleteScreenCanvasGroup;
-        [Tooltip("Optional: An Image used as a background overlay (e.g., for desaturation or color tint).")]
-        [SerializeField] private Image backgroundOverlayImage;
-        [Tooltip("GameObject containing the 'Mission Accomplished' message text/image.")]
+        [Tooltip("The CanvasGroup for the entire Level Complete panel. Used for fading.")]
+        [SerializeField] private CanvasGroup levelCompleteCanvasGroup;
+        [Tooltip("GameObject containing the 'Victory' message text or image.")]
         [SerializeField] private GameObject messageGroup;
-        [Tooltip("GameObject containing the actionable buttons (Continue, Retry, Main Menu).")]
+        [Tooltip("GameObject containing the navigation buttons.")]
         [SerializeField] private GameObject buttonsGroup;
-        [Tooltip("Reference to the in-game HUD GameObject, to be hidden.")]
+        [Tooltip("Reference to the in-game HUD GameObject to be hidden.")]
         [SerializeField] private GameObject inGameHUD;
 
-        [Header("Timing Settings")]
-        [Tooltip("Duración para el fade del overlay de fondo (si se usa).")]
-        [SerializeField] private float backgroundFadeDuration = 0.5f;
-        [Tooltip("Tiempo que se espera DESPUÉS de que el evento OnLevelCompleted se dispara (y la animación de victoria del jugador comienza) ANTES de que la UI comience a aparecer.")]
-        [SerializeField] private float delayBeforeUIShow = 0.75f; // Renombrado desde delayAfterPlayerVictoryAnimBeforeCamera
-        [Tooltip("Delay DESPUÉS de que el fade de fondo (si existe) haya terminado, ANTES de mostrar el mensaje.")]
-        [SerializeField] private float delayBeforeMessage = 0.5f;
-        [Tooltip("Delay DESPUÉS de que el mensaje aparece, ANTES de mostrar los botones.")]
-        [SerializeField] private float delayAfterMessageBeforeButtons = 1.0f;
-        [Tooltip("Target alpha para el overlay de fondo.")]
-        [SerializeField] private float backgroundOverlayTargetAlpha = 0.7f;
+        [Header("Timing & Animation")]
+        [Tooltip("Delay after the player's victory animation starts before this UI sequence begins.")]
+        [SerializeField] private float initialDelay = 1.0f;
+        [Tooltip("Duration of the main panel fade-in.")]
+        [SerializeField] private float fadeInDuration = 0.5f;
+        [Tooltip("Delay after the panel fades in before the 'Continue' button appears.")]
+        [SerializeField] private float buttonsDelay = 0.75f;
 
         [Header("Button References")]
-        [SerializeField] private Button btn_Continue;
-        [SerializeField] private Button btn_RetryLevel;
-        [SerializeField] private Button btn_MainMenu;
-        [SerializeField] private Button firstSelectedButtonOnComplete;
+        [SerializeField] private Button continueButton;
+        [SerializeField] private Button retryButton;
+        [SerializeField] private Button mainMenuButton;
+        [Tooltip("The button to be selected by default when the panel appears.")]
+        [SerializeField] private Button firstSelectedButton;
 
-        [Header("Audio Feedback")]
+        [Header("Audio")]
         [SerializeField] private UIAudioFeedback uiSoundFeedback;
-        [SerializeField] private Sounds levelCompleteMusicOrStinger;
+        [SerializeField] private Sounds victoryStingerSound;
         [SerializeField] private AudioSource uiAudioSource;
-        
-        private string _completedLevelIdentifier; 
+
+        private string _completedLevelIdentifier;
         private Coroutine _showSequenceCoroutine;
-        private Transform _playerTransformForCamera; 
 
         private void Awake()
         {
-            if (levelCompleteScreenCanvasGroup != null)
+            // Initial setup to ensure the panel is hidden correctly.
+            if (levelCompleteCanvasGroup != null)
             {
-                levelCompleteScreenCanvasGroup.alpha = 0f;
-                levelCompleteScreenCanvasGroup.interactable = false;
-                levelCompleteScreenCanvasGroup.blocksRaycasts = false;
-                levelCompleteScreenCanvasGroup.gameObject.SetActive(false); // Empieza desactivado
-            }
-            else
-            {
-                Debug.LogError("LCUIC: levelCompleteScreenCanvasGroup no está asignado!", this);
-            }
-
-            if (messageGroup != null) messageGroup.SetActive(false);
-            if (buttonsGroup != null) buttonsGroup.SetActive(false);
-            if (backgroundOverlayImage != null)
-            {
-                backgroundOverlayImage.gameObject.SetActive(false);
-                Color c = backgroundOverlayImage.color; c.a = 0; backgroundOverlayImage.color = c;
+                levelCompleteCanvasGroup.alpha = 0f;
+                levelCompleteCanvasGroup.interactable = false;
+                levelCompleteCanvasGroup.blocksRaycasts = false;
+                levelCompleteCanvasGroup.gameObject.SetActive(false);
             }
             if (uiAudioSource == null) uiAudioSource = GetComponent<AudioSource>();
         }
 
         private void OnEnable()
         {
-            PlayerEvents.OnLevelCompleted += HandleLevelSuccessfullyCompleted;
-            btn_Continue?.onClick.AddListener(OnContinueClicked);
-            btn_RetryLevel?.onClick.AddListener(OnRetryLevelClicked);
-            btn_MainMenu?.onClick.AddListener(OnMainMenuClicked);
+            PlayerEvents.OnLevelCompleted += HandleLevelCompleted;
+            continueButton?.onClick.AddListener(OnContinueClicked);
+            retryButton?.onClick.AddListener(OnRetryClicked);
+            mainMenuButton?.onClick.AddListener(OnMainMenuClicked);
         }
 
         private void OnDisable()
         {
-            PlayerEvents.OnLevelCompleted -= HandleLevelSuccessfullyCompleted;
-            btn_Continue?.onClick.RemoveListener(OnContinueClicked);
-            btn_RetryLevel?.onClick.RemoveListener(OnRetryLevelClicked);
-            btn_MainMenu?.onClick.RemoveListener(OnMainMenuClicked);
+            PlayerEvents.OnLevelCompleted -= HandleLevelCompleted;
+            continueButton?.onClick.RemoveListener(OnContinueClicked);
+            retryButton?.onClick.RemoveListener(OnRetryClicked);
+            mainMenuButton?.onClick.RemoveListener(OnMainMenuClicked);
         }
 
-        private void HandleLevelSuccessfullyCompleted(string levelId)
+        private void HandleLevelCompleted(string levelId)
         {
-            _completedLevelIdentifier = levelId;
-            if (inGameHUD != null) inGameHUD.SetActive(false);
-            levelCompleteScreenCanvasGroup.alpha = 1f; 
             if (_showSequenceCoroutine != null) StopCoroutine(_showSequenceCoroutine);
+            _completedLevelIdentifier = levelId;
+            inGameHUD?.SetActive(false);
             _showSequenceCoroutine = StartCoroutine(ShowLevelCompleteSequence());
         }
 
-         private IEnumerator ShowLevelCompleteSequence()
+        private IEnumerator ShowLevelCompleteSequence()
         {
-            //Debug.Log($"[{Time.frameCount}] LCUIC: ShowLevelCompleteSequence STARTED.");
-            levelCompleteMusicOrStinger?.Play(uiAudioSource);
-            // La animación de victoria del jugador y la detención del Rigidbody son manejados por LevelExit y PlayerVisualController.
+            // The LevelExit triggers the player's victory animation. This coroutine starts in parallel.
+            victoryStingerSound?.Play(uiAudioSource);
+            InputManager.Instance?.DisableAllControls();
 
-            InputManager.Instance?.DisableAllControls(); // Desactivar controles de UI para evitar inputs durante la secuencia
+            yield return new WaitForSecondsRealtime(initialDelay);
+
+            // Activate and fade in the panel
+            levelCompleteCanvasGroup.gameObject.SetActive(true);
+            messageGroup?.SetActive(true);
             
-            // 1. Esperar un poco después de que el jugador haya alcanzado la salida y su animación de victoria comience.
-            if (delayBeforeUIShow > 0)
+            float elapsedTime = 0f;
+            while (elapsedTime < fadeInDuration)
             {
-                //Debug.Log($"[{Time.frameCount}] LCUIC: Esperando {delayBeforeUIShow}s (delayBeforeUIShow).");
-                yield return new WaitForSecondsRealtime(delayBeforeUIShow);
-            }
-
-            // 2. Activar el panel principal de la UI (aún transparente) y hacer fade del fondo (si existe).
-            if (levelCompleteScreenCanvasGroup == null)
-            {
-                //Debug.LogError("LCUIC: levelCompleteScreenCanvasGroup es NULL. No se puede mostrar la UI.");
-                yield break; // Salir de la corrutina si el panel principal no está asignado.
-            }
-            levelCompleteScreenCanvasGroup.gameObject.SetActive(true); // ¡IMPORTANTE ACTIVAR EL GO!
-            //Debug.Log($"[{Time.frameCount}] LCUIC: Activado levelCompleteScreenCanvasGroup. Su alpha es: {levelCompleteScreenCanvasGroup.alpha}");
-
-
-            Coroutine backgroundFadeCoroutine = null;
-            if (backgroundOverlayImage != null)
-            {
-                backgroundOverlayImage.gameObject.SetActive(true); // Activar el GO de la imagen de overlay
-                //Debug.Log($"[{Time.frameCount}] LCUIC: Iniciando fade de backgroundOverlayImage.");
-                backgroundFadeCoroutine = StartCoroutine(FadeImageAlpha(backgroundOverlayImage, backgroundOverlayTargetAlpha, backgroundFadeDuration));
-            }
-
-            // Esperar a que el fade de fondo termine (si existe y tiene duración)
-            if (backgroundFadeCoroutine != null) 
-            {
-                yield return backgroundFadeCoroutine;
-                 //Debug.Log($"[{Time.frameCount}] LCUIC: Fade de backgroundOverlayImage completado.");
-            }
-            else if (backgroundOverlayImage != null && backgroundFadeDuration > 0) // Si hay imagen y duración pero no corrutina (no debería pasar)
-            {
-                yield return new WaitForSecondsRealtime(backgroundFadeDuration);
-            }
-            
-            // 3. Mostrar Mensaje
-            if (messageGroup != null)
-            {
-                //Debug.Log($"[{Time.frameCount}] LCUIC: Esperando {delayBeforeMessage}s para mostrar mensaje.");
-                yield return new WaitForSecondsRealtime(delayBeforeMessage);
-                messageGroup.SetActive(true);
-                //Debug.Log($"[{Time.frameCount}] LCUIC: MessageGroup activado.");
-            }
-
-            // 4. Mostrar Botones
-            yield return new WaitForSecondsRealtime(delayAfterMessageBeforeButtons);
-
-            if (buttonsGroup != null)
-            {
-                // --- LÓGICA PARA HABILITAR/DESHABILITAR BOTÓN CONTINUAR ---
-                bool canContinueToNextLevel = false;
-                if (SceneLoader.Instance != null && !string.IsNullOrEmpty(_completedLevelIdentifier) && SceneLoader.Instance.levels != null)
-                {
-                    int currentIndex = -1;
-                    for (int i = 0; i < SceneLoader.Instance.levels.Length; i++)
-                    {
-                        if (SceneLoader.Instance.levels[i] == _completedLevelIdentifier)
-                        {
-                            currentIndex = i;
-                            break;
-                        }
-                    }
-
-                    if (currentIndex != -1 && currentIndex + 1 < SceneLoader.Instance.levels.Length)
-                    {
-                        string nextLevelToLoad = SceneLoader.Instance.levels[currentIndex + 1];
-                        if (LevelProgressionManager.Instance != null && LevelProgressionManager.Instance.IsLevelUnlocked(nextLevelToLoad))
-                        {
-                            canContinueToNextLevel = true;
-                        }
-                    }
-                }
-
-                if (btn_Continue != null)
-                {
-                    btn_Continue.gameObject.SetActive(canContinueToNextLevel); // Ocultar si no se puede continuar
-                    // O si prefieres que se vea pero no sea clickeable:
-                    // btn_Continue.interactable = canContinueToNextLevel;
-                    Debug.Log($"LCUIC: Botón Continuar {(canContinueToNextLevel ? "Habilitado" : "Deshabilitado/Oculto")}.");
-                }
-                // --- FIN DE LÓGICA DE BOTÓN CONTINUAR ---
-
-                buttonsGroup.SetActive(true);
-                levelCompleteScreenCanvasGroup.interactable = true; 
-                levelCompleteScreenCanvasGroup.blocksRaycasts = true;
-                InputManager.Instance?.EnableUIControls();
-
-                // Seleccionar el primer botón apropiado
-                if (canContinueToNextLevel && btn_Continue != null && btn_Continue.gameObject.activeSelf)
-                {
-                    firstSelectedButtonOnComplete = btn_Continue; // Si el de continuar es el primero por defecto
-                }
-                else if (btn_RetryLevel != null && btn_RetryLevel.gameObject.activeSelf) // Si no hay continuar, o el asignado por defecto no es continuar
-                {
-                     // Si firstSelectedButtonOnComplete estaba asignado a btn_Continue y este se ocultó,
-                     // necesitamos seleccionar otro.
-                    if (firstSelectedButtonOnComplete == btn_Continue && !canContinueToNextLevel)
-                    {
-                         firstSelectedButtonOnComplete = btn_RetryLevel; // Seleccionar Reintentar como fallback
-                    }
-                    // Si firstSelectedButtonOnComplete ya estaba asignado a Reintentar u otro, se respeta
-                }
-                 else if (btn_MainMenu != null && btn_MainMenu.gameObject.activeSelf) // Fallback final
-                {
-                    if (firstSelectedButtonOnComplete == btn_Continue && !canContinueToNextLevel)
-                    {
-                        firstSelectedButtonOnComplete = btn_MainMenu;
-                    }
-                }
-                // Si firstSelectedButtonOnComplete es null después de esto, nada se seleccionará automáticamente.
-
-                firstSelectedButtonOnComplete?.Select();
-                Debug.Log($"[{Time.frameCount}] LCUIC: ButtonsGroup activado. UI interactuable.");
-            }
-            
-            Debug.Log($"[{Time.frameCount}] LCUIC: UI secuencia completa. Time.timeScale = 0.");
-            Time.timeScale = 0f;
-            
-        }
-
-        private IEnumerator FadeImageAlpha(Image image, float targetAlpha, float duration)
-        {
-            // ... (Sin cambios, pero asegúrate de que la imagen esté activa para que el fade sea visible) ...
-            if (image == null) { Debug.LogError("FadeImageAlpha: Image es null!"); yield break; }
-            if (!image.gameObject.activeInHierarchy) image.gameObject.SetActive(true); // Asegurar que esté activo
-
-            float startAlpha = image.color.a;
-            float time = 0;
-            // Si la duración es 0 o negativa, aplicar instantáneamente
-            if (duration <= 0) {
-                Color cDirect = image.color; cDirect.a = targetAlpha; image.color = cDirect;
-                yield break;
-            }
-            while (time < duration)
-            {
-                time += Time.unscaledDeltaTime;
-                float currentAlpha = Mathf.Lerp(startAlpha, targetAlpha, time / duration);
-                Color c = image.color;
-                c.a = currentAlpha;
-                image.color = c;
+                elapsedTime += Time.unscaledDeltaTime;
+                levelCompleteCanvasGroup.alpha = Mathf.Clamp01(elapsedTime / fadeInDuration);
                 yield return null;
             }
-            Color finalColor = image.color;
-            finalColor.a = targetAlpha;
-            image.color = finalColor;
+
+            yield return new WaitForSecondsRealtime(buttonsDelay);
+            
+            // Configure and show buttons
+            SetupButtons();
+            buttonsGroup?.SetActive(true);
+            
+            // Enable UI interaction
+            levelCompleteCanvasGroup.interactable = true;
+            levelCompleteCanvasGroup.blocksRaycasts = true;
+            InputManager.Instance?.EnableUIControls();
+            firstSelectedButton?.Select();
+            
+            Time.timeScale = 0f; // Pause game time once UI is fully interactive
         }
 
-        private void RestoreMainCameraAndCleanup() 
+        private void SetupButtons()
         {
-            Time.timeScale = 1f; 
-            if (levelCompleteScreenCanvasGroup != null)
+            if (continueButton == null || SceneLoader.Instance?.levels == null)
             {
-                levelCompleteScreenCanvasGroup.alpha = 0f;
-                levelCompleteScreenCanvasGroup.interactable = false;
-                levelCompleteScreenCanvasGroup.blocksRaycasts = false;
-                levelCompleteScreenCanvasGroup.gameObject.SetActive(false); // DESACTIVAR EL PANEL
+                continueButton?.gameObject.SetActive(false);
+                return;
             }
-            // También asegurarse de que los hijos (messageGroup, buttonsGroup) se desactiven si no son hijos del CanvasGroup principal
-            if (messageGroup != null && (levelCompleteScreenCanvasGroup == null || !messageGroup.transform.IsChildOf(levelCompleteScreenCanvasGroup.transform))) 
-                messageGroup.SetActive(false);
-            if (buttonsGroup != null && (levelCompleteScreenCanvasGroup == null || !buttonsGroup.transform.IsChildOf(levelCompleteScreenCanvasGroup.transform))) 
-                buttonsGroup.SetActive(false);
-            if (backgroundOverlayImage != null && (levelCompleteScreenCanvasGroup == null || !backgroundOverlayImage.transform.IsChildOf(levelCompleteScreenCanvasGroup.transform))) 
-            {
-                backgroundOverlayImage.gameObject.SetActive(false);
-                Color c = backgroundOverlayImage.color; c.a = 0; backgroundOverlayImage.color = c;
-            }
-            // Si tenías lógica de restaurar cámara, iría aquí.
-        }
 
+            int currentIndex = System.Array.IndexOf(SceneLoader.Instance.levels, _completedLevelIdentifier);
+            bool isThereNextLevel = currentIndex > -1 && currentIndex + 1 < SceneLoader.Instance.levels.Length;
+
+            continueButton.gameObject.SetActive(isThereNextLevel);
+
+            // Adjust default selection if "Continue" is hidden
+            if (!isThereNextLevel && firstSelectedButton == continueButton)
+            {
+                firstSelectedButton = retryButton;
+            }
+        }
+        
+        private void CleanupAndResume()
+        {
+            Time.timeScale = 1f;
+            if (levelCompleteCanvasGroup != null)
+            {
+                levelCompleteCanvasGroup.gameObject.SetActive(false);
+            }
+        }
 
         private void OnContinueClicked()
         {
             uiSoundFeedback?.PlayClick();
-            RestoreMainCameraAndCleanup(); // Esto ya pone Time.timeScale = 1f;
-
-            if (SceneLoader.Instance != null && !string.IsNullOrEmpty(_completedLevelIdentifier))
-            {
-                string nextLevelToLoad = null;
-                int currentIndex = System.Array.IndexOf(SceneLoader.Instance.levels, _completedLevelIdentifier);
-
-                if (currentIndex != -1 && currentIndex + 1 < SceneLoader.Instance.levels.Length)
-                {
-                    nextLevelToLoad = SceneLoader.Instance.levels[currentIndex + 1];
-                    Debug.Log("LCUIC: Current level index: " + currentIndex + ", Next level to load: " + nextLevelToLoad);
-                }
-
-                if (!string.IsNullOrEmpty(nextLevelToLoad) && LevelProgressionManager.Instance.IsLevelUnlocked(nextLevelToLoad))
-                {
-                    Debug.Log($"LCUIC: Continuing to next level: {nextLevelToLoad}");
-                    SceneLoader.Instance.LoadLevelByName(nextLevelToLoad);
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(nextLevelToLoad)) {
-                        Debug.LogWarning($"LCUIC: Next level '{nextLevelToLoad}' is not unlocked or doesn't exist. Returning to menu.");
-                    } else {
-                        Debug.Log("LCUIC: No next level defined or end of game. Returning to menu.");
-                    }
-                    SceneLoader.Instance.LoadMenu(); 
-                }
-            }
-            else
-            {
-                Debug.LogError("LCUIC: SceneLoader or completedLevelIdentifier is missing. Cannot continue. Returning to menu.");
-                SceneLoader.Instance?.LoadMenu(); // Fallback
-            }
+            CleanupAndResume();
+            
+            int currentIndex = System.Array.IndexOf(SceneLoader.Instance.levels, _completedLevelIdentifier);
+            string nextLevel = SceneLoader.Instance.levels[currentIndex + 1];
+            
+            SceneLoader.Instance.LoadLevelByName(nextLevel);
         }
 
-        private void OnRetryLevelClicked()
+        private void OnRetryClicked()
         {
             uiSoundFeedback?.PlayClick();
-            RestoreMainCameraAndCleanup();
-            CheckpointManager.ResetCheckpointData(); 
-            if (!string.IsNullOrEmpty(_completedLevelIdentifier))
-            {
-                SceneLoader.Instance?.LoadLevelByName(_completedLevelIdentifier);
-            }
-            else { SceneLoader.Instance?.LoadSceneByBuildIndex(SceneManager.GetActiveScene().buildIndex); }
+            CleanupAndResume();
+            CheckpointManager.ResetCheckpointData();
+            SceneLoader.Instance.LoadLevelByName(_completedLevelIdentifier);
         }
 
         private void OnMainMenuClicked()
         {
             uiSoundFeedback?.PlayClick();
-            RestoreMainCameraAndCleanup();
-            SceneLoader.Instance?.LoadMenu();
+            CleanupAndResume();
+            SceneLoader.Instance.LoadMenu();
         }
     }
 }

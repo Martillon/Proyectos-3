@@ -1,84 +1,73 @@
 using UnityEngine;
-using System.Collections.Generic; // Required for List
-using Scripts.Player.Core; // For GameConstants and PlayerStateManager
-// using Scripts.Environment.Interfaces; // Ya no es estrictamente necesario aquí si SM lo maneja
+using System.Collections.Generic;
+using Scripts.Player.Core;
 
 namespace Scripts.Player.Movement.Detectors
 {
     /// <summary>
-    /// Detects if the player is currently grounded and identifies all ground surfaces beneath.
-    /// This component is responsible for updating the PlayerStateManager with the ground status
-    /// and the list of colliders the player is currently standing on.
+    /// Detects if the player is on the ground by performing an OverlapCircle check.
+    /// It updates the PlayerStateManager with the ground status and a list of all
+    /// ground colliders the player is currently standing on.
     /// </summary>
     public class PlayerGroundDetector : MonoBehaviour
     {
         [Header("Ground Check Configuration")]
-        [Tooltip("Transform representing the origin point for ground detection (usually at player's feet).")]
+        [Tooltip("The transform representing the origin point for the ground check (usually at the player's feet).")]
         [SerializeField] private Transform groundCheckOrigin;
         [Tooltip("Radius of the circle used for the OverlapCircle ground check.")]
-        [SerializeField] private float groundCheckRadius = 0.15f;
-        [Tooltip("LayerMask defining what layers are considered 'Ground'.")]
-        [SerializeField] private LayerMask groundDetectionLayerMask;
+        [SerializeField] private float groundCheckRadius = 0.2f;
+        [Tooltip("LayerMask defining what layers are considered 'Ground' or 'Platform'.")]
+        [SerializeField] private LayerMask groundLayerMask;
 
-        [Header("Debug")]
+        [Header("Gizmos")]
         [SerializeField] private Color gizmoColor = Color.green;
 
-        private PlayerStateManager _playerStateManager;
+        private PlayerStateManager _stateManager;
+        // Re-using this list every frame avoids allocating new memory, which is a small but good optimization.
+        private readonly List<Collider2D> _detectedCollidersThisFrame = new List<Collider2D>();
 
-        // Internal state for this frame's detection
-        private bool _isCurrentlyGrounded;
-        private List<Collider2D> _detectedGroundCollidersThisFrame = new List<Collider2D>();
-        // ELIMINADO: private bool _isOnOneWayPlatformThisFrame;
-
-        void Awake()
+        private void Awake()
         {
-            _playerStateManager = GetComponentInParent<PlayerStateManager>();
-            if (_playerStateManager == null)
+            _stateManager = GetComponentInParent<PlayerStateManager>();
+            if (_stateManager == null)
             {
-                Debug.LogError("PlayerGroundDetector: PlayerStateManager not found on this GameObject or its parents! Ground detection state cannot be updated.", this);
+                Debug.LogError("PlayerGroundDetector: PlayerStateManager not found! Ground detection will not work.", this);
                 enabled = false;
                 return;
             }
-
             if (groundCheckOrigin == null)
             {
-                Debug.LogError("PlayerGroundDetector: 'Ground Check Origin' transform is not assigned. Ground detection will not work.", this);
+                Debug.LogError("PlayerGroundDetector: 'Ground Check Origin' is not assigned.", this);
                 enabled = false;
             }
         }
 
-        void Update()
+        // Using FixedUpdate for physics-related checks can be more reliable.
+        private void FixedUpdate()
         {
-            if (_playerStateManager == null || groundCheckOrigin == null) return;
+            if (groundCheckOrigin == null) return;
 
-            DetectGroundAndPlatforms();
-
-            // Actualizar el PlayerStateManager con los resultados de la detección
-            _playerStateManager.UpdateGroundedState(_isCurrentlyGrounded, _detectedGroundCollidersThisFrame);
-            //Debug.Log($"GROUND_DETECTOR: Updating StateManager.IsGrounded to {_isCurrentlyGrounded}, Colliders found: {_detectedGroundCollidersThisFrame.Count}");
+            DetectGround();
         }
 
-        private void DetectGroundAndPlatforms()
+        private void DetectGround()
         {
-            _detectedGroundCollidersThisFrame.Clear(); // Limpiar la lista de la detección anterior
-            // ELIMINADO: _isOnOneWayPlatformThisFrame = false; // Reset
+            // Clear the list from the previous frame.
+            _detectedCollidersThisFrame.Clear();
 
-            if (_playerStateManager.IsDroppingFromPlatform || groundCheckOrigin == null)
+            // If we are intentionally dropping, we are not grounded, regardless of what the overlap check says.
+            if (_stateManager.IsDroppingFromPlatform)
             {
-                _isCurrentlyGrounded = false;
+                _stateManager.SetGroundedState(false, _detectedCollidersThisFrame);
                 return;
             }
 
-            Collider2D[] collidersUnderPlayer = Physics2D.OverlapCircleAll(groundCheckOrigin.position, groundCheckRadius, groundDetectionLayerMask);
-            _isCurrentlyGrounded = collidersUnderPlayer.Length > 0;
+            int hitCount = Physics2D.OverlapCircle(groundCheckOrigin.position, groundCheckRadius, new ContactFilter2D { useLayerMask = true, layerMask = groundLayerMask }, _detectedCollidersThisFrame);
 
-            if (_isCurrentlyGrounded)
-            {
-                foreach (Collider2D hitCollider in collidersUnderPlayer)
-                {
-                    _detectedGroundCollidersThisFrame.Add(hitCollider);
-                }
-            }
+            bool isGrounded = hitCount > 0;
+            
+            // Pass the results to the state manager.
+            _stateManager.SetGroundedState(isGrounded, _detectedCollidersThisFrame);
         }
 
 #if UNITY_EDITOR

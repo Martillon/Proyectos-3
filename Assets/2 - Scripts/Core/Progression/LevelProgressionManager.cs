@@ -1,4 +1,3 @@
-// --- START OF FILE LevelProgressionManager.cs ---
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
@@ -7,87 +6,67 @@ using Scripts.Core.Progression;
 
 namespace Scripts.Core
 {
+    /// <summary>
+    /// Manages the player's progression through levels, including unlock and completion status.
+    /// Saves and loads progression data to a JSON file.
+    /// </summary>
     public class LevelProgressionManager : MonoBehaviour
     {
         public static LevelProgressionManager Instance { get; private set; }
 
-        private AllLevelsProgressionData progressionData;
-        private string saveFileName = "level_progression.json";
-        private string saveFilePath;
+        private AllLevelsProgressionData _progressionData;
+        private const string SAVE_FILE_NAME = "level_progression.json";
+        private string _saveFilePath;
 
-        private SceneLoader sceneLoaderInstance; // Store the reference
+        // Cached reference to the SceneLoader instance.
+        private SceneLoader _sceneLoader;
 
-        void Awake()
+        private void Awake()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-                saveFilePath = Path.Combine(Application.persistentDataPath, saveFileName);
-                // We will get SceneLoader.Instance in Start()
-            }
-            else
+            if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
+                return;
             }
+            Instance = this;
+            // This manager should persist.
+            // DontDestroyOnLoad(gameObject); // Uncomment if not in a persistent scene.
+
+            _saveFilePath = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
         }
 
-        void Start()
+        private void Start()
         {
-            // Get SceneLoader instance here, as its Awake should have run
-            sceneLoaderInstance = SceneLoader.Instance; 
-            if (sceneLoaderInstance == null)
+            // Get SceneLoader instance here to ensure its Awake has run.
+            _sceneLoader = SceneLoader.Instance;
+            if (_sceneLoader == null)
             {
-                Debug.LogError("LevelProgressionManager: SceneLoader.Instance is null in Start! Level list and progression might be incorrect. Ensure SceneLoader is in your persistent scene and initializes first.", this);
+                Debug.LogError("LevelProgressionManager: SceneLoader.Instance is null in Start! Progression will not work correctly. Ensure SceneLoader is in your persistent scene and initializes first.", this);
+                // Initialize with an empty data set to prevent null reference errors.
+                _progressionData = new AllLevelsProgressionData();
+                return;
             }
-            LoadProgression(); // Now load progression, which might depend on sceneLoaderInstance.levels
+
+            LoadProgression();
         }
 
-
+        /// <summary>
+        /// Loads progression data from the file, validates it against the current level list,
+        /// and initializes a new file if one doesn't exist.
+        /// </summary>
         public void LoadProgression()
         {
-            if (File.Exists(saveFilePath))
+            if (File.Exists(_saveFilePath))
             {
                 try
                 {
-                    string json = File.ReadAllText(saveFilePath);
-                    progressionData = JsonUtility.FromJson<AllLevelsProgressionData>(json);
-                    
-                    // Validate and update progression data based on current SceneLoader.levels
-                    if (sceneLoaderInstance != null && sceneLoaderInstance.levels != null)
-                    {
-                        bool dataModified = false;
-                        List<string> currentLevelIdentifiers = sceneLoaderInstance.levels.ToList();
-                        List<LevelStatus> validatedStatuses = new List<LevelStatus>();
-
-                        // Ensure all levels from SceneLoader exist in progressionData
-                        foreach (string levelId in currentLevelIdentifiers)
-                        {
-                            LevelStatus existingStatus = progressionData.levelStatuses.FirstOrDefault(s => s.levelIdentifier == levelId);
-                            if (existingStatus != null)
-                            {
-                                validatedStatuses.Add(existingStatus);
-                            }
-                            else
-                            {
-                                validatedStatuses.Add(new LevelStatus(levelId, false, false)); // Add new level as locked
-                                dataModified = true;
-                                // Debug.Log($"LevelProgressionManager: Added new level '{levelId}' to progression data."); // Uncomment for debugging
-                            }
-                        }
-                        // Optionally, remove statuses for levels no longer in SceneLoader.levels
-                        // progressionData.levelStatuses = progressionData.levelStatuses
-                        //    .Where(s => currentLevelIdentifiers.Contains(s.levelIdentifier)).ToList();
-                        // if (progressionData.levelStatuses.Count != validatedStatuses.Count) dataModified = true; // if some were removed
-
-                        progressionData.levelStatuses = validatedStatuses;
-
-
-                        if (dataModified) SaveProgression();
-                    }
+                    string json = File.ReadAllText(_saveFilePath);
+                    _progressionData = JsonUtility.FromJson<AllLevelsProgressionData>(json);
+                    ValidateAndSyncProgressionData();
                 }
                 catch (System.Exception e)
                 {
-                    Debug.LogError($"LevelProgressionManager: Failed to load or parse progression data from {saveFilePath}. Error: {e.Message}. Initializing fresh progression.");
+                    Debug.LogError($"LevelProgressionManager: Failed to load or parse progression data from {_saveFilePath}. Error: {e.Message}. Initializing fresh progression.", this);
                     InitializeNewProgression();
                 }
             }
@@ -96,96 +75,162 @@ namespace Scripts.Core
                 InitializeNewProgression();
             }
 
-            // Ensure first level is unlocked
-            if (progressionData != null && progressionData.levelStatuses != null && progressionData.levelStatuses.Count > 0)
-            {
-                if (!progressionData.levelStatuses[0].isUnlocked)
-                {
-                    progressionData.levelStatuses[0].isUnlocked = true;
-                    // Debug.Log($"LevelProgressionManager: First level '{progressionData.levelStatuses[0].levelIdentifier}' auto-unlocked."); // Uncomment for debugging
-                    SaveProgression();
-                }
-            }
-            // else Debug.LogWarning("LevelProgressionManager: No progression data or no levels to process after LoadProgression."); // Uncomment for debugging
+            EnsureFirstLevelIsUnlocked();
         }
 
+        /// <summary>
+        /// Saves the current progression data to the JSON file.
+        /// </summary>
+        public void SaveProgression()
+        {
+            if (_progressionData == null) return;
+            try
+            {
+                string json = JsonUtility.ToJson(_progressionData, true); // 'true' for pretty print
+                File.WriteAllText(_saveFilePath, json);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"LevelProgressionManager: Save failed to path {_saveFilePath}. Error: {e.Message}", this);
+            }
+        }
+
+        /// <summary>
+        /// Marks a level as completed and unlocks the next one.
+        /// </summary>
+        public void CompleteLevel(string levelIdentifier)
+        {
+            LevelStatus status = GetLevelStatus(levelIdentifier);
+            if (status == null)
+            {
+                Debug.LogWarning($"LevelProgressionManager: Tried to complete an unknown level: '{levelIdentifier}'", this);
+                return;
+            }
+
+            if (!status.isCompleted)
+            {
+                status.isCompleted = true;
+                // Debug.Log($"Level '{levelIdentifier}' marked as completed.");
+
+                // Unlock the next level
+                int completedIndex = System.Array.IndexOf(_sceneLoader.levels, levelIdentifier);
+                if (completedIndex > -1 && completedIndex + 1 < _sceneLoader.levels.Length)
+                {
+                    string nextLevelIdentifier = _sceneLoader.levels[completedIndex + 1];
+                    UnlockLevel(nextLevelIdentifier);
+                }
+
+                SaveProgression();
+            }
+        }
+        
+        /// <summary>
+        /// Wipes all progression data and starts fresh. Unlocks the first level.
+        /// </summary>
+        public void ResetAllProgression()
+        {
+            Debug.Log("LevelProgressionManager: Resetting all level progression data.");
+            InitializeNewProgression();
+            EnsureFirstLevelIsUnlocked();
+            SaveProgression();
+        }
+        
+        public void UnlockAllLevels()
+        {
+            if (_progressionData?.levelStatuses == null) return;
+
+            foreach (var status in _progressionData.levelStatuses)
+            {
+                status.isUnlocked = true;
+            }
+            SaveProgression();
+            Debug.Log("All levels have been unlocked through debug command.");
+        }
+
+        #region Status Queries
+        public bool IsLevelUnlocked(string levelIdentifier) => GetLevelStatus(levelIdentifier)?.isUnlocked ?? false;
+        public bool IsLevelCompleted(string levelIdentifier) => GetLevelStatus(levelIdentifier)?.isCompleted ?? false;
+        public int GetTotalLevelCount() => _sceneLoader?.levels?.Length ?? 0;
+        public string GetLevelIdentifierByIndex(int index)
+        {
+            if (_sceneLoader?.levels != null && index >= 0 && index < _sceneLoader.levels.Length)
+            {
+                return _sceneLoader.levels[index];
+            }
+            return null;
+        }
+        #endregion
+
+        #region Private Helpers
         private void InitializeNewProgression()
         {
-            progressionData = new AllLevelsProgressionData();
-            if (sceneLoaderInstance != null && sceneLoaderInstance.levels != null && sceneLoaderInstance.levels.Length > 0)
+            _progressionData = new AllLevelsProgressionData();
+            if (_sceneLoader?.levels == null) return;
+
+            foreach (string levelId in _sceneLoader.levels)
             {
-                for (int i = 0; i < sceneLoaderInstance.levels.Length; i++)
-                {
-                    string levelIdentifier = sceneLoaderInstance.levels[i];
-                    progressionData.levelStatuses.Add(new LevelStatus(levelIdentifier, (i == 0), false));
-                }
-                // Debug.Log($"LevelProgressionManager: Initialized new progression for {progressionData.levelStatuses.Count} levels."); // Uncomment for debugging
+                _progressionData.levelStatuses.Add(new LevelStatus(levelId));
             }
-            // else Debug.LogWarning("LevelProgressionManager (Initialize): SceneLoader.Instance or its 'levels' array is not available. Cannot initialize progression."); // Uncomment for debugging
-            
             SaveProgression();
         }
 
-        // ... (SaveProgression, GetLevelStatus, IsLevelUnlocked, IsLevelCompleted, UnlockLevel, CompleteLevel sin cambios mayores, pero usando sceneLoaderInstance) ...
-        public void SaveProgression()
+        private void ValidateAndSyncProgressionData()
         {
-            if (progressionData == null) return;
-            try
+            if (_sceneLoader?.levels == null || _progressionData?.levelStatuses == null) return;
+
+            bool wasModified = false;
+            List<string> currentLevelList = _sceneLoader.levels.ToList();
+            
+            // Remove saved levels that no longer exist in the game's level list
+            int removedCount = _progressionData.levelStatuses.RemoveAll(status => !currentLevelList.Contains(status.levelIdentifier));
+            if (removedCount > 0)
             {
-                string json = JsonUtility.ToJson(progressionData, true);
-                File.WriteAllText(saveFilePath, json);
+                wasModified = true;
+                // Debug.Log($"Removed {removedCount} obsolete levels from progression data.");
             }
-            catch (System.Exception e) { Debug.LogError($"LevelProgressionManager: Save failed: {e.Message}"); }
+
+            // Add new levels from the game's list that are not in the save file
+            foreach (string levelId in currentLevelList)
+            {
+                if (!_progressionData.levelStatuses.Any(s => s.levelIdentifier == levelId))
+                {
+                    _progressionData.levelStatuses.Add(new LevelStatus(levelId));
+                    wasModified = true;
+                    // Debug.Log($"Added new level '{levelId}' to progression data.");
+                }
+            }
+            
+            if (wasModified) SaveProgression();
         }
 
-        private LevelStatus GetLevelStatus(string levelIdentifier)
+        private void EnsureFirstLevelIsUnlocked()
         {
-            return progressionData?.levelStatuses?.FirstOrDefault(s => s.levelIdentifier == levelIdentifier);
+            if (_progressionData?.levelStatuses != null && _progressionData.levelStatuses.Count > 0)
+            {
+                if (!_progressionData.levelStatuses[0].isUnlocked)
+                {
+                    _progressionData.levelStatuses[0].isUnlocked = true;
+                    // Debug.Log($"First level '{_progressionData.levelStatuses[0].levelIdentifier}' was locked. Unlocking it now.");
+                    SaveProgression();
+                }
+            }
         }
-
-        public bool IsLevelUnlocked(string levelIdentifier) => GetLevelStatus(levelIdentifier)?.isUnlocked ?? false;
-        public bool IsLevelCompleted(string levelIdentifier) => GetLevelStatus(levelIdentifier)?.isCompleted ?? false;
-
-        public void UnlockLevel(string levelIdentifier)
+        
+        private void UnlockLevel(string levelIdentifier)
         {
             LevelStatus status = GetLevelStatus(levelIdentifier);
             if (status != null && !status.isUnlocked)
             {
                 status.isUnlocked = true;
-                // SaveProgression(); // Decide: save per action or batch
-            }
-        }
-
-        public void CompleteLevel(string levelIdentifier)
-        {
-            LevelStatus status = GetLevelStatus(levelIdentifier);
-            if (status != null)
-            {
-                bool wasAlreadyCompleted = status.isCompleted;
-                status.isCompleted = true;
-                // Debug.Log($"LevelProgressionManager: Level '{levelIdentifier}' marked completed."); // Uncomment for debugging
-
-                if (sceneLoaderInstance != null && sceneLoaderInstance.levels != null)
-                {
-                    int currentIndex = System.Array.IndexOf(sceneLoaderInstance.levels, levelIdentifier);
-                    if (currentIndex != -1 && currentIndex + 1 < sceneLoaderInstance.levels.Length)
-                    {
-                        string nextLevelIdentifier = sceneLoaderInstance.levels[currentIndex + 1];
-                        UnlockLevel(nextLevelIdentifier);
-                    }
-                }
-                // Only save if there was a change (new completion or new unlock)
-                if(!wasAlreadyCompleted || (status.isUnlocked && !IsLevelUnlocked(status.levelIdentifier))) // Crude check, can be better
-                {
-                     SaveProgression();
-                }
+                // Debug.Log($"Level '{levelIdentifier}' unlocked.");
+                // Note: Saving is handled by CompleteLevel after unlocking.
             }
         }
         
-        public int GetTotalLevels() => sceneLoaderInstance?.levels?.Length ?? 0;
-        public string GetLevelIdentifier(int displayIndex) => (sceneLoaderInstance?.levels != null && displayIndex >= 0 && displayIndex < sceneLoaderInstance.levels.Length) ? sceneLoaderInstance.levels[displayIndex] : null;
-        public void ResetAllProgression() { InitializeNewProgression(); }
-
+        private LevelStatus GetLevelStatus(string levelIdentifier)
+        {
+            return _progressionData?.levelStatuses?.FirstOrDefault(s => s.levelIdentifier == levelIdentifier);
+        }
+        #endregion
     }
 }
-// --- END OF FILE LevelProgressionManager.cs ---

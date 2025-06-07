@@ -1,13 +1,13 @@
-// En una carpeta, ej: Scripts/Enemies/Movement/SteeringBehaviors/Implementations
-using UnityEngine;
-
 namespace Scripts.Enemies.Movement.SteeringBehaviors.Implementations
 {
-    public class StayStillBehavior2D : ISteeringBehavior2D
+    /// <summary>
+    /// A simple steering behavior that results in no movement.
+    /// </summary>
+    public class StayStillBehavior : ISteeringBehavior
     {
-        public SteeringOutput2D GetSteering(EnemyMovementComponent context)
+        public SteeringOutput GetSteering(EnemyMovementComponent context)
         {
-            return SteeringOutput2D.Zero; // Devuelve velocidad cero y no necesita orientarse
+            return SteeringOutput.Zero;
         }
     }
 }

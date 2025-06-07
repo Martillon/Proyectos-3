@@ -1,132 +1,88 @@
-// --- START OF FILE BaseWeaponUpgrade.cs ---
 using UnityEngine;
 using Scripts.Player.Weapons.Interfaces;
 using Scripts.Core.Audio;
-using Scripts.Player.Weapons.Projectiles; // For PlayerProjectile
+using Scripts.Player.Weapons.Projectiles;
 
 namespace Scripts.Player.Weapons.Upgrades
 {
     /// <summary>
-    /// Abstract base class for all player weapon upgrades.
-    /// Handles common projectile spawning, sound playback, and multi-shot/spread logic.
+    /// An abstract base class for all weapon upgrades. Provides shared functionality
+    /// for projectile spawning, damage, and multi-shot/spread configurations.
     /// </summary>
     public abstract class BaseWeaponUpgrade : MonoBehaviour, IWeaponUpgrade
     {
-        [Header("General Settings")]
-        [Tooltip("Base damage inflicted by each projectile from this weapon upgrade.")]
-        [SerializeField] protected float damage = 1f;
-        [Tooltip("Audio clips to play when firing. If multiple, one is chosen randomly.")]
-        [SerializeField] protected Sounds[] soundsToPlayOnFire;
-
-        [Header("Projectile Settings")]
-        [Tooltip("The prefab for the projectile this weapon fires. Must have a PlayerProjectile component.")]
+        [Header("Core Stats")]
+        [Tooltip("Damage inflicted by each projectile fired from this upgrade.")]
+        [SerializeField] protected float damage = 10f;
+        [Tooltip("The minimum time (in seconds) between consecutive shots.")]
+        [SerializeField] protected float fireCooldown = 0.2f;
+        
+        [Header("Projectile")]
+        [Tooltip("The prefab for the projectile. Must have a PlayerProjectile component.")]
         [SerializeField] protected GameObject projectilePrefab;
-        // Note: Projectile speed is now managed by the PlayerProjectile prefab itself.
-
-        [Header("Multi-Shot Configuration (e.g., for Shotguns)")]
-        [Tooltip("Number of projectiles fired simultaneously per shot. Set to 1 for single projectile weapons.")]
+        
+        [Header("Multi-Shot (for Shotgun-like weapons)")]
+        [Tooltip("Number of projectiles fired simultaneously. Use 1 for standard weapons.")]
         [SerializeField] protected int projectilesPerShot = 1;
-        [Tooltip("Total angle (in degrees) over which projectiles will spread if 'Projectiles Per Shot' is greater than 1. Use 0 for no spread.")]
+        [Tooltip("Total angle in degrees over which projectiles spread if 'Projectiles Per Shot' > 1.")]
         [SerializeField] protected float spreadAngle = 0f;
-
-        [Header("UI Display")]
-        [Tooltip("Icon representing this weapon upgrade, typically shown on the HUD.")]
+        
+        [Header("Feedback")]
+        [Tooltip("The sprite to display on the player's arm when this upgrade is equipped.")]
+        [SerializeField] private Sprite armSprite;
+        [Tooltip("Sounds to play on firing. A random one is chosen if multiple are provided.")]
+        [SerializeField] protected Sounds[] fireSounds;
+        [Tooltip("Icon representing this upgrade for the HUD.")]
         [SerializeField] private Sprite icon;
+        
         public Sprite Icon => icon;
-
-        /// <summary>
-        /// Timestamp of the last time this weapon was fired. Used for internal cooldown management.
-        /// </summary>
-        protected float LastFireTimeInternal; // Renamed for clarity vs WeaponBase's semiAutoFireTimer
 
         protected virtual void Awake()
         {
-            if (projectilePrefab == null)
+            if (projectilePrefab == null || projectilePrefab.GetComponent<PlayerProjectile>() == null)
             {
-                Debug.LogError($"WeaponUpgrade '{this.GetType().Name}': Projectile Prefab is not assigned!", this);
-            }
-            else if (projectilePrefab.GetComponent<PlayerProjectile>() == null)
-            {
-                Debug.LogError($"WeaponUpgrade '{this.GetType().Name}': Assigned Projectile Prefab '{projectilePrefab.name}' is missing a PlayerProjectile component!", this);
+                Debug.LogError($"WeaponUpgrade '{name}': Projectile Prefab is invalid or missing a PlayerProjectile component.", this);
             }
         }
-
-        /// <summary>
-        /// Determines if the weapon upgrade can fire based on its internal state (e.g., specific cooldowns for automatic weapons).
-        /// This is called by WeaponBase after its own general checks (like semi-auto cooldown).
-        /// </summary>
+        
         public virtual bool CanFire()
         {
-            // Default implementation for semi-auto weapons; they don't have an additional internal cooldown beyond WeaponBase's.
-            // Automatic/Burst weapons will override this for their specific fire rate logic.
+            // By default, upgrades don't have extra conditions beyond the cooldown managed by WeaponBase.
+            // This can be overridden for more complex weapons (e.g., charge weapons).
             return true;
         }
 
-        /// <summary>
-        /// Core firing logic. Spawns projectiles according to configuration (single, multi-shot, spread).
-        /// Called by WeaponBase when a shot is authorized.
-        /// </summary>
-        /// <param name="firePoint">The transform defining the origin and initial rotation of the projectile(s).</param>
-        /// <param name="baseDirection">The primary aiming direction.</param>
         public virtual void Fire(Transform firePoint, Vector2 baseDirection)
         {
-            if (projectilePrefab == null || firePoint == null)
-            {
-                // Debug.LogError($"WeaponUpgrade '{this.GetType().Name}': Cannot fire, ProjectilePrefab or FirePoint is null.", this); // Uncomment for debugging
-                return;
-            }
+            if (projectilePrefab == null) return;
 
             for (int i = 0; i < projectilesPerShot; i++)
             {
-                Vector2 currentShotDirection = baseDirection;
+                Vector2 shotDirection = baseDirection;
                 if (projectilesPerShot > 1 && spreadAngle > 0)
                 {
-                    float randomOffsetAngle = (projectilesPerShot == 1) ? 0 : Random.Range(-spreadAngle / 2f, spreadAngle / 2f);
-                    currentShotDirection = Quaternion.Euler(0, 0, randomOffsetAngle) * baseDirection;
+                    // Apply a random spread to the shot direction
+                    float angleOffset = Random.Range(-spreadAngle / 2f, spreadAngle / 2f);
+                    shotDirection = Quaternion.Euler(0, 0, angleOffset) * baseDirection;
                 }
-                SpawnConfiguredProjectile(firePoint, currentShotDirection.normalized);
+                SpawnProjectile(firePoint, shotDirection);
             }
-
-            LastFireTimeInternal = Time.time; // Record the time of this firing action
         }
         
-        /// <summary>
-        /// Instantiates and initializes a single projectile.
-        /// </summary>
-        /// <param name="spawnPoint">The transform from which the projectile is spawned.</param>
-        /// <param name="direction">The normalized direction for the projectile.</param>
-        protected virtual void SpawnConfiguredProjectile(Transform spawnPoint, Vector2 direction)
+        protected virtual void SpawnProjectile(Transform spawnPoint, Vector2 direction)
         {
-            // Projectile's rotation will be set by its Initialize method based on direction.
-            // We use spawnPoint.position for spawn location.
-            GameObject projectileGO = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity); 
-            PlayerProjectile projectileScript = projectileGO.GetComponent<PlayerProjectile>();
-
-            if (projectileScript != null)
+            GameObject projGO = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);
+            
+            // The projectile itself will handle its rotation based on the direction.
+            if (projGO.TryGetComponent<PlayerProjectile>(out var projectile))
             {
-                projectileScript.Initialize(direction);
-                projectileScript.SetDamage(this.damage); // Use the damage from this weapon upgrade
+                projectile.Initialize(direction.normalized);
+                projectile.SetDamage(this.damage);
             }
-            // else: Error already logged in Awake if prefab is misconfigured.
         }
-        
-        public Sounds[] GetFireSounds()
-        {
-            return soundsToPlayOnFire;
-        }
-        
-        /// <summary>
-        /// Gets the fire cooldown specific to this weapon upgrade.
-        /// For semi-auto weapons, this might be minimal as WeaponBase handles the main semi-auto cooldown.
-        /// For automatic weapons, this dictates their rate of fire.
-        /// </summary>
-        /// <returns>The cooldown duration in seconds.</returns>
-        public virtual float GetFireCooldown()
-        {
-            // Default for semi-auto weapons that rely on WeaponBase's semiAutoFireCooldown.
-            // Automatic weapons (like Minigun) will override this to return their specific calculated cooldown (1f / fireRate).
-            return 0.05f; // A small internal cooldown, mostly as a fallback.
-        }
+
+        public float GetFireCooldown() => fireCooldown;
+        public Sounds[] GetFireSounds() => fireSounds;
+        public Sprite GetArmSprite() => armSprite;
     }
 }
-// --- END OF FILE BaseWeaponUpgrade.cs ---

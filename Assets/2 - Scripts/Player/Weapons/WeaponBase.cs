@@ -1,290 +1,158 @@
 using UnityEngine;
-using Scripts.Player.Weapons.Interfaces;
 using Scripts.Core;
 using Scripts.Core.Audio;
 using Scripts.Player.Core;
+using Scripts.Player.Visuals;
+using Scripts.Player.Weapons.Interfaces;
 using Scripts.Player.Weapons.Upgrades;
-using UnityEngine.InputSystem;
 
 namespace Scripts.Player.Weapons
 {
+    /// <summary>
+    /// The core component on the player that manages the currently equipped weapon.
+    /// It handles aiming rotation, firing triggers, and swapping weapon upgrades.
+    /// </summary>
     public class WeaponBase : MonoBehaviour
     {
         [Header("Core References")]
+        [Tooltip("The transform where projectiles will be spawned.")]
         [SerializeField] private Transform firePoint;
+        [Tooltip("The transform of the entire aimable arm, which will be rotated.")]
+        [SerializeField] private Transform aimableArmPivot;
+        [Tooltip("The AimDirectionResolver that provides the current aim direction.")]
         [SerializeField] private AimDirectionResolver aimResolver;
-        [SerializeField] private Transform aimableArmTransform;
+        [Tooltip("The PlayerVisualController to update the arm sprite.")]
+        [SerializeField] private PlayerVisualController playerVisualController;
+        [Tooltip("The AudioSource used for playing weapon sounds.")]
+        [SerializeField] private AudioSource weaponAudioSource;
 
-        [Header("Initial Weapon Setup")]
+        [Header("Initial Setup")]
+        [Tooltip("The prefab of the weapon upgrade the player starts with.")]
         [SerializeField] private GameObject initialUpgradePrefab;
-
-        [Header("Upgrade Management")]
+        [Tooltip("The parent transform for instantiated upgrade GameObjects.")]
         [SerializeField] private Transform upgradeContainer;
-        [SerializeField] private GameObject currentInstantiatedUpgradeGameObject; 
-        private IWeaponUpgrade currentUpgradeInterface;
 
-        // NUEVO CAMPO: Layer para los Pickups
-        [Header("External Object Layers (Optional)")]
-        [Tooltip("The layer on which weapon upgrade pickups are expected to be. (For reference or future systems)")]
-        [SerializeField] private LayerMask pickupObjectLayer; // Puedes usar LayerMask si quieres seleccionar múltiples, o int si es solo una.
-                                                            // Usaré LayerMask por consistencia con cómo se suelen manejar las capas en el Inspector.
-                                                            // Si solo es UNA capa, un int y LayerMask.NameToLayer sería más conciso en código,
-                                                            // pero LayerMask es más amigable en el Inspector.
-
-        [Header("Firing Control (Semi-Automatic)")]
-        [SerializeField] private float semiAutoFireCooldown = 0.2f;
-        private float semiAutoFireTimer;
-
-        private bool isShootActionPressed;
-        private AudioSource audioSource;
+        private IWeaponUpgrade _currentUpgrade;
+        private GameObject _currentUpgradeInstance;
+        private float _lastFireTime;
 
         private void Awake()
         {
-            audioSource = GetComponent<AudioSource>(); if(!audioSource) Debug.LogWarning("WB: AudioSource not found on WeaponBase, sound playback will not work.", this);
-            if (firePoint == null) Debug.LogError($"WeaponBase ({gameObject.name}): 'FirePoint' is not assigned!", this);
-            if (aimResolver == null)
-            {
-                aimResolver = GetComponentInParent<AimDirectionResolver>() ?? GetComponent<AimDirectionResolver>();
-                if (aimResolver == null) Debug.LogError($"WeaponBase ({gameObject.name}): 'AimDirectionResolver' could not be found.", this);
-            }
+            // --- Validate all essential references ---
+            if (firePoint == null) Debug.LogError("WB: FirePoint is not assigned!", this);
+            if (aimableArmPivot == null) Debug.LogError("WB: AimableArmPivot is not assigned!", this);
+            if (aimResolver == null) Debug.LogError("WB: AimDirectionResolver is not assigned!", this);
+            if (playerVisualController == null) Debug.LogError("WB: PlayerVisualController is not assigned!", this);
+            if (weaponAudioSource == null) Debug.LogError("WB: WeaponAudioSource is not assigned!", this);
             if (upgradeContainer == null) upgradeContainer = transform;
-
-            if (InputManager.Instance?.Controls?.Player.Shoot != null)
-            {
-                InputManager.Instance.Controls.Player.Shoot.started += OnShootActionPerformed;
-                InputManager.Instance.Controls.Player.Shoot.canceled += OnShootActionPerformed;
-            }
-            else Debug.LogWarning($"WeaponBase ({gameObject.name}): Could not subscribe to Shoot action in Awake. InputManager or Controls might be missing or not enabled yet.", this);
-
-            EquipInitialUpgrade();
-            
-            if (aimableArmTransform == null)
-            {
-                if (firePoint != null && firePoint.parent != transform && firePoint.parent != upgradeContainer) 
-                {
-                    aimableArmTransform = firePoint.parent;
-                }
-                else
-                {
-                    aimableArmTransform = firePoint; 
-                    if (aimableArmTransform == null) Debug.LogError($"WeaponBase ({gameObject.name}): 'FirePoint' is not assigned, cannot default Aimable Arm Transform!", this);
-                    else Debug.LogWarning($"WeaponBase ({gameObject.name}): 'Aimable Arm Transform' not assigned. Defaulting to rotating the FirePoint itself.", this);
-                }
-            }
-
-            // Ejemplo de uso (opcional): Validar si la capa de pickup está configurada
-            if (pickupObjectLayer.value == 0) // Ninguna capa seleccionada
-            {
-                Debug.LogWarning($"WeaponBase ({gameObject.name}): 'Pickup Object Layer' is not configured (set to 'Nothing'). This might be intentional or an oversight.", this);
-            }
         }
 
-        // ... (OnDestroy, OnShootActionPerformed, Update sin cambios relevantes) ...
-
-        public void EquipUpgradeFromPrefab(GameObject upgradePrefabToEquip)
+        private void Start()
         {
-            // ... (sin cambios relevantes a esta adición) ...
-            if (upgradePrefabToEquip == null)
-            {
-                Debug.LogWarning($"WeaponBase ({gameObject.name}): EquipUpgradeFromPrefab called with null prefab.", this);
-                return;
-            }
-
-            IWeaponUpgrade prospectiveUpgrade = upgradePrefabToEquip.GetComponentInChildren<IWeaponUpgrade>(true) ?? upgradePrefabToEquip.GetComponent<IWeaponUpgrade>();
-            if (prospectiveUpgrade == null)
-            {
-                Debug.LogError($"WeaponBase ({gameObject.name}): Prefab '{upgradePrefabToEquip.name}' does not contain a valid IWeaponUpgrade component. Cannot equip.", this);
-                return;
-            }
-
-            if (currentInstantiatedUpgradeGameObject != null)
-            {
-                Destroy(currentInstantiatedUpgradeGameObject);
-                currentInstantiatedUpgradeGameObject = null; 
-            }
-
-            currentInstantiatedUpgradeGameObject = Instantiate(upgradePrefabToEquip, upgradeContainer);
-            currentInstantiatedUpgradeGameObject.transform.localPosition = Vector3.zero;
-            currentInstantiatedUpgradeGameObject.transform.localRotation = Quaternion.identity;
-            currentInstantiatedUpgradeGameObject.name = upgradePrefabToEquip.name + "_Instance"; 
-
-            IWeaponUpgrade newEquippedUpgrade = currentInstantiatedUpgradeGameObject.GetComponentInChildren<IWeaponUpgrade>(true) ?? currentInstantiatedUpgradeGameObject.GetComponent<IWeaponUpgrade>();
-            
-            SetInternalUpgradeState(newEquippedUpgrade);
-        }
-
-        public void EquipInitialUpgrade()
-        {
-            // ... (sin cambios relevantes a esta adición) ...
+            // Equip the starting weapon
             if (initialUpgradePrefab != null)
             {
                 EquipUpgradeFromPrefab(initialUpgradePrefab);
             }
-            else
-            {
-                if (currentInstantiatedUpgradeGameObject != null)
-                {
-                    Destroy(currentInstantiatedUpgradeGameObject);
-                    currentInstantiatedUpgradeGameObject = null;
-                }
-                SetInternalUpgradeState(null);
-                Debug.LogWarning($"WeaponBase ({gameObject.name}): No initial upgrade prefab assigned. Player will be unarmed if no other upgrade is equipped.", this);
-            }
-        }
-
-        private void SetInternalUpgradeState(IWeaponUpgrade newUpgrade)
-        {
-            currentUpgradeInterface = newUpgrade;
-
-            if (currentUpgradeInterface is MonoBehaviour newMonoBehaviour && newMonoBehaviour != null)
-            {
-                if (!newMonoBehaviour.gameObject.activeSelf)
-                {
-                    newMonoBehaviour.gameObject.SetActive(true);
-                }
-                if (!newMonoBehaviour.enabled)
-                {
-                    newMonoBehaviour.enabled = true;
-                }
-            }
-            
-            PlayerEvents.RaisePlayerWeaponChanged(currentUpgradeInterface as Scripts.Player.Weapons.Upgrades.BaseWeaponUpgrade);
-            semiAutoFireTimer = 0; 
-        }
-        
-        private void RotateTransformToAim(Transform objectToRotate, Vector2 direction)
-        {
-            if (objectToRotate != null && direction.sqrMagnitude > 0.01f)
-            {
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                objectToRotate.rotation = Quaternion.Euler(0, 0, angle);
-            }
-        }
-        
-        public Scripts.Player.Weapons.Upgrades.BaseWeaponUpgrade CurrentUpgradeAsBaseType => currentUpgradeInterface as Scripts.Player.Weapons.Upgrades.BaseWeaponUpgrade;
-        public IWeaponUpgrade GetCurrentUpgradeInterface() => currentUpgradeInterface;
-
-        // Getter para la capa de pickups si otros scripts necesitan consultarla
-        public LayerMask GetPickupObjectLayer() => pickupObjectLayer;
-
-
-        private void OnDestroy()
-        {
-            if (InputManager.Instance?.Controls?.Player.Shoot != null)
-            {
-                InputManager.Instance.Controls.Player.Shoot.started -= OnShootActionPerformed;
-                InputManager.Instance.Controls.Player.Shoot.canceled -= OnShootActionPerformed;
-            }
-            if (currentInstantiatedUpgradeGameObject != null)
-            {
-                Destroy(currentInstantiatedUpgradeGameObject);
-                currentInstantiatedUpgradeGameObject = null;
-            }
-        }
-
-        private void OnShootActionPerformed(InputAction.CallbackContext context)
-        {
-            isShootActionPressed = context.ReadValueAsButton();
         }
 
         private void Update()
         {
-            if (currentUpgradeInterface == null || aimResolver == null || firePoint == null) return;
+            if (_currentUpgrade == null || aimResolver == null) return;
+            
+            // Rotate the arm to match the aim direction.
+            RotateArmToAim(aimResolver.CurrentDirection);
 
-            if (semiAutoFireTimer > 0)
+            // Check for firing input.
+            bool shootHeld = InputManager.Instance?.Controls.Player.Shoot.IsPressed() ?? false;
+            
+            // Handle different weapon firing types.
+            if (shootHeld && Time.time >= _lastFireTime + _currentUpgrade.GetFireCooldown())
             {
-                semiAutoFireTimer -= Time.deltaTime;
-            }
-
-            RotateTransformToAim(aimableArmTransform, aimResolver.CurrentDirection);
-
-            bool singleShotRequestedThisFrame = InputManager.Instance?.Controls?.Player.Shoot.WasPressedThisFrame() ?? false;
-
-            if (currentUpgradeInterface is IAutomaticWeapon automaticWeapon)
-            {
-                if (isShootActionPressed && currentUpgradeInterface.CanFire())
+                // Automatic weapons fire continuously.
+                if (_currentUpgrade is IAutomaticWeapon automaticWeapon)
                 {
-                    PlayWeaponFireSound();
-                    automaticWeapon.HandleAutomaticFire(firePoint, aimResolver.CurrentDirection);
+                    FireEquippedWeapon(automaticWeapon.HandleAutomaticFire);
                 }
-            }
-            else 
-            {
-                if (singleShotRequestedThisFrame && semiAutoFireTimer <= 0 && currentUpgradeInterface.CanFire())
+                // Single-shot or burst weapons fire once on press.
+                else if (InputManager.Instance.Controls.Player.Shoot.WasPressedThisFrame())
                 {
-                    PlayWeaponFireSound();
-                    if (currentUpgradeInterface is IBurstWeapon burstWeapon)
+                    if (_currentUpgrade is IBurstWeapon burstWeapon)
                     {
-                        burstWeapon.StartBurst(firePoint, aimResolver.CurrentDirection);
+                        FireEquippedWeapon(burstWeapon.StartBurst);
                     }
-                    else 
+                    else
                     {
-                        currentUpgradeInterface.Fire(firePoint, aimResolver.CurrentDirection);
+                        FireEquippedWeapon(_currentUpgrade.Fire);
                     }
-                    semiAutoFireTimer = Mathf.Max(semiAutoFireCooldown, currentUpgradeInterface.GetFireCooldown());
                 }
             }
         }
         
-        /// <summary>
-        /// Reproduce el sonido de disparo configurado en la mejora de arma actual.
-        /// </summary>
-        private void PlayWeaponFireSound()
+        // A generic delegate-based firing method to reduce code duplication.
+        private void FireEquippedWeapon(System.Action<Transform, Vector2> fireAction)
         {
-            if (currentUpgradeInterface == null || audioSource == null)
+            if (!_currentUpgrade.CanFire()) return;
+            
+            fireAction?.Invoke(firePoint, aimResolver.CurrentDirection);
+            PlayFireSound();
+            _lastFireTime = Time.time;
+        }
+        
+        /// <summary>
+        /// Equips a new weapon by instantiating its prefab.
+        /// </summary>
+        public void EquipUpgradeFromPrefab(GameObject upgradePrefab)
+        {
+            if (upgradePrefab == null)
             {
-                if (currentUpgradeInterface != null && audioSource == null)
-                    Debug.LogWarning($"WB: Intentando reproducir sonido pero 'weaponFireAudioSource' es null.", this);
+                Debug.LogWarning("WB: Tried to equip a null upgrade prefab.", this);
                 return;
             }
 
-            // currentUpgradeInterface debe ser casteado a BaseWeaponUpgrade para acceder a GetFireSounds()
-            // o IWeaponUpgrade debe tener GetFireSounds().
-            // Es mejor si IWeaponUpgrade define el contrato para los sonidos.
-            // Vamos a añadir GetFireSounds() a IWeaponUpgrade.
-
-            Sounds[] fireSounds = null;
-            if (currentUpgradeInterface is BaseWeaponUpgrade baseUpgrade) // Chequeo seguro
+            // Clean up the old upgrade instance
+            if (_currentUpgradeInstance != null)
             {
-                fireSounds = baseUpgrade.GetFireSounds();
+                Destroy(_currentUpgradeInstance);
             }
-            // else if (currentUpgradeInterface is ISoundProviderForWeapon soundProvider) // Alternativa con otra interfaz
-            // {
-            //     fireSounds = soundProvider.GetSounds();
-            // }
 
+            // Instantiate the new upgrade and get its interface
+            _currentUpgradeInstance = Instantiate(upgradePrefab, upgradeContainer);
+            _currentUpgrade = _currentUpgradeInstance.GetComponent<IWeaponUpgrade>();
 
+            if (_currentUpgrade == null)
+            {
+                Debug.LogError($"WB: Prefab '{upgradePrefab.name}' does not have a component implementing IWeaponUpgrade!", this);
+                Destroy(_currentUpgradeInstance);
+                _currentUpgradeInstance = null;
+                return;
+            }
+            
+            // Update visuals and notify other systems
+            playerVisualController.ChangeArmSprite(_currentUpgrade.GetArmSprite());
+            PlayerEvents.RaiseWeaponChanged(_currentUpgrade as BaseWeaponUpgrade);
+            _lastFireTime = 0; // Reset fire timer
+        }
+        
+        private void RotateArmToAim(Vector2 direction)
+        {
+            if (aimableArmPivot != null && direction.sqrMagnitude > 0.01f)
+            {
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                aimableArmPivot.rotation = Quaternion.Euler(0, 0, angle);
+            }
+        }
+        
+        private void PlayFireSound()
+        {
+            if (weaponAudioSource == null) return;
+            
+            Sounds[] fireSounds = _currentUpgrade.GetFireSounds();
             if (fireSounds != null && fireSounds.Length > 0)
             {
                 Sounds soundToPlay = fireSounds[Random.Range(0, fireSounds.Length)];
-                audioSource.clip = soundToPlay.clip;
-                audioSource.volume = soundToPlay.volume;
-                audioSource.pitch = soundToPlay.pitch;
-                audioSource.PlayOneShot(audioSource.clip);
+                soundToPlay.Play(weaponAudioSource); // Use the Play method from the Sounds class
             }
-            // else Debug.LogWarning($"WB: No fire sounds defined for current upgrade '{currentUpgradeInterface.GetType().Name}' or AudioSource missing.", this);
-        }
-
-        private void OnValidate()
-        {
-            if (Application.isPlaying || !gameObject.scene.IsValid()) return;
-
-            if (aimResolver == null) aimResolver = GetComponentInParent<AimDirectionResolver>() ?? GetComponent<AimDirectionResolver>();
-            if (upgradeContainer == null) upgradeContainer = transform;
-
-            if (initialUpgradePrefab != null)
-            {
-                IWeaponUpgrade potentialInitialUpgrade = initialUpgradePrefab.GetComponentInChildren<IWeaponUpgrade>(true) ?? initialUpgradePrefab.GetComponent<IWeaponUpgrade>();
-                if (potentialInitialUpgrade == null)
-                {
-                    Debug.LogError($"WeaponBase ({gameObject.name}): OnValidate - The 'Initial Upgrade Prefab' ('{initialUpgradePrefab.name}') " +
-                                     "does not contain any component that implements IWeaponUpgrade.", this);
-                }
-            }
-            // Opcional: Validar que pickupObjectLayer esté configurado si es crítico
-            // if (pickupObjectLayer.value == 0) {
-            //     Debug.LogWarning($"WeaponBase ({gameObject.name}): OnValidate - 'Pickup Object Layer' is not configured.", this);
-            // }
         }
     }
 }

@@ -1,16 +1,17 @@
-// --- START OF FILE PlayerEvents.cs ---
-
 using System;
-using UnityEngine;
-using Scripts.Player.Weapons.Upgrades; // Asegúrate de que este using esté presente
+using Scripts.Player.Weapons.Upgrades;
 
 namespace Scripts.Player.Core
 {
+    /// <summary>
+    /// A static class for managing global player-related events.
+    /// Systems can subscribe to these events to react to player state changes
+    /// without needing a direct reference to player components.
+    /// </summary>
     public static class PlayerEvents
     {
         /// <summary>
-        /// Invoked when the player dies.
-        /// Used to trigger camera effects, stop music, show game over UI, etc.
+        /// Invoked when the player runs out of lives, triggering the final death sequence.
         /// </summary>
         public static event Action OnPlayerDeath;
 
@@ -18,43 +19,24 @@ namespace Scripts.Player.Core
         /// Invoked when the player's health or armor changes.
         /// Parameters: (currentLives, currentArmor)
         /// </summary>
-        public static event Action<int, int> OnPlayerHealthChanged;
+        public static event Action<int, int> OnHealthChanged;
 
         /// <summary>
         /// Invoked when the player's equipped weapon upgrade changes.
-        /// Parameter: (newUpgrade) - Can be null if no upgrade is equipped.
+        /// Parameter: (newUpgrade) - The BaseWeaponUpgrade instance, can be null if unarmed.
         /// </summary>
-        public static event Action<BaseWeaponUpgrade> OnPlayerWeaponChanged; // <--- NUEVO EVENTO
+        public static event Action<BaseWeaponUpgrade> OnWeaponChanged;
 
-        public static void RaisePlayerDeath()
-        {
-            OnPlayerDeath?.Invoke();
-            // Debug.Log("Player death event raised.");
-        }
-
-        public static void RaiseHealthChanged(int lives, int armor)
-        {
-            OnPlayerHealthChanged?.Invoke(lives, armor);
-            // Debug.Log($"Health updated → Lives: {lives} | Armor: {armor}");
-        }
-
-        public static void RaisePlayerWeaponChanged(BaseWeaponUpgrade newUpgrade) // <--- NUEVO MÉTODO
-        {
-            OnPlayerWeaponChanged?.Invoke(newUpgrade);
-            // Debug.Log($"Player weapon changed to: {newUpgrade?.name ?? "None"}");
-        }
-        
         /// <summary>
-        /// Invoked when the player successfully completes a level.
+        /// Invoked when the player successfully completes a level by reaching an exit.
         /// Parameter: string levelIdentifier (e.g., scene name of the completed level).
         /// </summary>
-        public static event System.Action<string> OnLevelCompleted;
+        public static event Action<string> OnLevelCompleted;
 
-        public static void RaiseLevelCompleted(string levelIdentifier)
-        {
-            OnLevelCompleted?.Invoke(levelIdentifier);
-            // Debug.Log($"PlayerEvents: Level Completed event raised for '{levelIdentifier}'."); // Uncomment for debugging
-        }
+
+        public static void RaisePlayerDeath() => OnPlayerDeath?.Invoke();
+        public static void RaiseHealthChanged(int lives, int armor) => OnHealthChanged?.Invoke(lives, armor);
+        public static void RaiseWeaponChanged(BaseWeaponUpgrade newUpgrade) => OnWeaponChanged?.Invoke(newUpgrade);
+        public static void RaiseLevelCompleted(string levelIdentifier) => OnLevelCompleted?.Invoke(levelIdentifier);
     }
 }
-// --- END OF FILE PlayerEvents.cs ---

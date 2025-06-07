@@ -1,94 +1,77 @@
-// --- START OF FILE WeaponInterfaces.cs ---
-
-using Scripts.Core.Audio;
 using UnityEngine;
+using Scripts.Core.Audio;
 
 namespace Scripts.Player.Weapons.Interfaces
 {
     /// <summary>
-    /// Defines a modular weapon upgrade that controls how a weapon fires.
-    /// Used by WeaponBase to trigger firing logic, damage, effects, etc.
+    /// Base interface for any equippable weapon module. Defines the core contract
+    /// for firing, cooldowns, and providing visual/audio feedback.
     /// </summary>
     public interface IWeaponUpgrade
     {
         /// <summary>
-        /// Determines if this upgrade is currently able to fire (e.g., cooldown, ammo).
+        /// Determines if the weapon can currently fire, based on its internal state (e.g., cooldowns, ammo).
         /// </summary>
-        /// <returns>True if the weapon can fire, false otherwise.</returns>
         bool CanFire();
 
         /// <summary>
-        /// Executes the firing behavior from a given point and direction.
+        /// Executes a single firing action. For non-automatic weapons.
         /// </summary>
-        /// <param name="firePoint">The Transform from which projectiles are spawned.</param>
-        /// <param name="direction">The base direction of the shot.</param>
+        /// <param name="firePoint">The transform where projectiles should spawn.</param>
+        /// <param name="direction">The calculated direction to fire.</param>
         void Fire(Transform firePoint, Vector2 direction);
 
         /// <summary>
-        /// Gets the effective fire cooldown for this weapon upgrade.
-        /// This might be used by WeaponBase or internally by the upgrade itself.
+        /// Gets the minimum time between shots for this specific upgrade.
         /// </summary>
-        /// <returns>The fire cooldown in seconds.</returns>
         float GetFireCooldown();
 
         /// <summary>
-        /// Retrieves the set of sound effects to be played when the weapon fires.
+        /// Gets the sound(s) to play when this weapon fires.
         /// </summary>
-        /// <returns>An array of Sounds representing the fire sound effects.</returns>
         Sounds[] GetFireSounds();
-    }
 
-    /// <summary>
-    /// Interface for projectiles that can have their damage value set externally.
-    /// </summary>
-    public interface IDamagingProjectile
-    {
         /// <summary>
-        /// Sets the amount of damage this projectile will apply on hit.
+        /// Gets the sprite that should be displayed on the player's arm for this weapon.
         /// </summary>
-        /// <param name="amount">The damage amount.</param>
-        void SetDamage(float amount);
+        Sprite GetArmSprite();
     }
-
+    
     /// <summary>
-    /// Interface for collectible weapon upgrades found in the game world.
-    /// </summary>
-    public interface IWeaponPickup
-    {
-        /// <summary>
-        /// Retrieves the weapon upgrade instance contained within this pickup.
-        /// </summary>
-        /// <returns>The IWeaponUpgrade instance.</returns>
-        IWeaponUpgrade GetUpgrade();
-    }
-
-    /// <summary>
-    /// Interface for weapon upgrades that support continuous automatic fire
-    /// while the fire button is held.
+    /// An extension interface for weapon upgrades that support continuous fire when the trigger is held.
     /// </summary>
     public interface IAutomaticWeapon
     {
         /// <summary>
-        /// Handles the logic for continuous automatic firing.
-        /// Typically called each frame the fire button is held and CanFire() is true.
+        /// Handles the continuous firing logic. Called every frame the fire button is held.
         /// </summary>
-        /// <param name="firePoint">The Transform from which projectiles are spawned.</param>
-        /// <param name="direction">The current aiming direction.</param>
         void HandleAutomaticFire(Transform firePoint, Vector2 direction);
     }
-
+    
     /// <summary>
-    /// Interface for weapon upgrades that fire a burst of projectiles
-    /// upon a single press of the fire button.
+    /// An extension interface for weapon upgrades that fire a multi-shot burst with a single trigger pull.
     /// </summary>
     public interface IBurstWeapon
     {
         /// <summary>
-        /// Initiates the burst firing sequence.
+        /// Initiates the burst fire sequence.
         /// </summary>
-        /// <param name="firePoint">The Transform from which projectiles are spawned.</param>
-        /// <param name="direction">The base direction of the burst.</param>
         void StartBurst(Transform firePoint, Vector2 direction);
     }
+
+    /// <summary>
+    /// Interface for any projectile that can have its damage value configured externally after spawning.
+    /// </summary>
+    public interface IDamagingProjectile
+    {
+        /// <summary>
+        /// Sets the damage this projectile will deal on impact.
+        /// </summary>
+        /// <param name="damage">The amount of damage.</param>
+        void SetDamage(float damage);
+    }
+    
+    // NOTE: IWeaponPickup was removed as it was not used. The UpgradePickup script
+    // directly contained the prefab and passed it to WeaponBase, which is a simpler and
+    // more direct approach than using an interface for this purpose.
 }
-// --- END OF FILE WeaponInterfaces.cs ---

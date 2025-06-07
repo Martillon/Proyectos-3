@@ -1,36 +1,30 @@
-// En una carpeta, ej: Scripts/Enemies/Movement/SteeringBehaviors/Implementations
 using UnityEngine;
 
 namespace Scripts.Enemies.Movement.SteeringBehaviors.Implementations
 {
-    public class PatrolBehavior2D : ISteeringBehavior2D
+    /// <summary>
+    /// A steering behavior that moves the agent back and forth, waiting at each end.
+    /// It automatically reverses direction when hitting a wall or an edge.
+    /// </summary>
+    public class PatrolBehavior : ISteeringBehavior
     {
-        private float _patrolSpeed;
-        private float _waitTime;
-        private float _moveTime;
+        private readonly float _speed;
+        private readonly float _waitTime;
+        private readonly float _moveTime;
 
-        private int _patrolDirection = 1; // 1 for right, -1 for left
         private float _timer;
         private bool _isWaiting;
+        private int _patrolDirection = 1; // 1 for right, -1 for left
 
-        public PatrolBehavior2D(float patrolSpeed, float waitTime, float moveTime)
+        public PatrolBehavior(float speed, float waitTime, float moveTime)
         {
-            _patrolSpeed = patrolSpeed;
+            _speed = speed;
             _waitTime = waitTime;
             _moveTime = moveTime;
-            _timer = 0f; // Inicia moviéndose
-            _isWaiting = false;
-        }
-        
-        public void UpdatePatrolParameters(float speed, float waitTime, float moveTime)
-        {
-            _patrolSpeed = speed;
-            _waitTime = waitTime;
-            _moveTime = moveTime;
+            _timer = moveTime; // Start in a "moving" state
         }
 
-
-        public SteeringOutput2D GetSteering(EnemyMovementComponent context)
+        public SteeringOutput GetSteering(EnemyMovementComponent context)
         {
             _timer += Time.deltaTime;
 
@@ -39,41 +33,27 @@ namespace Scripts.Enemies.Movement.SteeringBehaviors.Implementations
                 if (_timer >= _waitTime)
                 {
                     _isWaiting = false;
-                    _timer = 0f;
-                    // La dirección ya se cambió cuando decidió esperar
+                    _timer = 0;
                 }
-                return SteeringOutput2D.Zero; // No moverse mientras espera
+                // While waiting, do not move.
+                return SteeringOutput.Zero;
             }
-            else // Está moviéndose
+            else // Is moving
             {
-                bool shouldStopAndWait = _timer >= _moveTime;
+                // Check for reasons to stop and turn around
+                bool shouldTurn = (_timer >= _moveTime) || context.IsNearWall || context.IsNearEdge;
                 
-                // Comprobar si hay que detenerse por bordes o paredes usando el contexto
-                // Nota: context.transform.position es la posición actual del enemigo
-                if (context.IsNearEdge || context.IsNearWall || !context.IsGrounded)
-                {
-                    // Solo considera borde/pared si está en la dirección del movimiento
-                    if ((_patrolDirection > 0 && (context.IsNearEdge || context.IsNearWall)) || // Moviéndose a la derecha y hay borde/pared a la derecha
-                        (_patrolDirection < 0 && (context.IsNearEdge || context.IsNearWall)))   // Moviéndose a la izquierda y hay borde/pared a la izquierda
-                    {
-                        shouldStopAndWait = true;
-                    }
-                    else if (!context.IsGrounded) // Si no está en el suelo, también parar
-                    {
-                        shouldStopAndWait = true;
-                    }
-                }
-
-                if (shouldStopAndWait)
+                if (shouldTurn)
                 {
                     _isWaiting = true;
-                    _timer = 0f;
-                    _patrolDirection *= -1; // Invertir dirección para la próxima vez
-                    return SteeringOutput2D.Zero; // Detenerse
+                    _timer = 0;
+                    _patrolDirection *= -1; // Flip direction
+                    return SteeringOutput.Zero;
                 }
 
-                // Si no hay que detenerse, seguir moviéndose
-                return new SteeringOutput2D(new Vector2(_patrolDirection * _patrolSpeed, 0f), true);
+                // If no reason to stop, continue moving.
+                Vector2 desiredVelocity = new Vector2(_patrolDirection * _speed, 0);
+                return new SteeringOutput(desiredVelocity, true);
             }
         }
     }

@@ -1,92 +1,51 @@
 using UnityEngine;
-// using UnityEngine.Serialization; // Not strictly needed if you don't use FormerlySerializedAs
 
 namespace Scripts.Core.Audio
 {
     /// <summary>
-    /// Provides standardized audio feedback for UI interactions.
-    /// Requires an AudioSource component on the same GameObject or assigned.
+    /// A centralized component for playing standardized UI sound effects.
+    /// Can be attached to a UI canvas or manager object.
     /// </summary>
     public class UIAudioFeedback : MonoBehaviour
     {
-        [Header("Sound Options")]
-        [Tooltip("The AudioSource used to play UI sounds. If null, will try to get one from this GameObject.")]
+        [Header("Audio Source")]
+        [Tooltip("The AudioSource used to play all UI sounds. If null, one will be added to this GameObject.")]
         [SerializeField] private AudioSource audioSource;
 
+        [Header("Sound Definitions")]
         [Tooltip("Sound played on button click.")]
         [SerializeField] private Sounds clickSound;
-
-        [Tooltip("Sound played when a UI element is selected (e.g., via keyboard/controller navigation).")]
+        [Tooltip("Sound played when a UI element is selected via navigation (keyboard/controller).")]
         [SerializeField] private Sounds selectSound;
-
-        [Tooltip("Sound played when a UI element is highlighted (e.g., mouse hover).")]
+        [Tooltip("Sound played when a UI element is highlighted (mouse hover).")]
         [SerializeField] private Sounds highlightSound;
-
-        [Tooltip("Sound played when a menu or UI panel opens.")]
+        [Tooltip("Sound played when a menu or panel opens.")]
         [SerializeField] private Sounds openSound;
-
-        [Tooltip("Sound played when a menu or UI panel closes.")]
+        [Tooltip("Sound played when a menu or panel closes.")]
         [SerializeField] private Sounds closeSound;
 
         private void Awake()
         {
-            // Debug.Log("UIAudioFeedback: Awake called.");
+            // Ensure we have an AudioSource to work with.
             if (audioSource == null)
             {
-                // Debug.Log("UIAudioFeedback: AudioSource not assigned, attempting to get it from this GameObject.");
                 audioSource = GetComponent<AudioSource>();
                 if (audioSource == null)
                 {
-                    // Debug.LogWarning("UIAudioFeedback: No AudioSource found on this GameObject. Adding one.");
                     audioSource = gameObject.AddComponent<AudioSource>();
+                    // It's good practice to configure the new AudioSource for UI sounds.
+                    audioSource.playOnAwake = false;
+                    // Assign to a UI-specific AudioMixer group if you have one.
+                    // audioSource.outputAudioMixerGroup = ...; 
                 }
             }
         }
 
-        /// <summary>
-        /// Plays the configured click sound.
-        /// </summary>
-        public void PlayClick()
-        {
-            // Debug.Log($"UIAudioFeedback: Playing Click Sound (Sound Name: {clickSound?.name ?? "N/A"})");
-            clickSound?.Play(audioSource);
-        }
-
-        /// <summary>
-        /// Plays the configured select sound.
-        /// </summary>
-        public void PlaySelect()
-        {
-            // Debug.Log($"UIAudioFeedback: Playing Select Sound (Sound Name: {selectSound?.name ?? "N/A"})");
-            selectSound?.Play(audioSource);
-        }
-
-        /// <summary>
-        /// Plays the configured highlight sound.
-        /// </summary>
-        public void PlayHighlight()
-        {
-            // Debug.Log($"UIAudioFeedback: Playing Highlight Sound (Sound Name: {highlightSound?.name ?? "N/A"})");
-            highlightSound?.Play(audioSource);
-        }
-
-        /// <summary>
-        /// Plays the configured open sound.
-        /// </summary>
-        public void PlayOpen()
-        {
-            // Debug.Log($"UIAudioFeedback: Playing Open Sound (Sound Name: {openSound?.name ?? "N/A"})");
-            openSound?.Play(audioSource);
-        }
-
-        /// <summary>
-        /// Plays the configured close sound.
-        /// </summary>
-        public void PlayClose()
-        {
-            // Debug.Log($"UIAudioFeedback: Playing Close Sound (Sound Name: {closeSound?.name ?? "N/A"})");
-            closeSound?.Play(audioSource);
-        }
+        public void PlayClick() => clickSound?.Play(audioSource);
+        public void PlaySelect() => selectSound?.Play(audioSource);
+        public void PlayHighlight() => highlightSound?.Play(audioSource);
+        public void PlayOpen() => openSound?.Play(audioSource);
+        public void PlayClose() => closeSound?.Play(audioSource);
     }
 }
 
