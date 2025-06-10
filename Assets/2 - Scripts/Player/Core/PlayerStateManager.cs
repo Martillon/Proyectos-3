@@ -33,7 +33,7 @@ namespace Scripts.Player.Core
         // --- Derived States & Properties ---
         public float FacingDirection { get; private set; } = 1f; // 1 for right, -1 for left
         public bool IsMovementLocked => PositionLockInputActive || (IsCrouching && IsGrounded);
-        public bool IsConsideredMovingOnGround => IsGrounded && Mathf.Abs(HorizontalInput) > 0.01f && !IsCrouching;
+        public bool IsConsideredMovingOnGround => IsGrounded && Mathf.Abs(HorizontalInput) > 0.01f && !IsCrouching && !PositionLockInputActive;
         public Collider2D ActivePlayerCollider { get; private set; }
         public List<Collider2D> CurrentGroundColliders { get; } = new List<Collider2D>();
 

@@ -9,7 +9,6 @@ namespace Scripts.Enemies.Movement
     /// based on a provided steering behavior. It is also responsible for detecting its immediate
     /// environment (ground, walls, edges) to inform the steering behaviors.
     /// </summary>
-    [RequireComponent(typeof(Rigidbody2D))]
     public class EnemyMovementComponent : MonoBehaviour
     {
         //[Header("Movement Settings")]

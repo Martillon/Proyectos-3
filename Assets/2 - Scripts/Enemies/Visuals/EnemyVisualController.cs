@@ -1,5 +1,6 @@
 using System.Collections;
 using Scripts.Core;
+using Scripts.Enemies.Core;
 using UnityEngine;
 
 namespace Scripts.Enemies.Visuals
@@ -26,6 +27,7 @@ namespace Scripts.Enemies.Visuals
         private SpriteRenderer[] _spriteRenderers;
         private Color[] _originalSpriteColors;
         private Coroutine _hitFlashCoroutine;
+        private EnemyAIController _aiController;
         
         // --- Animator Hashes ---
         private readonly int _animIsMovingHash = Animator.StringToHash("isMoving");
@@ -48,6 +50,9 @@ namespace Scripts.Enemies.Visuals
             {
                 _originalSpriteColors[i] = _spriteRenderers[i].color;
             }
+            
+            _aiController = GetComponentInParent<EnemyAIController>();
+            if (_aiController == null) Debug.LogError($"EVC on {name}: Missing EnemyAIController on parent!", this);
         }
 
         private void Update()
@@ -97,6 +102,22 @@ namespace Scripts.Enemies.Visuals
             {
                 _spriteRenderers[i].color = _originalSpriteColors[i];
             }
+        }
+        
+        /// <summary>
+        /// Generic event called by an animation at the moment an attack should deal damage.
+        /// </summary>
+        public void OnAnimationAttackAction()
+        {
+            _aiController?.HandleAnimationAttackAction();
+        }
+
+        /// <summary>
+        /// Generic event called by an animation when the attack sequence has finished.
+        /// </summary>
+        public void OnAnimationAttackFinished()
+        {
+            _aiController?.HandleAnimationAttackFinished();
         }
 
         #region Animation Triggers

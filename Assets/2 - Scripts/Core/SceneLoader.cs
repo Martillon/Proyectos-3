@@ -1,8 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Linq;
 
 namespace Scripts.Core
 {
@@ -33,13 +33,20 @@ namespace Scripts.Core
         private HashSet<string> _levelNameSet;
 
         // Tracks the currently active gameplay or menu scene.
-        public string CurrentGameplaySceneName { get; private set; }
+        private string CurrentGameplaySceneName { get; set; }
 
         private Coroutine _sceneOperationCoroutine;
+        
+        /// <summary>
+        /// Invoked when a new scene has been fully loaded, set as active,
+        /// and all transitions (fades, loading screens) are complete.
+        /// Game systems should subscribe to this to know when it's safe to "start".
+        /// </summary>
+        public static event Action OnSceneReady;
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
+            if (Instance && Instance != this)
             {
                 Destroy(gameObject);
                 return;
@@ -47,13 +54,13 @@ namespace Scripts.Core
             Instance = this;
             DontDestroyOnLoad(gameObject); // This manager must persist across scene loads.
 
-            if (loadingScreenObject != null)
+            if (loadingScreenObject)
             {
                 loadingScreenObject.SetActive(false);
             }
 
             // Populate the HashSet for faster lookups.
-            _levelNameSet = new HashSet<string>(levels ?? new string[0]);
+            _levelNameSet = new HashSet<string>(levels ?? Array.Empty<string>());
         }
 
         private void Start()
@@ -86,6 +93,7 @@ namespace Scripts.Core
 
         public void LoadMenu()
         {
+            //Debug.Log("SceneLoader: LoadMenu called. Loading main menu scene: " + mainMenuSceneName);
             if (string.IsNullOrEmpty(mainMenuSceneName))
             {
                 Debug.LogError("SceneLoader: MainMenuSceneName is not set in the inspector!", this);
@@ -96,6 +104,7 @@ namespace Scripts.Core
 
         public void LoadLevelByName(string levelSceneName)
         {
+            //Debug.Log("SceneLoader: LoadLevelByName called with scene name: " + levelSceneName);
             if (string.IsNullOrEmpty(levelSceneName) || !_levelNameSet.Contains(levelSceneName))
             {
                 Debug.LogError($"SceneLoader: LoadLevelByName called with an invalid or unknown scene name: '{levelSceneName}'.", this);
@@ -116,6 +125,7 @@ namespace Scripts.Core
 
         public void ReloadCurrentLevel()
         {
+            //Debug.Log("SceneLoader: Reloading current level...");
             if (!string.IsNullOrEmpty(CurrentGameplaySceneName) && CurrentGameplaySceneName != mainMenuSceneName)
             {
                 InitiateLoadProcess(CurrentGameplaySceneName);
@@ -206,6 +216,10 @@ namespace Scripts.Core
             loadingScreenObject?.SetActive(false);
             
             _sceneOperationCoroutine = null;
+            
+            // Notify that the scene is ready.
+            Debug.Log($"SceneLoader: Scene '{sceneNameToLoad}' is now ready. Firing OnSceneReady event.");
+            OnSceneReady?.Invoke();
         }
 
         public bool IsSceneLoaded(string sceneName)

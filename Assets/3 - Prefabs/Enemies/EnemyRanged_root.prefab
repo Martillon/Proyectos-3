@@ -123,10 +123,10 @@ MonoBehaviour:
   vulnerableAnimationStates:
   - Open
   - Attack
-  aiController: {fileID: 0}
-  visualController: {fileID: 0}
-  rb: {fileID: 0}
-  mainCollider: {fileID: 0}
+  aiController: {fileID: 929098596303190552}
+  visualController: {fileID: 4266961567163223511}
+  rb: {fileID: 1376005730494467640}
+  mainCollider: {fileID: 1275223402240990979}
 --- !u!114 &929098596303190552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,7 +257,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5416490945492975056}
   - component: {fileID: 489022590156910079}
-  - component: {fileID: 4540818938545266359}
   m_Layer: 11
   m_Name: Movement
   m_TagString: Hittable
@@ -292,7 +291,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b583742224719794a988daf7f9d091f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnSpeed: 10
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -302,33 +300,6 @@ MonoBehaviour:
   edgeCheckDistance: 1
   wallCheckOffset: {x: 0.5, y: 0}
   wallCheckDistance: 0.1
---- !u!50 &4540818938545266359
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1195470107870535031}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!1 &5918623903586418409
 GameObject:
   m_ObjectHideFlags: 0

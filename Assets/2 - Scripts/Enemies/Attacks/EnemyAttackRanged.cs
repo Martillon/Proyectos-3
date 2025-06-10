@@ -29,16 +29,15 @@ namespace Scripts.Enemies.Ranged
         [SerializeField] private LayerMask lineOfSightBlockers;
         
         private EnemyAIController _aiController;
-        private EnemyVisualController _visualController;
         private float _lastAttackTime;
         private bool _isCurrentlyAttacking;
+        private Transform _currentTarget;
 
         private void Awake()
         {
             _aiController = GetComponentInParent<EnemyAIController>();
-            _visualController = GetComponentInParent<EnemyVisualController>();
-            if (projectilePrefab == null) Debug.LogError($"EAR on {name}: Projectile Prefab is missing!", this);
-            if (firePoint == null) Debug.LogError($"EAR on {name}: Fire Point is missing!", this);
+            if (!projectilePrefab) Debug.LogError($"EAR on {name}: Projectile Prefab is missing!", this);
+            if (!firePoint) Debug.LogError($"EAR on {name}: Fire Point is missing!", this);
         }
 
         public bool CanInitiateAttack(Transform target)
@@ -61,31 +60,25 @@ namespace Scripts.Enemies.Ranged
         public void TryAttack(Transform target)
         {
             if (!CanInitiateAttack(target)) return;
-            StartCoroutine(AttackSequence(target));
-        }
-
-        private IEnumerator AttackSequence(Transform target)
-        {
+        
             _isCurrentlyAttacking = true;
             _lastAttackTime = Time.time;
+            _currentTarget = target;
             _aiController.SetCanAct(false);
+        }
+        
+        public void PerformAttackAction()
+        {
+            // Spawn the projectile(s).
+            StartCoroutine(FireBurst(_currentTarget));
+        }
 
-            // For window enemies, the AI tells the VisualController to open/attack.
-            // For mobile enemies, we would trigger a standard attack animation here.
-            // This script now assumes the trigger is handled by the AI/VisualController.
+        public void OnAttackFinished()
+        {
+            if (!_isCurrentlyAttacking) return;
 
-            // Wait for an animation event to call SpawnProjectiles
-            // For now, we'll just spawn them directly after a short delay for simplicity.
-            yield return new WaitForSeconds(0.2f); // "Wind-up" time
-            
-            if (!_aiController.IsDead)
-            {
-                StartCoroutine(FireBurst(target));
-            }
-
-            // Wait for burst to finish
-            yield return new WaitUntil(() => !_isCurrentlyAttacking);
-            
+            _isCurrentlyAttacking = false;
+            _currentTarget = null;
             if (!_aiController.IsDead)
             {
                 _aiController.SetCanAct(true);

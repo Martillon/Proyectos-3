@@ -93,21 +93,21 @@ namespace Scripts.UI.MainMenu // O donde tengas tus controladores de UI
                 
                 SetPanelInteractable(creditsPanel1, true);
                 SetPanelInteractable(creditsPanel2, false); // Asegurar que el otro no sea interactuable
-                Debug.Log($"[{Time.frameCount}] Credits: Panel 1 Displaying for {displayDuration}s");
+                //Debug.Log($"[{Time.frameCount}] Credits: Panel 1 Displaying for {displayDuration}s");
                 yield return new WaitForSecondsRealtime(displayDuration);
 
                 // --- Fade Out Panel 1, Fade In Panel 2 ---
-                Debug.Log($"[{Time.frameCount}] Credits: Fading Out Panel 1, Fading In Panel 2");
+                //Debug.Log($"[{Time.frameCount}] Credits: Fading Out Panel 1, Fading In Panel 2");
                 SetPanelInteractable(creditsPanel1, false);
                 StartCoroutine(FadeCanvasGroup(creditsPanel1, 0f, fadeDuration)); // Iniciar fade out
                 yield return StartCoroutine(FadeCanvasGroup(creditsPanel2, 1f, fadeDuration)); // Esperar a que este fade in termine
                 
                 SetPanelInteractable(creditsPanel2, true);
-                Debug.Log($"[{Time.frameCount}] Credits: Panel 2 Displaying for {displayDuration}s");
+                //Debug.Log($"[{Time.frameCount}] Credits: Panel 2 Displaying for {displayDuration}s");
                 yield return new WaitForSecondsRealtime(displayDuration);
 
                 // --- Fade Out Panel 2, Fade In Panel 1 ---
-                Debug.Log($"[{Time.frameCount}] Credits: Fading Out Panel 2, Fading In Panel 1");
+                //Debug.Log($"[{Time.frameCount}] Credits: Fading Out Panel 2, Fading In Panel 1");
                 SetPanelInteractable(creditsPanel2, false);
                 StartCoroutine(FadeCanvasGroup(creditsPanel2, 0f, fadeDuration)); // Iniciar fade out
                 yield return StartCoroutine(FadeCanvasGroup(creditsPanel1, 1f, fadeDuration)); // Esperar a que este fade in termine

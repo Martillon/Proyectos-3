@@ -139,7 +139,7 @@ namespace Scripts.Player.Weapons
             if (aimableArmPivot != null && direction.sqrMagnitude > 0.01f)
             {
                 float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                aimableArmPivot.rotation = Quaternion.Euler(0, 0, angle);
+                aimableArmPivot.rotation = Quaternion.Euler(0f, 0f, angle);
             }
         }
         

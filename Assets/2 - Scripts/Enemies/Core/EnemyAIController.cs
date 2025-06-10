@@ -247,6 +247,33 @@ namespace Scripts.Enemies.Core
         {
             CanAct = canAct;
         }
+        
+        public void HandleAnimationAttackAction()
+        {
+            // Route the "action" event (e.g., activate hitbox, spawn projectile)
+            // to the appropriate attack script.
+            if (behaviorType == EnemyBehaviorType.Melee && _meleeAttacker != null)
+            {
+                _meleeAttacker.PerformAttackAction();
+            }
+            else if (behaviorType != EnemyBehaviorType.Melee && _rangedAttacker != null) // RangedMobile or RangedStaticWindow
+            {
+                _rangedAttacker.PerformAttackAction();
+            }
+        }
+
+        public void HandleAnimationAttackFinished()
+        {
+            // Route the "finished" event to the appropriate attack script.
+            if (behaviorType == EnemyBehaviorType.Melee && _meleeAttacker != null)
+            {
+                _meleeAttacker.OnAttackFinished();
+            }
+            else if (behaviorType != EnemyBehaviorType.Melee && _rangedAttacker != null)
+            {
+                _rangedAttacker.OnAttackFinished();
+            }
+        }
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()

@@ -1,0 +1,21 @@
+Master Toggle:
+F5: Toggle Cheats On/Off (shows/hides red UI border).
+
+Player Cheats:
+L: Give 1 Life.
+Shift + L: Remove 1 Life.
+K: Give 1 Armor.
+Shift + K: Remove 1 Armor.
+I: Toggle Invincibility.
+N: Toggle Noclip/Ghost Mode (move with WASD).
+T: Teleport Player to Mouse Cursor.
+
+Game State Cheats:
+F10: Instantly Complete Current Level.
+F11: Toggle Slow-Motion (0.3x speed).
+U: Unlock All Levels in progression data.
+R: Reset All Level Progression data.
+
+Weapon Cheats:
+Page Up: Cycle to Next Weapon in the debug list.
+Page Down: Cycle to Previous Weapon in the debug list.

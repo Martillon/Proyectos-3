@@ -66,6 +66,8 @@ namespace Scripts.Player.Movement.Detectors
 
             bool isGrounded = hitCount > 0;
             
+            //Debug.Log($"Ground Check: {isGrounded}, Detected Colliders: {hitCount}", this);
+            
             // Pass the results to the state manager.
             _stateManager.SetGroundedState(isGrounded, _detectedCollidersThisFrame);
         }

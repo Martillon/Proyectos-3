@@ -38,10 +38,19 @@ namespace Scripts.Core
             #if ENABLE_INPUT_SYSTEM
             // Initialize and enable the controls
             Controls = new PlayerControls();
-            Controls.Enable();
             #else
             Debug.LogError("InputManager: Unity's Input System package is not enabled or PlayerControls asset not found.", this);
             #endif
+        }
+        
+        private void OnEnable()
+        {
+            SceneLoader.OnSceneReady += EnablePlayerControlsOnSceneReady;
+        }
+    
+        private void OnDisable()
+        {
+            SceneLoader.OnSceneReady -= EnablePlayerControlsOnSceneReady;
         }
 
         private void OnDestroy()
@@ -50,6 +59,14 @@ namespace Scripts.Core
             #if ENABLE_INPUT_SYSTEM
             Controls?.Disable();
             #endif
+        }
+        
+        private void EnablePlayerControlsOnSceneReady()
+        {
+            // A scene is ready, enable the player's controls.
+            // We still call Enable() on the whole asset in case other maps are needed.
+            Controls?.Enable();
+            EnablePlayerControls();
         }
 
         #if ENABLE_INPUT_SYSTEM

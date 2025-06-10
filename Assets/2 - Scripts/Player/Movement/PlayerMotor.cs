@@ -8,7 +8,6 @@ namespace Scripts.Player.Movement.Motor
     /// It applies forces for horizontal movement and jumping based on states
     /// from the PlayerStateManager, and enhances fall gravity.
     /// </summary>
-    [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMotor : MonoBehaviour
     {
         [Header("Movement Parameters")]

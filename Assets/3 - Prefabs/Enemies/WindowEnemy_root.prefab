@@ -195,10 +195,10 @@ MonoBehaviour:
   vulnerableAnimationStates:
   - Open
   - Attack
-  aiController: {fileID: 0}
-  visualController: {fileID: 0}
-  rb: {fileID: 0}
-  mainCollider: {fileID: 0}
+  aiController: {fileID: 705883875954424295}
+  visualController: {fileID: 7863529276809050056}
+  rb: {fileID: 4005807001944410199}
+  mainCollider: {fileID: 7441955375545382063}
 --- !u!114 &705883875954424295
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,10 +10,6 @@ namespace Scripts.Player.Weapons
     /// </summary>
     public class AimDirectionResolver : MonoBehaviour
     {
-        [Header("Configuration")]
-        [Tooltip("Threshold for vertical stick input to be considered a primary aim direction (e.g., straight up/down).")]
-        [SerializeField] private float verticalAimThreshold = 0.7f;
-        
         [Header("References")]
         [SerializeField] private PlayerStateManager stateManager;
 
@@ -44,43 +40,56 @@ namespace Scripts.Player.Weapons
 
         private Vector2 CalculateAimDirection(Vector2 rawInput)
         {
-            // If movement is locked, the player can aim in 8 directions freely.
             if (stateManager.PositionLockInputActive)
             {
                 if (rawInput.sqrMagnitude > 0.1f * 0.1f)
                 {
-                    // Snap to 8 directions (horizontal, vertical, diagonal)
                     float angle = Mathf.Atan2(rawInput.y, rawInput.x) * Mathf.Rad2Deg;
                     float snappedAngle = Mathf.Round(angle / 45.0f) * 45.0f;
                     return Quaternion.Euler(0, 0, snappedAngle) * Vector2.right;
                 }
-                // If locked but no input, aim forward.
                 return new Vector2(stateManager.FacingDirection, 0);
             }
 
-            // --- Standard Movement Aiming Logic ---
-            
-            // Vertical aiming takes priority
-            if (Mathf.Abs(rawInput.y) > verticalAimThreshold)
+            // --- NEW Standard Movement Aiming Logic ---
+            float horizontal = rawInput.x;
+            float vertical = rawInput.y;
+            Vector2 aimDirection = new Vector2(stateManager.FacingDirection, 0); // Default to forward
+
+            // Check for significant vertical input
+            if (Mathf.Abs(vertical) > 0.3f) // Use a less strict threshold
             {
-                // Straight up
-                if (rawInput.y > 0) return Vector2.up;
-                // Straight down (only if in the air)
-                if (rawInput.y < 0 && !stateManager.IsGrounded) return Vector2.down;
+                // Check for significant horizontal input to determine diagonal vs. straight
+                if (Mathf.Abs(horizontal) > 0.3f)
+                {
+                    // Diagonal Aiming
+                    aimDirection = new Vector2(Mathf.Sign(horizontal), Mathf.Sign(vertical));
+                }
+                else
+                {
+                    // Straight Vertical Aiming
+                    aimDirection = new Vector2(0, Mathf.Sign(vertical));
+                }
+            }
+            // If no significant vertical input, check for horizontal
+            else if (Mathf.Abs(horizontal) > 0.1f)
+            {
+                // Straight Horizontal Aiming
+                aimDirection = new Vector2(stateManager.FacingDirection, 0);
+            }
+            // If no significant input at all, keep aiming forward
+            else
+            {
+                aimDirection = new Vector2(stateManager.FacingDirection, 0);
+            }
+    
+            // Constraint: You cannot aim straight down while on the ground.
+            if (stateManager.IsGrounded && aimDirection.x == 0 && aimDirection.y < 0)
+            {
+                return new Vector2(stateManager.FacingDirection, 0); // Revert to horizontal
             }
 
-            // Diagonal aiming (requires some horizontal input)
-            if (rawInput.y > 0.1f && Mathf.Abs(rawInput.x) > 0.1f)
-            {
-                return new Vector2(Mathf.Sign(rawInput.x), 1).normalized;
-            }
-            if (rawInput.y < -0.1f && !stateManager.IsGrounded && Mathf.Abs(rawInput.x) > 0.1f)
-            {
-                return new Vector2(Mathf.Sign(rawInput.x), -1).normalized;
-            }
-
-            // Default to aiming horizontally in the direction the player is facing.
-            return new Vector2(stateManager.FacingDirection, 0);
+            return aimDirection.normalized;
         }
 
 #if UNITY_EDITOR

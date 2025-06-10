@@ -125,7 +125,7 @@ MonoBehaviour:
   aiController: {fileID: 4385238541744696503}
   visualController: {fileID: 6147942427899868994}
   rb: {fileID: 2323604958658691255}
-  mainCollider: {fileID: 0}
+  mainCollider: {fileID: 8386727541220427836}
 --- !u!114 &4385238541744696503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273,7 +273,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyAnimator: {fileID: 8299009305453834652}
-  visualsContainer: {fileID: 0}
+  visualsContainer: {fileID: 7822150496977189788}
   hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
   hitFlashCount: 2
 --- !u!1 &5273492934971373474
@@ -286,7 +286,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2069504043249087928}
   - component: {fileID: 6856762990743395580}
-  - component: {fileID: 4933303574589464967}
   m_Layer: 11
   m_Name: Movement
   m_TagString: Hittable
@@ -321,7 +320,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b583742224719794a988daf7f9d091f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnSpeed: 10
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -331,33 +329,6 @@ MonoBehaviour:
   edgeCheckDistance: 1
   wallCheckOffset: {x: 0.5, y: 0}
   wallCheckDistance: 0.1
---- !u!50 &4933303574589464967
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5273492934971373474}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!1 &5512644934311192284
 GameObject:
   m_ObjectHideFlags: 0

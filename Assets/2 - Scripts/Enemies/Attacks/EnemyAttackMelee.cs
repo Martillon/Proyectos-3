@@ -54,47 +54,46 @@ namespace Scripts.Enemies.Melee
         public void TryAttack(Transform target)
         {
             if (!CanInitiateAttack(target)) return;
-            
-            StartCoroutine(AttackSequence());
-        }
 
-        private IEnumerator AttackSequence()
-        {
             _isCurrentlyAttacking = true;
             _lastAttackTime = Time.time;
-            aiController.SetCanAct(false); // Stun the AI during the attack animation
-            
-            // Tell the visual controller to play the attack animation
+            aiController.SetCanAct(false); // Tell AI to stop moving/thinking.
+
+            // Tell the VisualController to start the animation.
             visualController.TriggerMeleeAttack();
-            
-            // The animation itself will call ActivateHitbox and DeactivateHitbox
-            // via Animation Events. We just need to wait for the animation to signal it's finished.
-            // A timeout is used as a fallback in case the animation event is missing.
-            yield return new WaitUntil(() => !_isCurrentlyAttacking);
-
-            // This line is reached when OnAttackAnimationFinished sets _isCurrentlyAttacking to false.
-            if (!aiController.IsDead) // Check if the enemy died during the attack
-            {
-               aiController.SetCanAct(true); // Restore AI control
-            }
+        
+            // The coroutine is no longer needed. We now wait for the OnAttackFinished event.
         }
         
-        // --- Animation Event Methods ---
-        // These methods are called directly from events on the attack animation clip.
-        
-        public void ActivateHitbox()
+        /// <summary>
+        /// Called by the AIController when the animation hits its action frame.
+        /// </summary>
+        public void PerformAttackAction()
         {
+            // This is where the old "ActivateHitbox" logic goes.
+            // We can just keep it simple and activate it directly.
             meleeHitbox?.Activate(damageAmount);
+
+            // Deactivation should also be driven by an animation event if possible,
+            // or by a short timer/coroutine started here if the swing is simple.
+            // For now, let's assume another event or the end of the attack handles it.
         }
 
-        public void DeactivateHitbox()
+        /// <summary>
+        /// Called by the AIController when the animation signals it has completed.
+        /// </summary>
+        public void OnAttackFinished()
         {
-            meleeHitbox?.Deactivate();
-        }
+            if (!_isCurrentlyAttacking) return; // Prevent extra calls
 
-        public void OnAttackAnimationFinished()
-        {
             _isCurrentlyAttacking = false;
+            meleeHitbox?.Deactivate(); // Ensure hitbox is always off at the end.
+        
+            // Check if the enemy is still alive before re-enabling its actions.
+            if (!aiController.IsDead)
+            {
+                aiController.SetCanAct(true);
+            }
         }
     }
 }

@@ -45,16 +45,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
-  soundsToPlayOnFire:
+  fireCooldown: 0.2
+  projectilePrefab: {fileID: 5437270158944902891, guid: 1a8dd97ca1292214bbfca2260ad2a11c, type: 3}
+  projectilesPerShot: 1
+  spreadAngle: 0
+  armSprite: {fileID: 21300000, guid: 9bcdf846c4601fe4db598eaa458f2641, type: 3}
+  fireSounds:
   - name: 
     clip: {fileID: 8300000, guid: 436cd4b201021bb4c9c75b3ad3747267, type: 3}
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0
     randomVolume: 0
     volume: 0.25
-  projectilePrefab: {fileID: 5437270158944902891, guid: 1a8dd97ca1292214bbfca2260ad2a11c, type: 3}
-  _armSprite: {fileID: 21300000, guid: 9bcdf846c4601fe4db598eaa458f2641, type: 3}
-  projectilesPerShot: 1
-  spreadAngle: 0
+    volumeVariation: 0
   icon: {fileID: 21300000, guid: 6452b0fd313d76b46a3f6f842237e55d, type: 3}

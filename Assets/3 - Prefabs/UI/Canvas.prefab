@@ -855,55 +855,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!1 &1924238057976306107
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6981417495734780451}
-  - component: {fileID: 2839506464263807155}
-  m_Layer: 5
-  m_Name: FadeParent
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &6981417495734780451
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1924238057976306107}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2930198307780747795}
-  m_Father: {fileID: 1641800363585001585}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000015259, y: 0.00033569}
-  m_SizeDelta: {x: 1920, y: 1080}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!225 &2839506464263807155
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1924238057976306107}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
 --- !u!1 &2494897374102364090
 GameObject:
   m_ObjectHideFlags: 0
@@ -1380,7 +1331,6 @@ GameObject:
   - component: {fileID: 6280011243558100910}
   - component: {fileID: 3131319674875938215}
   - component: {fileID: 5733705666260206967}
-  - component: {fileID: 6721367923283951970}
   - component: {fileID: 4748830244338056988}
   m_Layer: 0
   m_Name: --- UI MANAGERS ---
@@ -1417,14 +1367,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   livesCountText: {fileID: 7535044963072617034}
-  armorPointIconImages:
+  armorPointImages:
   - {fileID: 1510399998545072070}
   - {fileID: 3984409465565737590}
   - {fileID: 6327168116533954288}
   armorFullSprite: {fileID: -1486508195, guid: c641ff067a3199544863fc7772ef95a6, type: 3}
   armorEmptySprite: {fileID: 1709016788, guid: 012bcf1b65bfdba4ca8d35378a17ef6d, type: 3}
-  currentWeaponIconImage: {fileID: 931934720962545127}
-  defaultNoWeaponSprite: {fileID: 21300000, guid: 6452b0fd313d76b46a3f6f842237e55d, type: 3}
+  currentWeaponIcon: {fileID: 931934720962545127}
+  defaultWeaponSprite: {fileID: 21300000, guid: 6452b0fd313d76b46a3f6f842237e55d, type: 3}
 --- !u!114 &6280011243558100910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1438,11 +1388,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenuPanel: {fileID: 6161324814244107188}
-  firstSelectedButtonPauseMenu: {fileID: 6078272832137322739}
-  btn_Resume: {fileID: 6078272832137322739}
-  btn_RestartLevel: {fileID: 2289195693020826793}
-  btn_MainMenu: {fileID: 372674011902440407}
-  isPaused: 0
+  firstSelectedButton: {fileID: 6078272832137322739}
+  resumeButton: {fileID: 6078272832137322739}
+  restartButton: {fileID: 2289195693020826793}
+  mainMenuButton: {fileID: 372674011902440407}
   uiSoundFeedback: {fileID: 4748830244338056988}
 --- !u!114 &3131319674875938215
 MonoBehaviour:
@@ -1456,15 +1405,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaa696dbce868854fa1d43072370ae34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameOverScreenCanvasGroup: {fileID: 7914668726686183311}
+  gameOverCanvasGroup: {fileID: 7914668726686183311}
   messageGroup: {fileID: 7943964129765813617}
   buttonsGroup: {fileID: 2793818426309843125}
   inGameHUD: {fileID: 3241619042829254349}
   fadeInDuration: 1.5
-  delayAfterMessageBeforeButtons: 1
-  btn_RestartLevel: {fileID: 4407581528322383769}
-  btn_MainMenu: {fileID: 8356161634638852927}
-  firstSelectedButtonOnGameOver: {fileID: 4407581528322383769}
+  buttonDelay: 1
+  restartButton: {fileID: 4407581528322383769}
+  mainMenuButton: {fileID: 8356161634638852927}
+  firstSelectedButton: {fileID: 8356161634638852927}
   uiSoundFeedback: {fileID: 4748830244338056988}
 --- !u!114 &5733705666260206967
 MonoBehaviour:
@@ -1478,46 +1427,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e20770808dbc446bd7ebe796f74016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelCompleteScreenCanvasGroup: {fileID: 1489827461346402434}
-  backgroundOverlayImage: {fileID: 9125771406495676680}
+  levelCompleteCanvasGroup: {fileID: 1489827461346402434}
   messageGroup: {fileID: 424369207050932515}
   buttonsGroup: {fileID: 5581111107732344652}
   inGameHUD: {fileID: 3241619042829254349}
-  backgroundFadeDuration: 0.5
-  delayBeforeUIShow: 4
-  delayBeforeMessage: 0.5
-  delayAfterMessageBeforeButtons: 1.5
-  backgroundOverlayTargetAlpha: 0.7
-  btn_Continue: {fileID: 2207879659996254763}
-  btn_RetryLevel: {fileID: 3483681919985748394}
-  btn_MainMenu: {fileID: 6360597819717132505}
-  firstSelectedButtonOnComplete: {fileID: 2207879659996254763}
+  initialDelay: 1
+  fadeInDuration: 0.5
+  buttonsDelay: 0.75
+  continueButton: {fileID: 2207879659996254763}
+  retryButton: {fileID: 3483681919985748394}
+  mainMenuButton: {fileID: 6360597819717132505}
+  firstSelectedButton: {fileID: 2207879659996254763}
   uiSoundFeedback: {fileID: 4748830244338056988}
-  levelCompleteMusicOrStinger:
+  victoryStingerSound:
     name: 
     clip: {fileID: 0}
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0.1
     randomVolume: 0
     volume: 1
+    volumeVariation: 0.1
   uiAudioSource: {fileID: 3886280048355290694}
---- !u!114 &6721367923283951970
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3513565932946907229}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09131a0cd3227c54f91b426465f1abb9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeImage: {fileID: 4764058410204962760}
-  fadeCanvasGroup: {fileID: 2839506464263807155}
-  defaultFadeDuration: 3
-  fadeColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &4748830244338056988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1537,40 +1469,50 @@ MonoBehaviour:
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0.1
     randomVolume: 0
     volume: 0.2
+    volumeVariation: 0.1
   selectSound:
     name: Click
     clip: {fileID: 8300000, guid: f9129d2073c7a36448638f9e31b8f4d5, type: 3}
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0.1
     randomVolume: 0
     volume: 0.2
+    volumeVariation: 0.1
   highlightSound:
     name: Hover
     clip: {fileID: 8300000, guid: 2ea0db1a104d2d84689a52a50b49adf9, type: 3}
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0.1
     randomVolume: 0
     volume: 0.2
+    volumeVariation: 0.1
   openSound:
     name: 
     clip: {fileID: 0}
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0.1
     randomVolume: 0
     volume: 1
+    volumeVariation: 0.1
   closeSound:
     name: 
     clip: {fileID: 0}
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0.1
     randomVolume: 0
     volume: 1
+    volumeVariation: 0.1
 --- !u!1 &3619499804925879932
 GameObject:
   m_ObjectHideFlags: 0
@@ -2981,7 +2923,6 @@ RectTransform:
   - {fileID: 4136975426413394828}
   - {fileID: 3380472914855629276}
   - {fileID: 5048856099426293508}
-  - {fileID: 6981417495734780451}
   - {fileID: 5249159108971077976}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3001,7 +2942,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 1
   m_PixelPerfect: 1
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -3649,81 +3590,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!1 &7656967002821407799
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2930198307780747795}
-  - component: {fileID: 8799732084570608077}
-  - component: {fileID: 4764058410204962760}
-  m_Layer: 5
-  m_Name: Fade
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!224 &2930198307780747795
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7656967002821407799}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6981417495734780451}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000061035156, y: -0.0025024414}
-  m_SizeDelta: {x: 0, y: -0.005127}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &8799732084570608077
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7656967002821407799}
-  m_CullTransparentMesh: 1
---- !u!114 &4764058410204962760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7656967002821407799}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &7943964129765813617
 GameObject:
   m_ObjectHideFlags: 0

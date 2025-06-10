@@ -69,11 +69,11 @@ namespace Scripts.Player.Core
         private void Awake()
         {
             // Validate references
-            if (playerMotor == null) Debug.LogError("PHS: PlayerMotor reference is missing!", this);
-            if (playerVisualController == null) Debug.LogError("PHS: PlayerVisualController reference is missing!", this);
-            if (playerRb == null) Debug.LogError("PHS: Player's Rigidbody2D reference is missing!", this);
+            if (!playerMotor) Debug.LogError("PHS: PlayerMotor reference is missing!", this);
+            if (!playerVisualController) Debug.LogError("PHS: PlayerVisualController reference is missing!", this);
+            if (!playerRb) Debug.LogError("PHS: Player's Rigidbody2D reference is missing!", this);
 
-            if (playerCamera != null)
+            if (playerCamera)
             {
                 _initialCameraOrthoSize = playerCamera.Lens.OrthographicSize;
             }

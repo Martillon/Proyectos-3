@@ -1,7 +1,6 @@
 using Scripts.Core;
 using UnityEngine;
 using Scripts.Player.Core;
-using Scripts.Player.Weapons;
 
 namespace Scripts.Player.Visuals
 {
@@ -23,6 +22,8 @@ namespace Scripts.Player.Visuals
         [SerializeField] private GameObject aimableArmObject;
         [Tooltip("The SpriteRenderer of the arm/weapon sprite.")]
         [SerializeField] private SpriteRenderer armSpriteRenderer;
+        [Tooltip("The transform of the arm's visual component, used for scale-based flipping.")]
+        [SerializeField] private Transform aimableArmVisualTransform;
         
         private PlayerStateManager _stateManager;
         private Rigidbody2D _rb;
@@ -40,13 +41,13 @@ namespace Scripts.Player.Visuals
             _rb = GetComponentInParent<Rigidbody2D>();
 
             // Validations
-            if (_stateManager == null) Debug.LogError("PVC: PlayerStateManager not found!", this);
-            if (_rb == null) Debug.LogError("PVC: Rigidbody2D not found!", this);
-            if (bodyAnimator == null) bodyAnimator = GetComponent<Animator>();
-            if (bodyAnimator == null) Debug.LogError("PVC: Body Animator not assigned or found!", this);
-            if (visualsContainer == null) visualsContainer = transform;
-            if (aimableArmObject == null) Debug.LogWarning("PVC: AimableArmObject not assigned.", this);
-            if (armSpriteRenderer == null) Debug.LogWarning("PVC: ArmSpriteRenderer not assigned.", this);
+            if (!_stateManager) Debug.LogError("PVC: PlayerStateManager not found!", this);
+            if (!_rb) Debug.LogError("PVC: Rigidbody2D not found!", this);
+            if (!bodyAnimator) bodyAnimator = GetComponent<Animator>();
+            if (!bodyAnimator) Debug.LogError("PVC: Body Animator not assigned or found!", this);
+            if (!visualsContainer) visualsContainer = transform;
+            if (!aimableArmObject) Debug.LogWarning("PVC: AimableArmObject not assigned.", this);
+            if (!armSpriteRenderer) Debug.LogWarning("PVC: ArmSpriteRenderer not assigned.", this);
         }
 
         private void OnEnable()
@@ -61,10 +62,10 @@ namespace Scripts.Player.Visuals
 
         private void Update()
         {
-            if (_stateManager == null || bodyAnimator == null) return;
+            if (!_stateManager || !bodyAnimator) return;
 
             UpdateBodyAnimations();
-            FlipVisualsContainer();
+            UpdateVisualOrientation();
             UpdateArmVisibility();
         }
 
@@ -76,17 +77,37 @@ namespace Scripts.Player.Visuals
             bodyAnimator.SetFloat(_animVerticalSpeedHash, _rb.linearVelocity.y);
         }
 
-        private void FlipVisualsContainer()
+        private void UpdateVisualOrientation()
         {
-            if (visualsContainer == null) return;
+            if (!_stateManager) return;
 
-            float targetDirection = _stateManager.FacingDirection;
-            visualsContainer.localScale = new Vector3(targetDirection, 1, 1);
+            float facingDirection = _stateManager.FacingDirection;
+
+            // 1. Flip the body's container (as before)
+            if (visualsContainer != null)
+            {
+                visualsContainer.localScale = new Vector3(facingDirection, 1, 1);
+            }
+
+            // 2. Flip the arm visual using your solution
+            if (aimableArmVisualTransform)
+            {
+                if (facingDirection > 0) // Facing Right
+                {
+                    // Standard orientation
+                    aimableArmVisualTransform.localScale = Vector3.one;
+                }
+                else // Facing Left
+                {
+                    // Your solution: flip both X and Y to correctly mirror the rotated sprite
+                    aimableArmVisualTransform.localScale = new Vector3(1, -1, 1);
+                }
+            }
         }
 
         private void UpdateArmVisibility()
         {
-            if (aimableArmObject == null) return;
+            if (!aimableArmObject) return;
             
             // The arm should be hidden if the player is crouching.
             bool shouldShowArm = !_stateManager.IsCrouching;
@@ -99,7 +120,7 @@ namespace Scripts.Player.Visuals
 
         public void ChangeArmSprite(Sprite newSprite)
         {
-            if (armSpriteRenderer != null)
+            if (armSpriteRenderer)
             {
                 armSpriteRenderer.sprite = newSprite;
             }
@@ -118,7 +139,7 @@ namespace Scripts.Player.Visuals
         // This is called by the PlayerHealthSystem
         public System.Collections.IEnumerator FlashSpriteCoroutine(float duration, float interval)
         {
-            if (armSpriteRenderer == null) yield break; // Assuming arm is the primary visual
+            if (!armSpriteRenderer) yield break; // Assuming arm is the primary visual
 
             SpriteRenderer[] renderersToFlash = GetComponentsInChildren<SpriteRenderer>();
             
