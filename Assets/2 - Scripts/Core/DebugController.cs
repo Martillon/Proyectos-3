@@ -4,6 +4,7 @@ using Scripts.Core;
 using Scripts.Player.Core;
 using Scripts.Player.Movement.Motor;
 using Scripts.Player.Weapons;
+using Scripts.Player.Weapons.Upgrades;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 
@@ -231,8 +232,8 @@ public class DebugController : MonoBehaviour
         FindPlayerComponents();
         if (_playerWeaponBase)
         {
-            _playerWeaponBase.EquipUpgradeFromPrefab(weaponPrefabs[index]);
-            Debug.Log($"Equipped weapon: {weaponPrefabs[index].name}");
+            _playerWeaponBase.EquipWeapon(weaponPrefabs[index].GetComponent<WeaponStats>());
+            //Debug.Log($"Equipped weapon: {weaponPrefabs[index].name}");
         }
     }
 

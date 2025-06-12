@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41f3b6ccf7aa89b41b033b5d8265b65d, type: 3}
+  m_Name: Shotgun - Semi
+  m_EditorClassIdentifier: 
+  weaponName: Shotgun
+  firingStrategy: {fileID: 11400000, guid: c2830031dd698a043a356afa0be86dff, type: 2}
+  damage: 10
+  fireCooldown: 0.5
+  projectilePrefab: {fileID: 5437270158944902891, guid: 1a8dd97ca1292214bbfca2260ad2a11c, type: 3}
+  projectilesPerShot: 5
+  spreadAngle: 5
+  armSprite: {fileID: 21300000, guid: 328b2240e5b6f8f48a25c3c687765fea, type: 3}
+  hudIcon: {fileID: 21300000, guid: 80f1c3e43673016408f6c3106093d867, type: 3}
+  fireSounds:
+  - name: Shoot 1
+    clip: {fileID: 8300000, guid: 4b11d489a377bc0499b56955f41f1f00, type: 3}
+    loop: 0
+    randomPitch: 0
+    pitch: 1
+    pitchVariation: 0
+    randomVolume: 0
+    volume: 0.25
+    volumeVariation: 0

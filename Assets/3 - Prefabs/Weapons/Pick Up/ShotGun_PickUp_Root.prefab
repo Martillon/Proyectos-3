@@ -77,12 +77,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 80f1c3e43673016408f6c3106093d867, type: 3}
+  m_Sprite: {fileID: 1360219242, guid: 80f1c3e43673016408f6c3106093d867, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.640625, y: 0.640625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -199,20 +199,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79de9829f665b1e44bdd1e672ba5e47d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upgradePrefab: {fileID: 6791487315314059437, guid: 9c41a5306fcd3194f986de871006558f, type: 3}
-  collidableWithLayers:
-    serializedVersion: 2
-    m_Bits: 128
-  timeDelayBeforeDestroy: 5
-  pickupEffectPrefab: {fileID: 0}
-  pickupSounds:
-  - name: 
+  weaponToGrant: {fileID: 11400000, guid: f7610bf156bad1a4b8172eade9e3aeb9, type: 2}
+  pickupSound:
+    name: Pick Up Shotgun
     clip: {fileID: 8300000, guid: 7e2e25737f3a36b498b2e4efdce43910, type: 3}
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0.1
     randomVolume: 0
-    volume: 0.7
+    volume: 0.25
+    volumeVariation: 0.1
+  pickupVFX: {fileID: 0}
 --- !u!82 &2766058095986077215
 AudioSource:
   m_ObjectHideFlags: 0

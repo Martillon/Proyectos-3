@@ -72,19 +72,19 @@ namespace Scripts.UI.InGame
             }
         }
 
-        private void UpdateWeaponDisplay(BaseWeaponUpgrade activeUpgrade)
+        private void UpdateWeaponDisplay(WeaponStats activeWeaponStats)
         {
             if (currentWeaponIcon != null)
             {
-                if (activeUpgrade != null && activeUpgrade.Icon != null)
+                // We now check the WeaponStats asset for its HUD icon
+                if (activeWeaponStats != null && activeWeaponStats.hudIcon != null)
                 {
-                    currentWeaponIcon.sprite = activeUpgrade.Icon;
+                    currentWeaponIcon.sprite = activeWeaponStats.hudIcon;
                     currentWeaponIcon.enabled = true;
                 }
-                else // No upgrade or upgrade has no icon.
+                else // No weapon stats or the stats asset has no icon.
                 {
                     currentWeaponIcon.sprite = defaultWeaponSprite;
-                    // Only show the default sprite if one is actually assigned.
                     currentWeaponIcon.enabled = (defaultWeaponSprite != null);
                 }
             }

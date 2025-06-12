@@ -363,23 +363,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97dc4b7115662334d9af82cf72fdae75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialLives: 3
-  maxLives: 9
-  maxArmorPerLife: 3
-  invulnerabilityDuration: 1.5
-  invulnerabilityFlashInterval: 0.1
-  knockbackForceHorizontal: 5
-  knockbackForceVertical: 3
-  armorHitStunDuration: 0.3
-  loseLifeAnimDuration: 1
-  respawnFadeDuration: 0.4
-  respawnAnimDuration: 0.5
-  playerCamera: {fileID: 0}
-  deathCameraZoomSize: 3
-  deathCameraZoomDuration: 1.5
+  playerStats: {fileID: 11400000, guid: f33eaf01882544c41b79334018c52884, type: 2}
   playerMotor: {fileID: 8919980472734502440}
   playerVisualController: {fileID: 351755833925862429}
   playerRb: {fileID: 2305550457118479214}
+  weaponBase: {fileID: 5869662360522274131}
+  invulnerabilityDuration: 1.5
+  armorHitStunDuration: 0.3
+  loseLifeAnimDuration: 1
+  respawnFadeDuration: 0.4
+  knockbackForceHorizontal: 5
+  knockbackForceVertical: 3
+  playerCamera: {fileID: 0}
+  deathCameraZoomSize: 3
+  deathCameraZoomDuration: 1.5
 --- !u!1 &5195280029038726180
 GameObject:
   m_ObjectHideFlags: 0
@@ -425,13 +422,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c2b197f9422fc14aa2c7e8b88afdbea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerStats: {fileID: 11400000, guid: f33eaf01882544c41b79334018c52884, type: 2}
   firePoint: {fileID: 2646109473616756967}
   aimableArmPivot: {fileID: 6264034608520597866}
   aimResolver: {fileID: 591465923511167631}
   playerVisualController: {fileID: 351755833925862429}
   weaponAudioSource: {fileID: 1367260214591708735}
-  initialUpgradePrefab: {fileID: 4398430865810154143, guid: 00724aa67be493f4db9ff5459aa937b6, type: 3}
-  upgradeContainer: {fileID: 6866794100967471875}
 --- !u!114 &591465923511167631
 MonoBehaviour:
   m_ObjectHideFlags: 0

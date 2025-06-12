@@ -5,74 +5,56 @@ using Scripts.Core.Checkpoint;
 using Scripts.Core.Interfaces;
 using Scripts.Player.Movement.Motor;
 using Scripts.Player.Visuals;
+using Scripts.Player.Weapons;
 using Unity.Cinemachine;
 
 namespace Scripts.Player.Core
 {
     /// <summary>
-    /// Manages the player's lives, armor, damage-taking, and death/respawn sequences.
-    /// Interacts with PlayerEvents, CheckpointManager, and ScreenFader.
+    /// Manages the player's health, damage-taking, and death/respawn sequences.
+    /// It reads from and writes to a central PlayerStats Scriptable Object to persist state.
+    /// Implements the new mechanic of losing weapon upgrades on taking damage.
     /// </summary>
     public class PlayerHealthSystem : MonoBehaviour, IHealLife, IHealArmor, IDamageable, IInstakillable
     {
-        [Header("Health & Armor")]
-        [Tooltip("Starting lives after a full game over or on first play.")]
-        [SerializeField] private int initialLives = 3;
-        [Tooltip("The absolute maximum number of lives the player can accumulate.")]
-        [SerializeField] private int maxLives = 9;
-        [Tooltip("The number of hits the player can take per life before losing a life.")]
-        [SerializeField] private int maxArmorPerLife = 2;
+        [Header("Data Source")]
+        [Tooltip("A reference to the PlayerStats Scriptable Object that holds all health and state data.")]
+        [SerializeField] private PlayerStats playerStats;
 
-        [Header("Damage & Invulnerability")]
-        [Tooltip("Duration in seconds the player is invulnerable after taking damage or respawning.")]
-        [SerializeField] private float invulnerabilityDuration = 1.5f;
-        [Tooltip("How quickly the player sprite flashes during invulnerability.")]
-        [SerializeField] private float invulnerabilityFlashInterval = 0.1f;
-        [Tooltip("Horizontal force of the knockback when taking damage.")]
-        [SerializeField] private float knockbackForceHorizontal = 5f;
-        [Tooltip("Vertical force of the knockback when taking damage.")]
-        [SerializeField] private float knockbackForceVertical = 3f;
-
-        [Header("Sequence Timings")]
-        [Tooltip("Duration of the hit-stun/animation state when taking armor damage.")]
-        [SerializeField] private float armorHitStunDuration = 0.3f;
-        [Tooltip("Duration of the death animation before the screen fades for respawn.")]
-        [SerializeField] private float loseLifeAnimDuration = 1.0f;
-        [Tooltip("Duration of the screen fade to/from black for respawns.")]
-        [SerializeField] private float respawnFadeDuration = 0.4f;
-        [Tooltip("Duration of the respawn animation after the screen has faded back in.")]
-        [SerializeField] private float respawnAnimDuration = 0.5f;
-
-        [Header("Death Camera Effect")]
-        [Tooltip("The Cinemachine camera focusing on the player, used for the death zoom effect.")]
-        [SerializeField] private CinemachineCamera playerCamera;
-        [Tooltip("The target orthographic size for the camera zoom on final death.")]
-        [SerializeField] private float deathCameraZoomSize = 3f;
-        [Tooltip("The duration of the camera zoom effect.")]
-        [SerializeField] private float deathCameraZoomDuration = 1.5f;
-        
-        [Header("Component References")]
+        [Header("Core Dependencies")]
         [SerializeField] private PlayerMotor playerMotor;
         [SerializeField] private PlayerVisualController playerVisualController;
         [SerializeField] private Rigidbody2D playerRb;
-        
-        private int _currentLives;
-        private int _currentArmor;
-        private bool _isInvulnerable;
-        private bool _isProcessingCriticalSequence; // Prevents nested death/respawn calls
-        private float _initialCameraOrthoSize;
-        private Coroutine _activeCoroutine;
-        public bool IsDebugInvincible { get; set; } = false;
+        [SerializeField] private WeaponBase weaponBase;
 
-        private bool IsDead { get; set; }
+        [Header("Feedback & Timings")]
+        [SerializeField] private float invulnerabilityDuration = 1.5f;
+        [SerializeField] private float armorHitStunDuration = 0.3f;
+        [SerializeField] private float loseLifeAnimDuration = 1.0f;
+        [SerializeField] private float respawnFadeDuration = 0.4f;
+        [SerializeField] private float knockbackForceHorizontal = 5f;
+        [SerializeField] private float knockbackForceVertical = 3f;
+
+        [Header("Camera Effects")]
+        [SerializeField] private CinemachineCamera playerCamera;
+        [SerializeField] private float deathCameraZoomSize = 3f;
+        [SerializeField] private float deathCameraZoomDuration = 1.5f;
+        
+        // --- State ---
+        private bool _isInvulnerable;
+        private bool _isProcessingCriticalSequence;
+        private Coroutine _activeCoroutine;
+        private float _initialCameraOrthoSize;
+
+        public bool IsDebugInvincible { get; set; } = false;
 
         private void Awake()
         {
-            // Validate references
+            // Validate all critical references
+            if (!playerStats) Debug.LogError("PHS: PlayerStats asset is not assigned!", this);
+            if (!weaponBase) Debug.LogError("PHS: WeaponBase reference is missing!", this);
             if (!playerMotor) Debug.LogError("PHS: PlayerMotor reference is missing!", this);
-            if (!playerVisualController) Debug.LogError("PHS: PlayerVisualController reference is missing!", this);
-            if (!playerRb) Debug.LogError("PHS: Player's Rigidbody2D reference is missing!", this);
-
+            
             if (playerCamera)
             {
                 _initialCameraOrthoSize = playerCamera.Lens.OrthographicSize;
@@ -81,49 +63,51 @@ namespace Scripts.Player.Core
 
         private void Start()
         {
-            InitializeHealth();
-            CheckpointManager.SetInitialSpawnPoint(transform.root.position);
-        }
-
-        public void InitializeHealth()
-        {
-            _currentLives = initialLives;
-            _currentArmor = maxArmorPerLife;
-            IsDead = false;
-            _isProcessingCriticalSequence = false;
-            _isInvulnerable = false;
-            PlayerEvents.RaiseHealthChanged(_currentLives, _currentArmor);
+            // On level start, ensure the UI reflects the current state from the SO.
+            // The actual values are persistent and should not be reset here.
+            PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
         }
 
         public void TakeDamage(float amount)
         {
-            if (IsDebugInvincible || _isInvulnerable || _isProcessingCriticalSequence || IsDead) return;
+            if (IsDebugInvincible || _isInvulnerable || _isProcessingCriticalSequence) return;
 
             int damage = Mathf.FloorToInt(amount);
             if (damage <= 0) return;
-            
-            _currentArmor -= damage;
 
-            if (_currentArmor < 0)
+            // --- NEW MECHANIC: Lose Weapon on Armor Hit ---
+            bool lostArmor = playerStats.currentArmor > 0 && damage > 0;
+            if (lostArmor)
+            {
+                weaponBase.RevertToDefaultWeapon();
+            }
+            // --- END OF NEW MECHANIC ---
+
+            playerStats.currentArmor -= damage;
+
+            if (playerStats.currentArmor < 0)
             {
                 _isProcessingCriticalSequence = true;
-                _currentLives--;
-                PlayerEvents.RaiseHealthChanged(_currentLives, _currentArmor);
-
-                if (_currentLives < 0)
+                playerStats.currentLives--;
+                
+                if (playerStats.currentLives < 0)
                 {
+                    playerStats.currentLives = 0; // Don't show negative lives
+                    PlayerEvents.RaiseHealthChanged(playerStats.currentLives, 0);
                     if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
                     _activeCoroutine = StartCoroutine(FinalDeathSequence());
                 }
                 else
                 {
+                    playerStats.currentArmor = playerStats.maxArmor;
+                    PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
                     if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
                     _activeCoroutine = StartCoroutine(LoseLifeAndRespawnSequence());
                 }
             }
             else
             {
-                PlayerEvents.RaiseHealthChanged(_currentLives, _currentArmor);
+                PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
                 if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
                 _activeCoroutine = StartCoroutine(ArmorHitSequence());
             }
@@ -131,123 +115,177 @@ namespace Scripts.Player.Core
 
         private IEnumerator ArmorHitSequence()
         {
-            // Become invulnerable and start flashing
             StartInvulnerability();
+            if (playerMotor) playerMotor.enabled = false;
             
-            // Short stun period
-            if (playerMotor != null) playerMotor.enabled = false;
+            if (playerRb)
+            {
+                playerRb.linearVelocity = Vector2.zero;
+                Vector2 knockbackDirection = new Vector2(-transform.right.x, 1f).normalized;
+                playerRb.AddForce(new Vector2(knockbackDirection.x * knockbackForceHorizontal, knockbackForceVertical), ForceMode2D.Impulse);
+            }
             
-            // Apply knockback
-            playerRb.linearVelocity = Vector2.zero;
-            Vector2 knockbackDirection = new Vector2(-playerMotor.transform.right.x, 1f).normalized; // Simple knockback away and up
-            playerRb.AddForce(new Vector2(knockbackDirection.x * knockbackForceHorizontal, knockbackForceVertical), ForceMode2D.Impulse);
-            
-            // Trigger hit animation
             playerVisualController.GetBodyAnimator()?.SetTrigger(GameConstants.AnimArmorHitTrigger);
-
             yield return new WaitForSeconds(armorHitStunDuration);
-            
-            // Restore control
-            if (playerMotor != null) playerMotor.enabled = true;
+            if (playerMotor) playerMotor.enabled = true;
         }
 
         private IEnumerator LoseLifeAndRespawnSequence()
         {
-            // --- Death Part ---
-            IsDead = true; // Temporarily "dead" for this sequence
-            if (playerMotor != null) playerMotor.enabled = false;
-            if (playerRb != null) { playerRb.linearVelocity = Vector2.zero; playerRb.simulated = false; }
+            // --- 1. DEATH PHASE: Player character dies on screen ---
+            Debug.Log("Player lost a life. Starting respawn sequence.");
+            _isProcessingCriticalSequence = true; // Block any other damage/death calls
+            _isInvulnerable = true; // Make sure no stray physics objects can interfere
+
+            // Disable all player control
+            InputManager.Instance?.DisableAllControls();
+            if (playerMotor) playerMotor.enabled = false;
+            
+            // Stop all physical movement and interactions
+            if (playerRb)
+            {
+                playerRb.linearVelocity = Vector2.zero;
+                playerRb.angularVelocity = 0f;
+                playerRb.simulated = false; // Completely turn off physics simulation for the player
+            }
+            
+            // Handle visuals for death
             playerVisualController?.HideArmObject();
             playerVisualController?.GetBodyAnimator()?.SetTrigger(GameConstants.AnimLoseLifeTrigger);
 
+            // Wait for the death animation to play out
             yield return new WaitForSeconds(loseLifeAnimDuration);
 
-            // --- Transition Part ---
+
+            // --- 2. TRANSITION PHASE: Fade to black ---
+            // The ScreenFader uses unscaled time, so it works even if we pause the game.
             yield return ScreenFader.Instance?.FadeToBlack(respawnFadeDuration);
+
+
+            // --- 3. RESPAWN SETUP PHASE: Occurs while the screen is black ---
             
-            // --- Respawn Setup (while screen is black) ---
+            // Re-enable physics simulation before moving the player
+            if (playerRb) playerRb.simulated = true;
+            
+            // Move the player to the last checkpoint
             transform.root.position = CheckpointManager.GetCurrentRespawnPosition();
-            if (playerRb != null) playerRb.simulated = true;
-            _currentArmor = maxArmorPerLife;
-            IsDead = false;
-            PlayerEvents.RaiseHealthChanged(_currentLives, _currentArmor);
+            
+            // Update the UI with the new life/armor counts (will be visible after fade-in)
+            PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
+            
+            // Ensure the player has their correct weapon equipped for the respawn
+            // This is important if they lost an upgrade on the hit that killed them.
+            weaponBase.EquipWeapon(playerStats.currentWeapon);
+            
 
+            // --- 4. APPEARANCE PHASE: Fade back in from black ---
             yield return ScreenFader.Instance?.FadeToClear(respawnFadeDuration);
-
-            // --- Appearance Part ---
-            playerVisualController?.ShowArmObject();
+            
+            // Play the respawn animation
             playerVisualController?.GetBodyAnimator()?.SetTrigger(GameConstants.AnimRespawnTrigger);
+            playerVisualController?.ShowArmObject();
+            
+            // Grant post-respawn invulnerability
             StartInvulnerability();
 
-            yield return new WaitForSeconds(respawnAnimDuration);
+
+            // --- 5. RESTORE CONTROL PHASE ---
             
-            // --- Finalization ---
-            if (playerMotor != null) playerMotor.enabled = true;
-            _isProcessingCriticalSequence = false;
+            // Wait for a brief moment after respawn animation starts before giving back control
+            yield return new WaitForSeconds(0.2f); 
+
+            // Re-enable player controls
+            if (playerMotor) playerMotor.enabled = true;
+            InputManager.Instance?.EnablePlayerControls();
+            
+            Debug.Log("Player respawn sequence complete. Control restored.");
+            _isProcessingCriticalSequence = false; // Allow damage again
+            _activeCoroutine = null;
         }
 
         private IEnumerator FinalDeathSequence()
         {
-            IsDead = true;
+            // --- 1. FINAL DEATH PHASE ---
+            Debug.Log("Player has no lives left. Starting GAME OVER sequence.");
             _isProcessingCriticalSequence = true;
-            if (playerMotor != null) playerMotor.enabled = false;
-            if (playerRb != null) { playerRb.linearVelocity = Vector2.zero; playerRb.simulated = false; }
-            playerVisualController?.HideArmObject();
+            _isInvulnerable = true;
 
-            // Trigger death animation and event
+            // Disable all player control permanently for this run
+            InputManager.Instance?.DisableAllControls();
+            if (playerMotor) playerMotor.enabled = false;
+            
+            // Stop all physical movement and freeze the player in place
+            if (playerRb)
+            {
+                playerRb.linearVelocity = Vector2.zero;
+                playerRb.angularVelocity = 0f;
+                playerRb.bodyType = RigidbodyType2D.Kinematic; // Make it kinematic so it doesn't drift or fall
+            }
+            
+            // Handle death visuals
+            playerVisualController?.HideArmObject();
             playerVisualController?.GetBodyAnimator()?.SetTrigger(GameConstants.AnimLoseLifeTrigger);
+
+            // --- 2. TRIGGER GLOBAL EVENTS ---
+            
+            // Raise the global OnPlayerDeath event. The GameOverUIController and other
+            // systems will react to this.
             PlayerEvents.RaisePlayerDeath();
 
-            // Camera zoom effect
-            if (playerCamera != null)
+            // --- 3. CAMERA EFFECT PHASE ---
+            
+            // Perform the dramatic camera zoom on the player's final demise
+            if (playerCamera)
             {
                 float startTime = Time.unscaledTime;
                 float startSize = playerCamera.Lens.OrthographicSize;
+                
                 while (Time.unscaledTime < startTime + deathCameraZoomDuration)
                 {
                     float t = (Time.unscaledTime - startTime) / deathCameraZoomDuration;
                     playerCamera.Lens.OrthographicSize = Mathf.Lerp(startSize, deathCameraZoomSize, t);
-                    yield return null;
+                    yield return null; // Wait for the next frame
                 }
-                playerCamera.Lens.OrthographicSize = deathCameraZoomSize;
+                playerCamera.Lens.OrthographicSize = deathCameraZoomSize; // Ensure it ends at the exact size
             }
-            
-            // The GameOverUIController will take over from the OnPlayerDeath event.
+
+            // After this, the GameOverUIController takes over. It will handle pausing the game
+            // and showing the restart/main menu buttons.
+            _activeCoroutine = null;
         }
 
         private void StartInvulnerability()
         {
             _isInvulnerable = true;
-            playerVisualController?.StartCoroutine(playerVisualController.FlashSpriteCoroutine(invulnerabilityDuration, invulnerabilityFlashInterval));
-            StartCoroutine(EndInvulnerability(invulnerabilityDuration));
+            playerVisualController?.StartCoroutine(playerVisualController.FlashSpriteCoroutine(invulnerabilityDuration, 0.1f));
+            StartCoroutine(EndInvulnerability());
         }
 
-        private IEnumerator EndInvulnerability(float duration)
+        private IEnumerator EndInvulnerability()
         {
-            yield return new WaitForSeconds(duration);
+            yield return new WaitForSeconds(invulnerabilityDuration);
             _isInvulnerable = false;
         }
 
         public void HealLife(int amount)
         {
-            if (IsDead || amount <= 0) return;
-            _currentLives = Mathf.Min(_currentLives + amount, maxLives);
-            PlayerEvents.RaiseHealthChanged(_currentLives, _currentArmor);
+            if (playerStats.currentLives < 0) return;
+            playerStats.currentLives = Mathf.Min(playerStats.currentLives + amount, 99); // Use an absolute max if desired
+            PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
         }
 
         public void HealArmor(int amount)
         {
-            if (IsDead || _currentLives < 0 || amount <= 0) return;
-            _currentArmor = Mathf.Min(_currentArmor + amount, maxArmorPerLife);
-            PlayerEvents.RaiseHealthChanged(_currentLives, _currentArmor);
+            if (playerStats.currentLives < 0) return;
+            playerStats.currentArmor = Mathf.Min(playerStats.currentArmor + amount, playerStats.maxArmor);
+            PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
         }
-        
+
         public void ApplyInstakill()
         {
-            if (IsDead || _isProcessingCriticalSequence) return;
-            _isProcessingCriticalSequence = true;
-            _currentLives = -1; // Ensure it triggers final death
-            TakeDamage(999);
+            if (_isProcessingCriticalSequence) return;
+            playerStats.currentLives = -1;
+            TakeDamage(9999);
         }
     }
 }

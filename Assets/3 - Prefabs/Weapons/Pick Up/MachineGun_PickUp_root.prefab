@@ -93,13 +93,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79de9829f665b1e44bdd1e672ba5e47d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upgradePrefab: {fileID: 3855551600963893737, guid: bb6b67ab72cafce4da5362da4b86ff05, type: 3}
-  collidableWithLayers:
-    serializedVersion: 2
-    m_Bits: 128
-  timeDelayBeforeDestroy: 5
-  pickupEffectPrefab: {fileID: 0}
-  pickupSounds: []
+  weaponToGrant: {fileID: 11400000, guid: 7befe7bb95131fb41901b05c97263313, type: 2}
+  pickupSound:
+    name: Pick Up
+    clip: {fileID: 8300000, guid: 7e2e25737f3a36b498b2e4efdce43910, type: 3}
+    loop: 0
+    randomPitch: 0
+    pitch: 1
+    pitchVariation: 0.1
+    randomVolume: 0
+    volume: 1
+    volumeVariation: 0.1
+  pickupVFX: {fileID: 0}
 --- !u!82 &4447874630105289563
 AudioSource:
   m_ObjectHideFlags: 0
@@ -279,7 +284,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.28125, y: 0.640625}
+  m_Size: {x: 0.640625, y: 0.640625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

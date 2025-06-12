@@ -27,7 +27,7 @@ namespace Scripts.Enemies.Ranged
             Destroy(gameObject, lifetime);
         }
 
-        public void Initialize(Vector2 direction)
+        public void Initialize(Vector2 direction, int statsAttackDamage)
         {
             GetComponent<Rigidbody2D>().linearVelocity = direction.normalized * speed;
             transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
