@@ -56,7 +56,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -74,8 +74,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1054814447
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -1176069232, guid: 75c428ae59c55ad488f8539a34d2d1ea, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -189,8 +189,10 @@ MonoBehaviour:
     loop: 0
     randomPitch: 0
     pitch: 1
+    pitchVariation: 0.1
     randomVolume: 0
     volume: 1
+    volumeVariation: 0.1
   audioSource: {fileID: 0}
 --- !u!1001 &8448787278797431314
 PrefabInstance:
@@ -200,6 +202,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4064500345843945552}
     m_Modifications:
+    - target: {fileID: 2577150364920578082, guid: 9c3e8680efdd26244a09c7ad51e745d3, type: 3}
+      propertyPath: m_SortingLayer
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2577150364920578082, guid: 9c3e8680efdd26244a09c7ad51e745d3, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1054814447
+      objectReference: {fileID: 0}
     - target: {fileID: 6318911266936275401, guid: 9c3e8680efdd26244a09c7ad51e745d3, type: 3}
       propertyPath: m_Name
       value: Shield_PickUp_visual

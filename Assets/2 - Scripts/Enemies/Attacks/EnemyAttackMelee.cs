@@ -23,9 +23,11 @@ namespace Scripts.Enemies.Attacks
 
         private void Awake()
         {
+            Transform root = transform.root;
+            
             // Get references from parent/root
             _aiController = GetComponentInParent<EnemyAIController>();
-            _visualController = GetComponentInParent<EnemyVisualController>();
+            _visualController = root.GetComponentInChildren<EnemyVisualController>();
             if (meleeHitbox == null) meleeHitbox = GetComponentInChildren<EnemyMeleeHitbox>(true);
             
             // Validations
