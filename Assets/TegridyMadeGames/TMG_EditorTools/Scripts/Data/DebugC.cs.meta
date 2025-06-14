@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0e16c81be68bca642b8f7d16bab3e8b0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Data/DebugC.cs
+  uploadId: 762402

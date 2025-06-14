@@ -46,7 +46,7 @@ namespace Scripts.Environment.Hazards
         }
 
 #if UNITY_EDITOR
-        private void OnDrawGizmos()
+        private void OnDrawGizmosSelected()
         {
             // Draw a semi-transparent red box to visualize the zone in the editor.
             if (TryGetComponent<BoxCollider2D>(out var boxCollider))

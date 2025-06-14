@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bff3fcdae5da54e47a4e61d91d65ff4d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Editor/LocalBackup/LocalBackupWindow.cs
+  uploadId: 762402

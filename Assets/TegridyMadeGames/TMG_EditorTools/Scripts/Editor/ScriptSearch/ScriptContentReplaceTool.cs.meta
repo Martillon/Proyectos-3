@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2b840743be5df744c91c85d09d5abe07
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Editor/ScriptSearch/ScriptContentReplaceTool.cs
+  uploadId: 762402

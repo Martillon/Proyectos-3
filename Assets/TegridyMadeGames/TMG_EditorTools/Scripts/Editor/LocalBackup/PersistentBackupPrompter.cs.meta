@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a080f893960826d4ea70f103a42ecd4c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Editor/LocalBackup/PersistentBackupPrompter.cs
+  uploadId: 762402

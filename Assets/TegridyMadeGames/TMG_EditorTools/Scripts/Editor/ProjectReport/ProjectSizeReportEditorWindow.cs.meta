@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 991b356220784d748aa43843ed5eac02
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Editor/ProjectReport/ProjectSizeReportEditorWindow.cs
+  uploadId: 762402

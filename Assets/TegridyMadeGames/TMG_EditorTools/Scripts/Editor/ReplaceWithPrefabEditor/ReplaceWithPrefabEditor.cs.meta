@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ccde4643c7594544f97b53aa8f4e07f5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Editor/ReplaceWithPrefabEditor/ReplaceWithPrefabEditor.cs
+  uploadId: 762402

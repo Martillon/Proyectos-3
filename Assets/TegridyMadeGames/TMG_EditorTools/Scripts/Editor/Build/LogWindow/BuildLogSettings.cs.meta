@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7848fa4f7b9ddce4b8a02c6bb7787e11
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Editor/Build/LogWindow/BuildLogSettings.cs
+  uploadId: 762402

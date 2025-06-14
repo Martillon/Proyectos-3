@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6962dbc01f0c1b245b9e51a78799e9e0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Editor/ScriptSearch/ScriptContentSearchTool.cs
+  uploadId: 762402

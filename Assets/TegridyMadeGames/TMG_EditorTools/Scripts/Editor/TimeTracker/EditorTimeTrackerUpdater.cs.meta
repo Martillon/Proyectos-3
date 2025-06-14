@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f59d3473c3e026a4b9db584d9be58056
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 272814
+  packageName: TMG Editor Tools
+  packageVersion: 1.2.0
+  assetPath: Assets/TegridyMadeGames/TMG_EditorTools/Scripts/Editor/TimeTracker/EditorTimeTrackerUpdater.cs
+  uploadId: 762402
