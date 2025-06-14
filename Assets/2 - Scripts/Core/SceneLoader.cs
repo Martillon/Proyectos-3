@@ -221,6 +221,17 @@ namespace Scripts.Core
             Debug.Log($"SceneLoader: Scene '{sceneNameToLoad}' is now ready. Firing OnSceneReady event.");
             OnSceneReady?.Invoke();
         }
+        
+        /// <summary>
+        /// A debug-only method to manually fire the OnSceneReady event.
+        /// This allows test scenes to be started without a full scene transition.
+        /// </summary>
+        [System.Diagnostics.Conditional("UNITY_EDITOR")] // This attribute ensures this method is ONLY included in Editor builds
+        public static void Debug_FireSceneReady()
+        {
+            Debug.LogWarning("DEBUG: Manually firing OnSceneReady event.");
+            OnSceneReady?.Invoke();
+        }
 
         public bool IsSceneLoaded(string sceneName)
         {
