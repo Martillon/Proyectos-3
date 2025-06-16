@@ -842,13 +842,13 @@ MonoBehaviour:
   pools:
   - tag: Melee
     prefab: {fileID: 3747311238477250152, guid: c51282c96668fb24ca6bf2b2c60dd73c, type: 3}
-    size: 5
+    size: 15
   - tag: Range
     prefab: {fileID: 468523327413216011, guid: d45cbbda27bed2d4ca96bb92bbd265ca, type: 3}
-    size: 5
+    size: 15
   - tag: Window
     prefab: {fileID: 4081927737680552251, guid: 798778cf59353294091db1a5af507a0f, type: 3}
-    size: 5
+    size: 15
 --- !u!4 &1528208172
 Transform:
   m_ObjectHideFlags: 0

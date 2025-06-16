@@ -23,8 +23,12 @@ namespace Scripts.Gameplay.Encounters
             public string enemyPoolTag;
             [Tooltip("The stats to apply to this spawned enemy.")]
             public EnemyStats enemyStats;
-            [Tooltip("(Optional) A specific transform where this enemy will spawn. If empty, a random point from the trigger's list will be used.")]
+            [Tooltip("How many copies of this enemy to spawn.")]
+            [Min(1)] public int count = 1;
+            [Tooltip("The main spawn point. If spawning multiple, they will spawn in a cluster around this point.")]
             public Transform spawnPoint;
+            [Tooltip("If Count > 1, enemies will spawn in a random radius around the main Spawn Point. 0 means they all spawn at the exact same spot.")]
+            public float spawnRadius = 0f;
             [Tooltip("Delay in seconds after the wave begins before this enemy spawns.")]
             public float spawnDelay = 0f;
         }
@@ -152,40 +156,51 @@ namespace Scripts.Gameplay.Encounters
 
         private IEnumerator SpawnEnemyRoutine(SpawnInstruction instruction)
         {
-            yield return new WaitForSeconds(instruction.spawnDelay);
+             yield return new WaitForSeconds(instruction.spawnDelay);
 
-            Transform spawnPoint = instruction.spawnPoint;
-            // If no specific spawn point is assigned, try to pick a random one
-            if (!spawnPoint)
+            // Loop for the number of enemies specified in this single instruction
+            for (int i = 0; i < instruction.count; i++)
             {
-                if (_availableRandomSpawns != null && _availableRandomSpawns.Count > 0)
+                Transform finalSpawnPoint = instruction.spawnPoint;
+
+                // If no specific spawn point is assigned, try to pick a random one
+                if (finalSpawnPoint == null)
                 {
-                    int randomIndex = Random.Range(0, _availableRandomSpawns.Count);
-                    spawnPoint = _availableRandomSpawns[randomIndex];
-                    _availableRandomSpawns.RemoveAt(randomIndex); // Prevent re-using the same random spot in the same wave
+                    if (_availableRandomSpawns != null && _availableRandomSpawns.Count > 0)
+                    {
+                        int randomIndex = Random.Range(0, _availableRandomSpawns.Count);
+                        finalSpawnPoint = _availableRandomSpawns[randomIndex];
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Encounter '{name}' needs a random spawn point but none are available.", this);
+                        continue; // Skip this spawn if no point is available
+                    }
                 }
-                else
+                
+                // Calculate the final spawn position with the radius offset
+                Vector3 spawnPosition = finalSpawnPoint.position;
+                if (instruction.spawnRadius > 0)
                 {
-                    Debug.LogWarning($"Encounter '{name}' tried to spawn an enemy randomly, but no random spawn points are available.", this);
-                    yield break;
+                    spawnPosition += (Vector3)Random.insideUnitCircle * instruction.spawnRadius;
                 }
-            }
 
-            GameObject enemyInstance = ObjectPooler.Instance.SpawnFromPool(
-                instruction.enemyPoolTag,
-                spawnPoint.position,
-                spawnPoint.rotation
-            );
-            
-            if (!enemyInstance) yield break;
+                GameObject enemyInstance = ObjectPooler.Instance.SpawnFromPool(
+                    instruction.enemyPoolTag,
+                    spawnPosition,
+                    finalSpawnPoint.rotation
+                );
+                
+                if(enemyInstance == null) continue;
+                
+                if (enemyInstance.TryGetComponent<EnemyHealth>(out var health))
+                {
+                    var aiController = enemyInstance.GetComponent<EnemyAIController>();
+                    aiController?.Configure(instruction.enemyStats);
 
-            if (enemyInstance.TryGetComponent<EnemyHealth>(out var health))
-            {
-                var aiController = enemyInstance.GetComponent<EnemyAIController>();
-                aiController?.Configure(instruction.enemyStats); // Configure injects stats into all necessary components
-
-                _activeEnemies.Add(health);
-                health.OnDeath += OnTrackedEnemyDied;
+                    _activeEnemies.Add(health);
+                    health.OnDeath += OnTrackedEnemyDied;
+                }
             }
         }
 
