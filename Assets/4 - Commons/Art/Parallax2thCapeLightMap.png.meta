@@ -1,0 +1,3263 @@
+fileFormatVersion: 2
+guid: 0760f0e84ba6eed4499e836f9768647f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 720537802620286572
+    second: Parallax2thCapeLightMap_0
+  - first:
+      213: 8485667025423086211
+    second: Parallax2thCapeLightMap_1
+  - first:
+      213: -7353745757996910088
+    second: Parallax2thCapeLightMap_2
+  - first:
+      213: -283336907189806204
+    second: Parallax2thCapeLightMap_3
+  - first:
+      213: 6091026424419845489
+    second: Parallax2thCapeLightMap_4
+  - first:
+      213: -1185847652182468906
+    second: Parallax2thCapeLightMap_5
+  - first:
+      213: -5280142570500363353
+    second: Parallax2thCapeLightMap_6
+  - first:
+      213: -1273847228524182511
+    second: Parallax2thCapeLightMap_7
+  - first:
+      213: -5459555133837580283
+    second: Parallax2thCapeLightMap_8
+  - first:
+      213: -2539467316322940016
+    second: Parallax2thCapeLightMap_9
+  - first:
+      213: 131392836699740972
+    second: Parallax2thCapeLightMap_10
+  - first:
+      213: 6868098120324375851
+    second: Parallax2thCapeLightMap_11
+  - first:
+      213: 8782150052970220023
+    second: Parallax2thCapeLightMap_12
+  - first:
+      213: 6077184626971229144
+    second: Parallax2thCapeLightMap_13
+  - first:
+      213: 2313518331532889591
+    second: Parallax2thCapeLightMap_14
+  - first:
+      213: 887814797849921967
+    second: Parallax2thCapeLightMap_15
+  - first:
+      213: 8375427781045230958
+    second: Parallax2thCapeLightMap_16
+  - first:
+      213: 2418131487833002399
+    second: Parallax2thCapeLightMap_17
+  - first:
+      213: -3168925262961186021
+    second: Parallax2thCapeLightMap_18
+  - first:
+      213: -6114766748764047322
+    second: Parallax2thCapeLightMap_19
+  - first:
+      213: 6955766805879024671
+    second: Parallax2thCapeLightMap_20
+  - first:
+      213: 4409808292603244263
+    second: Parallax2thCapeLightMap_21
+  - first:
+      213: 7370572495415286465
+    second: Parallax2thCapeLightMap_22
+  - first:
+      213: -8164840626427593455
+    second: Parallax2thCapeLightMap_23
+  - first:
+      213: -4452397792514056216
+    second: Parallax2thCapeLightMap_24
+  - first:
+      213: -7173255103828247508
+    second: Parallax2thCapeLightMap_25
+  - first:
+      213: -6124650330253924478
+    second: Parallax2thCapeLightMap_26
+  - first:
+      213: -3378833227361526149
+    second: Parallax2thCapeLightMap_27
+  - first:
+      213: -3555658445055002327
+    second: Parallax2thCapeLightMap_28
+  - first:
+      213: -8501249476746244746
+    second: Parallax2thCapeLightMap_29
+  - first:
+      213: -4515440952803506928
+    second: Parallax2thCapeLightMap_30
+  - first:
+      213: 8183683937233698534
+    second: Parallax2thCapeLightMap_31
+  - first:
+      213: -4286717189142057350
+    second: Parallax2thCapeLightMap_32
+  - first:
+      213: 6680084846146003274
+    second: Parallax2thCapeLightMap_33
+  - first:
+      213: -1008727626128530784
+    second: Parallax2thCapeLightMap_34
+  - first:
+      213: -2301872865083286415
+    second: Parallax2thCapeLightMap_35
+  - first:
+      213: 5825362405489671490
+    second: Parallax2thCapeLightMap_36
+  - first:
+      213: 7438509521192298413
+    second: Parallax2thCapeLightMap_37
+  - first:
+      213: -5286816155093085829
+    second: Parallax2thCapeLightMap_38
+  - first:
+      213: -2741427911498680565
+    second: Parallax2thCapeLightMap_39
+  - first:
+      213: 5377870797171119443
+    second: Parallax2thCapeLightMap_40
+  - first:
+      213: -4144357062167686323
+    second: Parallax2thCapeLightMap_41
+  - first:
+      213: 2276667623509720217
+    second: Parallax2thCapeLightMap_42
+  - first:
+      213: -8819300532673905613
+    second: Parallax2thCapeLightMap_43
+  - first:
+      213: 5302047970192841607
+    second: Parallax2thCapeLightMap_44
+  - first:
+      213: -4962944373341648637
+    second: Parallax2thCapeLightMap_45
+  - first:
+      213: 2021872386628521393
+    second: Parallax2thCapeLightMap_46
+  - first:
+      213: 2961302248245149172
+    second: Parallax2thCapeLightMap_47
+  - first:
+      213: 7595063494924701765
+    second: Parallax2thCapeLightMap_48
+  - first:
+      213: 6532821445775311406
+    second: Parallax2thCapeLightMap_49
+  - first:
+      213: 4538927969924674032
+    second: Parallax2thCapeLightMap_50
+  - first:
+      213: 7841012572057890040
+    second: Parallax2thCapeLightMap_51
+  - first:
+      213: -5286601781912405783
+    second: Parallax2thCapeLightMap_52
+  - first:
+      213: 6490514864416712238
+    second: Parallax2thCapeLightMap_53
+  - first:
+      213: -2669908736205930660
+    second: Parallax2thCapeLightMap_54
+  - first:
+      213: -6517085399901821055
+    second: Parallax2thCapeLightMap_55
+  - first:
+      213: -3557980004798978916
+    second: Parallax2thCapeLightMap_56
+  - first:
+      213: -5815915047067288347
+    second: Parallax2thCapeLightMap_57
+  - first:
+      213: -6120009387218641696
+    second: Parallax2thCapeLightMap_58
+  - first:
+      213: -3583068264024577607
+    second: Parallax2thCapeLightMap_59
+  - first:
+      213: -4132635687091940075
+    second: Parallax2thCapeLightMap_60
+  - first:
+      213: -8409565058583239667
+    second: Parallax2thCapeLightMap_61
+  - first:
+      213: -5352258386280404550
+    second: Parallax2thCapeLightMap_62
+  - first:
+      213: -8022224978806160766
+    second: Parallax2thCapeLightMap_63
+  - first:
+      213: 936763261437258883
+    second: Parallax2thCapeLightMap_64
+  - first:
+      213: -671081311569700365
+    second: Parallax2thCapeLightMap_65
+  - first:
+      213: 5672687253514775631
+    second: Parallax2thCapeLightMap_66
+  - first:
+      213: 1891179415375253396
+    second: Parallax2thCapeLightMap_67
+  - first:
+      213: 7716311352905510481
+    second: Parallax2thCapeLightMap_68
+  - first:
+      213: -3980150256787136843
+    second: Parallax2thCapeLightMap_69
+  - first:
+      213: 3091009761157310153
+    second: Parallax2thCapeLightMap_70
+  - first:
+      213: 3192270708635109941
+    second: Parallax2thCapeLightMap_71
+  - first:
+      213: 201956954229600430
+    second: Parallax2thCapeLightMap_72
+  - first:
+      213: -5012999597249934226
+    second: Parallax2thCapeLightMap_73
+  - first:
+      213: -7868946911509238520
+    second: Parallax2thCapeLightMap_74
+  - first:
+      213: 9151116212822867755
+    second: Parallax2thCapeLightMap_75
+  - first:
+      213: 1303574763604016354
+    second: Parallax2thCapeLightMap_76
+  - first:
+      213: 8947689141218356993
+    second: Parallax2thCapeLightMap_77
+  - first:
+      213: -1062178426998928663
+    second: Parallax2thCapeLightMap_78
+  - first:
+      213: 8453217040747947843
+    second: Parallax2thCapeLightMap_79
+  - first:
+      213: 3193420514521672105
+    second: Parallax2thCapeLightMap_80
+  - first:
+      213: 2262071623962687719
+    second: Parallax2thCapeLightMap_81
+  - first:
+      213: 120693057690197491
+    second: Parallax2thCapeLightMap_82
+  - first:
+      213: -4775712701724122057
+    second: Parallax2thCapeLightMap_83
+  - first:
+      213: -1133300773236523372
+    second: Parallax2thCapeLightMap_84
+  - first:
+      213: 4671502748050024634
+    second: Parallax2thCapeLightMap_85
+  - first:
+      213: 6484308823887866466
+    second: Parallax2thCapeLightMap_86
+  - first:
+      213: 83793781765850872
+    second: Parallax2thCapeLightMap_87
+  - first:
+      213: 3983841777192783650
+    second: Parallax2thCapeLightMap_88
+  - first:
+      213: -2222244272508775359
+    second: Parallax2thCapeLightMap_89
+  - first:
+      213: -6673253500455638408
+    second: Parallax2thCapeLightMap_90
+  - first:
+      213: 8751929934308008424
+    second: Parallax2thCapeLightMap_91
+  - first:
+      213: -2682121486481661570
+    second: Parallax2thCapeLightMap_92
+  - first:
+      213: 7527695765011959549
+    second: Parallax2thCapeLightMap_93
+  - first:
+      213: 7318522884843395634
+    second: Parallax2thCapeLightMap_94
+  - first:
+      213: 9040651278606615703
+    second: Parallax2thCapeLightMap_95
+  - first:
+      213: 5788267533019329276
+    second: Parallax2thCapeLightMap_96
+  - first:
+      213: 5232944120290061240
+    second: Parallax2thCapeLightMap_97
+  - first:
+      213: 2097614752512536291
+    second: Parallax2thCapeLightMap_98
+  - first:
+      213: 4850796303521486318
+    second: Parallax2thCapeLightMap_99
+  - first:
+      213: 499608918656867411
+    second: Parallax2thCapeLightMap_100
+  - first:
+      213: -1004396425668537288
+    second: Parallax2thCapeLightMap_101
+  - first:
+      213: -3975075396884450816
+    second: Parallax2thCapeLightMap_102
+  - first:
+      213: -5422787030123114691
+    second: Parallax2thCapeLightMap_103
+  - first:
+      213: 53090918943912341
+    second: Parallax2thCapeLightMap_104
+  - first:
+      213: -6225542013483553751
+    second: Parallax2thCapeLightMap_105
+  - first:
+      213: -3965165163977866697
+    second: Parallax2thCapeLightMap_106
+  - first:
+      213: -8324020050877667857
+    second: Parallax2thCapeLightMap_107
+  - first:
+      213: 3601793013763529838
+    second: Parallax2thCapeLightMap_108
+  - first:
+      213: -203226195390960395
+    second: Parallax2thCapeLightMap_109
+  - first:
+      213: 6489430932539974941
+    second: Parallax2thCapeLightMap_110
+  - first:
+      213: 4379027385778479003
+    second: Parallax2thCapeLightMap_111
+  - first:
+      213: -6706678940495550418
+    second: Parallax2thCapeLightMap_112
+  - first:
+      213: 8238765244909813219
+    second: Parallax2thCapeLightMap_113
+  - first:
+      213: -4850763660601340607
+    second: Parallax2thCapeLightMap_114
+  - first:
+      213: 4126451957407108476
+    second: Parallax2thCapeLightMap_115
+  - first:
+      213: -2028893371972334806
+    second: Parallax2thCapeLightMap_116
+  - first:
+      213: -7186289950103492185
+    second: Parallax2thCapeLightMap_117
+  - first:
+      213: 3782427001399593036
+    second: Parallax2thCapeLightMap_118
+  - first:
+      213: 8583608528118941234
+    second: Parallax2thCapeLightMap_119
+  - first:
+      213: 893930836849723990
+    second: Parallax2thCapeLightMap_120
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 64
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_0
+      rect:
+        serializedVersion: 2
+        x: 781
+        y: 827
+        width: 237
+        height: 95
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c663c6c505ddff900800000000000000
+      internalID: 720537802620286572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_1
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 666
+        width: 93
+        height: 132
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 382b69c533523c570800000000000000
+      internalID: 8485667025423086211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_2
+      rect:
+        serializedVersion: 2
+        x: 843
+        y: 782
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f9fe06e13f32f990800000000000000
+      internalID: -7353745757996910088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_3
+      rect:
+        serializedVersion: 2
+        x: 867
+        y: 781
+        width: 12
+        height: 20
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48b91378592611cf0800000000000000
+      internalID: -283336907189806204
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_4
+      rect:
+        serializedVersion: 2
+        x: 890
+        y: 780
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1750019e24ca78450800000000000000
+      internalID: 6091026424419845489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_5
+      rect:
+        serializedVersion: 2
+        x: 917
+        y: 780
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d6deedd7d50b8fe0800000000000000
+      internalID: -1185847652182468906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_6
+      rect:
+        serializedVersion: 2
+        x: 945
+        y: 779
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ab68e9be4a29b6b0800000000000000
+      internalID: -5280142570500363353
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_7
+      rect:
+        serializedVersion: 2
+        x: 817
+        y: 767
+        width: 177
+        height: 6
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11443bdd1b2625ee0800000000000000
+      internalID: -1273847228524182511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_8
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 698
+        width: 15
+        height: 8
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50863ff1883cb34b0800000000000000
+      internalID: -5459555133837580283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_9
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 0
+        width: 296
+        height: 752
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09b4bd33eeff1ccd0800000000000000
+      internalID: -2539467316322940016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_10
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 621
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2bd48db61dc2d100800000000000000
+      internalID: 131392836699740972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_11
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 578
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2566780ad2605f50800000000000000
+      internalID: 6868098120324375851
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_12
+      rect:
+        serializedVersion: 2
+        x: 55
+        y: 578
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f9c77f71f670e970800000000000000
+      internalID: 8782150052970220023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_13
+      rect:
+        serializedVersion: 2
+        x: 1176
+        y: 579
+        width: 11
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8dbb51d483f765450800000000000000
+      internalID: 6077184626971229144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_14
+      rect:
+        serializedVersion: 2
+        x: 1202
+        y: 579
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fd4f5c3aa44b1020800000000000000
+      internalID: 2313518331532889591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_15
+      rect:
+        serializedVersion: 2
+        x: 1230
+        y: 578
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa90e24dad6225c00800000000000000
+      internalID: 887814797849921967
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_16
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 533
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6d9323213f7b3470800000000000000
+      internalID: 8375427781045230958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_17
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 533
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f911970c6cdee8120800000000000000
+      internalID: 2418131487833002399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_18
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 524
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1bef655347b504d0800000000000000
+      internalID: -3168925262961186021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_19
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 524
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6287c871a0cf32ba0800000000000000
+      internalID: -6114766748764047322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_20
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 523
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1c6fd48e09d78060800000000000000
+      internalID: 6955766805879024671
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_21
+      rect:
+        serializedVersion: 2
+        x: 1179
+        y: 517
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ee20382749c23d30800000000000000
+      internalID: 4409808292603244263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_22
+      rect:
+        serializedVersion: 2
+        x: 1206
+        y: 517
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ca1e7432a8894660800000000000000
+      internalID: 7370572495415286465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_23
+      rect:
+        serializedVersion: 2
+        x: 1234
+        y: 516
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11dfa1e95b8a0be80800000000000000
+      internalID: -8164840626427593455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_24
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 482
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ef577a2cc7e532c0800000000000000
+      internalID: -4452397792514056216
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_25
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 482
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2c3f051d7a737c90800000000000000
+      internalID: -7173255103828247508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_26
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 481
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2876cb379fed00ba0800000000000000
+      internalID: -6124650330253924478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_27
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 462
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7e54dfd419fb11d0800000000000000
+      internalID: -3378833227361526149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_28
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 462
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 929f0ef9b73c7aec0800000000000000
+      internalID: -3555658445055002327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_29
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 461
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67d809774ae750a80800000000000000
+      internalID: -8501249476746244746
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_30
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 463
+        width: 182
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01545e3906ee551c0800000000000000
+      internalID: -4515440952803506928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_31
+      rect:
+        serializedVersion: 2
+        x: 1179
+        y: 465
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ee72e09e29429170800000000000000
+      internalID: 8183683937233698534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_32
+      rect:
+        serializedVersion: 2
+        x: 1206
+        y: 465
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7e60a0bd658284c0800000000000000
+      internalID: -4286717189142057350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_33
+      rect:
+        serializedVersion: 2
+        x: 1234
+        y: 464
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a41a00466cd64bc50800000000000000
+      internalID: 6680084846146003274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_34
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 420
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a26c7981974002f0800000000000000
+      internalID: -1008727626128530784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_35
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 420
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17c999633da1e00e0800000000000000
+      internalID: -2301872865083286415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_36
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 419
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24d70236e38d7d050800000000000000
+      internalID: 5825362405489671490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_37
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 403
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da72705aff4ea3760800000000000000
+      internalID: 7438509521192298413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_38
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 403
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7151eab7b471a6b0800000000000000
+      internalID: -5286816155093085829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_39
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 402
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b07b7c5d6dd74f9d0800000000000000
+      internalID: -2741427911498680565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_40
+      rect:
+        serializedVersion: 2
+        x: 1181
+        y: 399
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 355d4513ff802aa40800000000000000
+      internalID: 5377870797171119443
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_41
+      rect:
+        serializedVersion: 2
+        x: 1208
+        y: 399
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d431d1fa5394c76c0800000000000000
+      internalID: -4144357062167686323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_42
+      rect:
+        serializedVersion: 2
+        x: 1236
+        y: 398
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99cfdea2429589f10800000000000000
+      internalID: 2276667623509720217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_43
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 361
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33cfe8664ec8b9580800000000000000
+      internalID: -8819300532673905613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_44
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 361
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78bdc659988a49940800000000000000
+      internalID: 5302047970192841607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_45
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 360
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30982f22364102bb0800000000000000
+      internalID: -4962944373341648637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_46
+      rect:
+        serializedVersion: 2
+        x: 606
+        y: 365
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1bd0a2a29322f0c10800000000000000
+      internalID: 2021872386628521393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_47
+      rect:
+        serializedVersion: 2
+        x: 633
+        y: 365
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fdb73384b8a81920800000000000000
+      internalID: 2961302248245149172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_48
+      rect:
+        serializedVersion: 2
+        x: 661
+        y: 364
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 540168d1206176960800000000000000
+      internalID: 7595063494924701765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_49
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 337
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e22cd781e7e39aa50800000000000000
+      internalID: 6532821445775311406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_50
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 337
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f1f17cb0f28dfe30800000000000000
+      internalID: 4538927969924674032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_51
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 336
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fce1ec046fd0dc60800000000000000
+      internalID: 7841012572057890040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_52
+      rect:
+        serializedVersion: 2
+        x: 1183
+        y: 337
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e8f92060b732a6b0800000000000000
+      internalID: -5286601781912405783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_53
+      rect:
+        serializedVersion: 2
+        x: 1210
+        y: 337
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2663f681e0f21a50800000000000000
+      internalID: 6490514864416712238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_54
+      rect:
+        serializedVersion: 2
+        x: 1238
+        y: 336
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5fbbb3762492fad0800000000000000
+      internalID: -2669908736205930660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_55
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 295
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 187a7f79b59ae85a0800000000000000
+      internalID: -6517085399901821055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_56
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 295
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c94a30069048f9ec0800000000000000
+      internalID: -3557980004798978916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_57
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 294
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ec74b72418b94fa0800000000000000
+      internalID: -5815915047067288347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_58
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 303
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ecd6c433eb511ba0800000000000000
+      internalID: -6120009387218641696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_59
+      rect:
+        serializedVersion: 2
+        x: 632
+        y: 303
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b9e6d4d562664ec0800000000000000
+      internalID: -3583068264024577607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_60
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 302
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51558ccfcbde5a6c0800000000000000
+      internalID: -4132635687091940075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_61
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 275
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d04eb9f82293b4b80800000000000000
+      internalID: -8409565058583239667
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_62
+      rect:
+        serializedVersion: 2
+        x: 292
+        y: 275
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab9a6abea55f8b5b0800000000000000
+      internalID: -5352258386280404550
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_63
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 274
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2824ef5a2e45ba090800000000000000
+      internalID: -8022224978806160766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_64
+      rect:
+        serializedVersion: 2
+        x: 1181
+        y: 279
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38caa9c193d000d00800000000000000
+      internalID: 936763261437258883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_65
+      rect:
+        serializedVersion: 2
+        x: 1208
+        y: 279
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f91c784a17dfa6f0800000000000000
+      internalID: -671081311569700365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_66
+      rect:
+        serializedVersion: 2
+        x: 1236
+        y: 278
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4c62ab700f69be40800000000000000
+      internalID: 5672687253514775631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_67
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 233
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49f09fb88a1de3a10800000000000000
+      internalID: 1891179415375253396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_68
+      rect:
+        serializedVersion: 2
+        x: 55
+        y: 233
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15e2f3eea48d51b60800000000000000
+      internalID: 7716311352905510481
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_69
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 232
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bed58fdd6aa3c8c0800000000000000
+      internalID: -3980150256787136843
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_70
+      rect:
+        serializedVersion: 2
+        x: 603
+        y: 244
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c6eb0b300975ea20800000000000000
+      internalID: 3091009761157310153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_71
+      rect:
+        serializedVersion: 2
+        x: 630
+        y: 244
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53a841fcb493d4c20800000000000000
+      internalID: 3192270708635109941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_72
+      rect:
+        serializedVersion: 2
+        x: 658
+        y: 243
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea076c4a7ce7dc200800000000000000
+      internalID: 201956954229600430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_73
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 213
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6ccdb22d6f3e6ab0800000000000000
+      internalID: -5012999597249934226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_74
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 213
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80da517b972ebc290800000000000000
+      internalID: -7868946911509238520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_75
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 212
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2fff9bf5bb4ffe70800000000000000
+      internalID: 9151116212822867755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_76
+      rect:
+        serializedVersion: 2
+        x: 1179
+        y: 220
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ecf7c2475a371210800000000000000
+      internalID: 1303574763604016354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_77
+      rect:
+        serializedVersion: 2
+        x: 1206
+        y: 220
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10fa0f6fdd39c2c70800000000000000
+      internalID: 8947689141218356993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_78
+      rect:
+        serializedVersion: 2
+        x: 1234
+        y: 219
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ea45aa29526241f0800000000000000
+      internalID: -1062178426998928663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_79
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 173
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3476f0b8c1cdf4570800000000000000
+      internalID: 8453217040747947843
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_80
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 173
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a9628ad90f415c20800000000000000
+      internalID: 3193420514521672105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_81
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 173
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e879c2382e746f10800000000000000
+      internalID: 2262071623962687719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_82
+      rect:
+        serializedVersion: 2
+        x: 270
+        y: 164
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fdda7e42b9cca100800000000000000
+      internalID: 120693057690197491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_83
+      rect:
+        serializedVersion: 2
+        x: 297
+        y: 164
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 734a960c99249bdb0800000000000000
+      internalID: -4775712701724122057
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_84
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 163
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49ebf8383f4b540f0800000000000000
+      internalID: -1133300773236523372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_85
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 178
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab868c8aff284d040800000000000000
+      internalID: 4671502748050024634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_86
+      rect:
+        serializedVersion: 2
+        x: 632
+        y: 178
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26a64cd1584ecf950800000000000000
+      internalID: 6484308823887866466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_87
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 177
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f64a842002b92100800000000000000
+      internalID: 83793781765850872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_88
+      rect:
+        serializedVersion: 2
+        x: 1181
+        y: 154
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22fcfe23df2794730800000000000000
+      internalID: 3983841777192783650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_89
+      rect:
+        serializedVersion: 2
+        x: 1208
+        y: 154
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 144d7fcab900921e0800000000000000
+      internalID: -2222244272508775359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_90
+      rect:
+        serializedVersion: 2
+        x: 1236
+        y: 153
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87aa5393c47d363a0800000000000000
+      internalID: -6673253500455638408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_91
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 125
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e16981d7e9157970800000000000000
+      internalID: 8751929934308008424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_92
+      rect:
+        serializedVersion: 2
+        x: 57
+        y: 125
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7161d1f7b037cad0800000000000000
+      internalID: -2682121486481661570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_93
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 124
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfe00c23a6fb77860800000000000000
+      internalID: 7527695765011959549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_94
+      rect:
+        serializedVersion: 2
+        x: 607
+        y: 116
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23a58afd9cd909560800000000000000
+      internalID: 7318522884843395634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_95
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 116
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 794478f3078d67d70800000000000000
+      internalID: 9040651278606615703
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_96
+      rect:
+        serializedVersion: 2
+        x: 662
+        y: 115
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf23b8a57ae045050800000000000000
+      internalID: 5788267533019329276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_97
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 102
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bbab5bb3f62f9840800000000000000
+      internalID: 5232944120290061240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_98
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 102
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3eee027f0893c1d10800000000000000
+      internalID: 2097614752512536291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_99
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 101
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee51d25998d715340800000000000000
+      internalID: 4850796303521486318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_100
+      rect:
+        serializedVersion: 2
+        x: 1183
+        y: 92
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35cd82b1aa7fee600800000000000000
+      internalID: 499608918656867411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_101
+      rect:
+        serializedVersion: 2
+        x: 1210
+        y: 92
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 834da5ab5caaf02f0800000000000000
+      internalID: -1004396425668537288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_102
+      rect:
+        serializedVersion: 2
+        x: 1238
+        y: 91
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 002be45ccf1b5d8c0800000000000000
+      internalID: -3975075396884450816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_103
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 63
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3f8ae06de36eb4b0800000000000000
+      internalID: -5422787030123114691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_104
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 63
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5917374d8ed9cb000800000000000000
+      internalID: 53090918943912341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_105
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 62
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92cea08e58e6a99a0800000000000000
+      internalID: -6225542013483553751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_106
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 43
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 732885daa47e8f8c0800000000000000
+      internalID: -3965165163977866697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_107
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 43
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe52534cdd32b7c80800000000000000
+      internalID: -8324020050877667857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_108
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 42
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6cdbd3b9a32cf130800000000000000
+      internalID: 3601793013763529838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_109
+      rect:
+        serializedVersion: 2
+        x: 611
+        y: 54
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fceaae1adefd2df0800000000000000
+      internalID: -203226195390960395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_110
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 54
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d152a78fc071f0a50800000000000000
+      internalID: 6489430932539974941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_111
+      rect:
+        serializedVersion: 2
+        x: 666
+        y: 53
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9f980fc43e65cc30800000000000000
+      internalID: 4379027385778479003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_112
+      rect:
+        serializedVersion: 2
+        x: 1187
+        y: 30
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e286b2189071de2a0800000000000000
+      internalID: -6706678940495550418
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_113
+      rect:
+        serializedVersion: 2
+        x: 1214
+        y: 30
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3edfea2e659f55270800000000000000
+      internalID: 8238765244909813219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_114
+      rect:
+        serializedVersion: 2
+        x: 1242
+        y: 29
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14dcb70b620aeacb0800000000000000
+      internalID: -4850763660601340607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_115
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 4
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7d47ff313a144930800000000000000
+      internalID: 4126451957407108476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_116
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 4
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2bc17c4a3ce7d3e0800000000000000
+      internalID: -2028893371972334806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_117
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 3
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a92f1f6d5b254c90800000000000000
+      internalID: -7186289950103492185
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_118
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 4
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c48c44f4151ed7430800000000000000
+      internalID: 3782427001399593036
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_119
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 4
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2360b897a7a1f1770800000000000000
+      internalID: 8583608528118941234
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Parallax2thCapeLightMap_120
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 3
+        width: 12
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65a02302c51e76c00800000000000000
+      internalID: 893930836849723990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Parallax2thCapeLightMap_0: 720537802620286572
+      Parallax2thCapeLightMap_1: 8485667025423086211
+      Parallax2thCapeLightMap_10: 131392836699740972
+      Parallax2thCapeLightMap_100: 499608918656867411
+      Parallax2thCapeLightMap_101: -1004396425668537288
+      Parallax2thCapeLightMap_102: -3975075396884450816
+      Parallax2thCapeLightMap_103: -5422787030123114691
+      Parallax2thCapeLightMap_104: 53090918943912341
+      Parallax2thCapeLightMap_105: -6225542013483553751
+      Parallax2thCapeLightMap_106: -3965165163977866697
+      Parallax2thCapeLightMap_107: -8324020050877667857
+      Parallax2thCapeLightMap_108: 3601793013763529838
+      Parallax2thCapeLightMap_109: -203226195390960395
+      Parallax2thCapeLightMap_11: 6868098120324375851
+      Parallax2thCapeLightMap_110: 6489430932539974941
+      Parallax2thCapeLightMap_111: 4379027385778479003
+      Parallax2thCapeLightMap_112: -6706678940495550418
+      Parallax2thCapeLightMap_113: 8238765244909813219
+      Parallax2thCapeLightMap_114: -4850763660601340607
+      Parallax2thCapeLightMap_115: 4126451957407108476
+      Parallax2thCapeLightMap_116: -2028893371972334806
+      Parallax2thCapeLightMap_117: -7186289950103492185
+      Parallax2thCapeLightMap_118: 3782427001399593036
+      Parallax2thCapeLightMap_119: 8583608528118941234
+      Parallax2thCapeLightMap_12: 8782150052970220023
+      Parallax2thCapeLightMap_120: 893930836849723990
+      Parallax2thCapeLightMap_13: 6077184626971229144
+      Parallax2thCapeLightMap_14: 2313518331532889591
+      Parallax2thCapeLightMap_15: 887814797849921967
+      Parallax2thCapeLightMap_16: 8375427781045230958
+      Parallax2thCapeLightMap_17: 2418131487833002399
+      Parallax2thCapeLightMap_18: -3168925262961186021
+      Parallax2thCapeLightMap_19: -6114766748764047322
+      Parallax2thCapeLightMap_2: -7353745757996910088
+      Parallax2thCapeLightMap_20: 6955766805879024671
+      Parallax2thCapeLightMap_21: 4409808292603244263
+      Parallax2thCapeLightMap_22: 7370572495415286465
+      Parallax2thCapeLightMap_23: -8164840626427593455
+      Parallax2thCapeLightMap_24: -4452397792514056216
+      Parallax2thCapeLightMap_25: -7173255103828247508
+      Parallax2thCapeLightMap_26: -6124650330253924478
+      Parallax2thCapeLightMap_27: -3378833227361526149
+      Parallax2thCapeLightMap_28: -3555658445055002327
+      Parallax2thCapeLightMap_29: -8501249476746244746
+      Parallax2thCapeLightMap_3: -283336907189806204
+      Parallax2thCapeLightMap_30: -4515440952803506928
+      Parallax2thCapeLightMap_31: 8183683937233698534
+      Parallax2thCapeLightMap_32: -4286717189142057350
+      Parallax2thCapeLightMap_33: 6680084846146003274
+      Parallax2thCapeLightMap_34: -1008727626128530784
+      Parallax2thCapeLightMap_35: -2301872865083286415
+      Parallax2thCapeLightMap_36: 5825362405489671490
+      Parallax2thCapeLightMap_37: 7438509521192298413
+      Parallax2thCapeLightMap_38: -5286816155093085829
+      Parallax2thCapeLightMap_39: -2741427911498680565
+      Parallax2thCapeLightMap_4: 6091026424419845489
+      Parallax2thCapeLightMap_40: 5377870797171119443
+      Parallax2thCapeLightMap_41: -4144357062167686323
+      Parallax2thCapeLightMap_42: 2276667623509720217
+      Parallax2thCapeLightMap_43: -8819300532673905613
+      Parallax2thCapeLightMap_44: 5302047970192841607
+      Parallax2thCapeLightMap_45: -4962944373341648637
+      Parallax2thCapeLightMap_46: 2021872386628521393
+      Parallax2thCapeLightMap_47: 2961302248245149172
+      Parallax2thCapeLightMap_48: 7595063494924701765
+      Parallax2thCapeLightMap_49: 6532821445775311406
+      Parallax2thCapeLightMap_5: -1185847652182468906
+      Parallax2thCapeLightMap_50: 4538927969924674032
+      Parallax2thCapeLightMap_51: 7841012572057890040
+      Parallax2thCapeLightMap_52: -5286601781912405783
+      Parallax2thCapeLightMap_53: 6490514864416712238
+      Parallax2thCapeLightMap_54: -2669908736205930660
+      Parallax2thCapeLightMap_55: -6517085399901821055
+      Parallax2thCapeLightMap_56: -3557980004798978916
+      Parallax2thCapeLightMap_57: -5815915047067288347
+      Parallax2thCapeLightMap_58: -6120009387218641696
+      Parallax2thCapeLightMap_59: -3583068264024577607
+      Parallax2thCapeLightMap_6: -5280142570500363353
+      Parallax2thCapeLightMap_60: -4132635687091940075
+      Parallax2thCapeLightMap_61: -8409565058583239667
+      Parallax2thCapeLightMap_62: -5352258386280404550
+      Parallax2thCapeLightMap_63: -8022224978806160766
+      Parallax2thCapeLightMap_64: 936763261437258883
+      Parallax2thCapeLightMap_65: -671081311569700365
+      Parallax2thCapeLightMap_66: 5672687253514775631
+      Parallax2thCapeLightMap_67: 1891179415375253396
+      Parallax2thCapeLightMap_68: 7716311352905510481
+      Parallax2thCapeLightMap_69: -3980150256787136843
+      Parallax2thCapeLightMap_7: -1273847228524182511
+      Parallax2thCapeLightMap_70: 3091009761157310153
+      Parallax2thCapeLightMap_71: 3192270708635109941
+      Parallax2thCapeLightMap_72: 201956954229600430
+      Parallax2thCapeLightMap_73: -5012999597249934226
+      Parallax2thCapeLightMap_74: -7868946911509238520
+      Parallax2thCapeLightMap_75: 9151116212822867755
+      Parallax2thCapeLightMap_76: 1303574763604016354
+      Parallax2thCapeLightMap_77: 8947689141218356993
+      Parallax2thCapeLightMap_78: -1062178426998928663
+      Parallax2thCapeLightMap_79: 8453217040747947843
+      Parallax2thCapeLightMap_8: -5459555133837580283
+      Parallax2thCapeLightMap_80: 3193420514521672105
+      Parallax2thCapeLightMap_81: 2262071623962687719
+      Parallax2thCapeLightMap_82: 120693057690197491
+      Parallax2thCapeLightMap_83: -4775712701724122057
+      Parallax2thCapeLightMap_84: -1133300773236523372
+      Parallax2thCapeLightMap_85: 4671502748050024634
+      Parallax2thCapeLightMap_86: 6484308823887866466
+      Parallax2thCapeLightMap_87: 83793781765850872
+      Parallax2thCapeLightMap_88: 3983841777192783650
+      Parallax2thCapeLightMap_89: -2222244272508775359
+      Parallax2thCapeLightMap_9: -2539467316322940016
+      Parallax2thCapeLightMap_90: -6673253500455638408
+      Parallax2thCapeLightMap_91: 8751929934308008424
+      Parallax2thCapeLightMap_92: -2682121486481661570
+      Parallax2thCapeLightMap_93: 7527695765011959549
+      Parallax2thCapeLightMap_94: 7318522884843395634
+      Parallax2thCapeLightMap_95: 9040651278606615703
+      Parallax2thCapeLightMap_96: 5788267533019329276
+      Parallax2thCapeLightMap_97: 5232944120290061240
+      Parallax2thCapeLightMap_98: 2097614752512536291
+      Parallax2thCapeLightMap_99: 4850796303521486318
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
