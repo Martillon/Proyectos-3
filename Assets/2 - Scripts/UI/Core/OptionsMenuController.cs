@@ -90,7 +90,6 @@ namespace Scripts.UI.MainMenu
         private void OnBackPressed()
         {
             uiSoundFeedback?.PlayClick();
-            _mainMenuController?.ShowMainMenu();
         }
     }
 }

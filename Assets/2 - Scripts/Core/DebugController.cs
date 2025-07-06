@@ -180,19 +180,22 @@ public class DebugController : MonoBehaviour
             Debug.Log($"Level '{currentScene}' marked as complete via debug command.");
         }
 
-        // Unlock All Levels
+        // Unlock All Bounties
         if (Input.GetKeyDown(KeyCode.U))
         {
-            // We need to add this method to LevelProgressionManager
-            LevelProgressionManager.Instance?.UnlockAllLevels();
-            Debug.Log("All levels unlocked.");
+            // The ProgressionManager now needs a method for this.
+            // We'll call it Debug_UnlockAllBounties to be clear.
+            ProgressionManager.Instance?.Debug_UnlockAllBounties();
+            Debug.Log("DEBUG: All bounties have been unlocked.");
+            // You might need to reload the BHA app UI to see the change.
         }
 
-        // Reset Progress
+        // Reset All Bounty Progress
         if (Input.GetKeyDown(KeyCode.R))
         {
-            LevelProgressionManager.Instance?.ResetAllProgression();
-            Debug.Log("All level progression has been reset.");
+            // Same as above, we need a dedicated debug method.
+            ProgressionManager.Instance?.Debug_ResetAllProgression();
+            Debug.Log("DEBUG: All bounty progression has been reset.");
         }
 
         // Slow-Motion

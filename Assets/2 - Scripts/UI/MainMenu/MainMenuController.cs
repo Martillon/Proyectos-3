@@ -1,115 +1,91 @@
+// --- File: MainMenuController.cs (ULTRA-SIMPLE VERSION) ---
+
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 using Scripts.Core;
-using Scripts.Core.Audio;
-using Scripts.UI.LevelSelection;
 
 namespace Scripts.UI.MainMenu
 {
     /// <summary>
-    /// Manages the main menu screen, handling navigation between its primary panels
-    /// (Main, Options, Credits, Level Select).
+    /// Acts as the main "Operating System" for the virtual desktop menu.
+    /// Manages which "app window" is currently open by activating and deactivating them.
+    /// This version uses a simple, instant GameObject switching method.
     /// </summary>
     public class MainMenuController : MonoBehaviour
     {
+        public static MainMenuController Instance { get; private set; }
+        
         [Header("UI Panels")]
-        [Tooltip("The panel containing the primary menu buttons.")]
-        [SerializeField] private GameObject mainPanel;
-        [Tooltip("The panel for game options.")]
-        [SerializeField] private GameObject optionsPanel;
-        [Tooltip("The panel for game credits.")]
-        [SerializeField] private GameObject creditsPanel;
+        [Tooltip("A reference to the main menu panel.")]
+        [SerializeField] private UIPanelAnimator mainMenuPanel;
+        [Tooltip("A reference to the bounties panel.")]
+        [SerializeField] private UIPanelAnimator bountiesPanel;
+        // Add other panels here as needed, e.g.:
+        // [SerializeField] private UIPanelAnimator optionsPanel;
 
-        [Header("Controllers")]
-        [Tooltip("Reference to the LevelSelectorController component.")]
-        [SerializeField] private LevelSelectorController levelSelectorController;
-        [Tooltip("Reference to the OptionsMenuController component.")]
-        [SerializeField] private OptionsMenuController optionsMenuController; // Added reference
-
-        [Header("Main Menu Buttons")]
-        [SerializeField] private Button playButton;
-        [SerializeField] private Button optionsButton;
-        [SerializeField] private Button creditsButton;
-        [SerializeField] private Button quitButton;
-
-        [Header("UI Feedback")]
-        [SerializeField] private UIAudioFeedback uiSoundPlayer;
-        [Tooltip("Optional text element to display the game version.")]
-        [SerializeField] private TMP_Text versionText;
+        private UIPanelAnimator _currentlyOpenPanel;
 
         private void Awake()
         {
-            // Validate critical references
-            if (!mainPanel) Debug.LogError("MMC: MainPanel is not assigned!", this);
-            if (!optionsPanel) Debug.LogError("MMC: OptionsPanel is not assigned!", this);
-            if (!creditsPanel) Debug.LogError("MMC: CreditsPanel is not assigned!", this);
-            if (!levelSelectorController) Debug.LogError("MMC: LevelSelectorController is not assigned!", this);
-            if (!optionsMenuController) Debug.LogError("MMC: OptionsMenuController is not assigned!", this);
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
         }
 
         private void Start()
         {
-            // Pass a reference of this controller to sub-controllers that need to call back to it.
-            levelSelectorController?.Initialize(this);
-            optionsMenuController?.Initialize(this); // Options needs it to return
+            InputManager.Instance?.EnableUIControls();
+            
+            // --- Initial State Setup ---
+            // Deactivate all panels except the main one at the start.
+            bountiesPanel?.Hide();
+            // optionsPanel?.Hide(); // etc.
 
-            // Bind button events
-            playButton?.onClick.AddListener(OnPlayPressed);
-            optionsButton?.onClick.AddListener(OnOptionsPressed);
-            creditsButton?.onClick.AddListener(OnCreditsPressed);
-            quitButton?.onClick.AddListener(OnQuitPressed);
-
-            // Display version info
-            if (versionText)
+            // Show the main menu panel.
+            if (mainMenuPanel != null)
             {
-                versionText.text = Application.isEditor ? "vDEV" : $"v{Application.version}";
+                mainMenuPanel.Show();
+                _currentlyOpenPanel = mainMenuPanel;
+            }
+        }
+        
+        /// <summary>
+        /// The new, extremely simple window management method.
+        /// Instantly hides the old panel and instantly shows the new one.
+        /// </summary>
+        /// <param name="panelToOpen">The panel to show.</param>
+        public void OpenPanel(UIPanelAnimator panelToOpen)
+        {
+            // Don't do anything if we're asked to open a null panel or the one that's already open.
+            if (panelToOpen == null || _currentlyOpenPanel == panelToOpen) return;
+            
+            // 1. If a panel is currently open, instantly hide it.
+            if (_currentlyOpenPanel != null)
+            {
+                _currentlyOpenPanel.Hide();
             }
 
-            // Start with the main menu visible.
-            ShowMainMenu();
-            InputManager.Instance?.EnableUIControls();
-            ScreenFader.Instance?.FadeToClear();
+            // 2. Instantly show the new panel.
+            panelToOpen.Show();
+
+            // 3. Update the reference to our new "current" panel.
+            _currentlyOpenPanel = panelToOpen;
         }
 
-        public void ShowMainMenu()
+        public void ReturnToMainMenu()
         {
-            mainPanel?.SetActive(true);
-            optionsPanel?.SetActive(false);
-            creditsPanel?.SetActive(false);
-            levelSelectorController?.gameObject.SetActive(false);
-            playButton?.Select();
+            OpenPanel(mainMenuPanel);
         }
-
-        private void OnPlayPressed()
+        
+        public void QuitApplication()
         {
-            uiSoundPlayer?.PlayClick();
-            mainPanel?.SetActive(false);
-            levelSelectorController?.ShowPanel();
-        }
-
-        private void OnOptionsPressed()
-        {
-            uiSoundPlayer?.PlayClick();
-            mainPanel?.SetActive(false);
-            optionsPanel?.SetActive(true);
-            optionsMenuController.ShowDefaultPanel(); // Tell options menu to select its first tab
-        }
-
-        private void OnCreditsPressed()
-        {
-            uiSoundPlayer?.PlayClick();
-            mainPanel?.SetActive(false);
-            creditsPanel?.SetActive(true);
-        }
-
-        private void OnQuitPressed()
-        {
-            uiSoundPlayer?.PlayClick();
+            Debug.Log("QUIT signal received. Shutting down application.");
             #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
+            UnityEditor.EditorApplication.isPlaying = false;
             #else
-                Application.Quit();
+            Application.Quit();
             #endif
         }
     }

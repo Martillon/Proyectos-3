@@ -3,102 +3,94 @@ using UnityEngine;
 namespace Scripts.Environment.Visuals
 {
     /// <summary>
-    /// Creates a parallax scrolling effect for background layers.
-    /// This script should be on a parent object, with each child being a background layer
-    /// that has a tiling material.
+    /// Manages parallax scrolling for multiple layers based on camera movement.
+    /// This component should be placed on a parent object, with each parallax layer as a child.
     /// </summary>
     public class ParallaxController : MonoBehaviour
     {
-        // A simple class to hold settings for each layer.
-        // This will show up nicely in the Inspector.
         [System.Serializable]
         public class ParallaxLayer
         {
-            [Tooltip("The Transform of the GameObject for this layer (e.g., the Quad with the background material).")]
-            public Transform layerTransform;
-            [Tooltip("The speed of this layer relative to the camera. 0 = stays with camera. 1 = moves with foreground. Values between 0 and 1 move slower than the camera. Values greater than 1 move faster (for foreground parallax).")]
-            public float parallaxSpeed;
-
-            // Private fields for internal calculations
-            [HideInInspector] public Vector3 initialPosition;
-            [HideInInspector] public Material material;
+            public Transform transform;
+            [Range(0f, 1f)]
+            public float parallaxFactor;
         }
 
-        [Header("Core Settings")]
-        [Tooltip("The main camera that the parallax effect will follow.")]
+        [Header("References")]
+        [Tooltip("The main camera the parallax effect will follow.")]
         [SerializeField] private Transform cameraTransform;
 
         [Header("Layers")]
-        [Tooltip("The list of all background layers to be controlled by this script.")]
+        [Tooltip("The layers to be affected by the parallax effect. Order does not matter.")]
         [SerializeField] private ParallaxLayer[] layers;
+
+        // The camera's position in the previous frame.
+        private Vector3 _lastCameraPosition;
+        // The width of each layer's visual element (Quad/Sprite).
+        private float[] _layerWidths;
 
         private void Start()
         {
-            if (!cameraTransform)
+            // Default to the main camera if none is assigned
+            if (cameraTransform == null && UnityEngine.Camera.main != null)
             {
-                if (UnityEngine.Camera.main) cameraTransform = UnityEngine.Camera.main.transform;
-                else 
-                {
-                    Debug.LogError("ParallaxController: No camera assigned and no main camera found in the scene.", this);
-                    return;
-                }
+                if (UnityEngine.Camera.main != null) cameraTransform = UnityEngine.Camera.main.transform;
             }
 
-            // Store the initial position of each layer and get its material.
-            foreach (var layer in layers)
+            if (cameraTransform == null)
             {
-                if (layer.layerTransform == null) continue;
-                
-                layer.initialPosition = layer.layerTransform.position;
-                
-                var renderer = layer.layerTransform.GetComponent<Renderer>();
-                if(renderer != null)
+                Debug.LogError("ParallaxController requires a camera to function.", this);
+                enabled = false;
+                return;
+            }
+
+            _lastCameraPosition = cameraTransform.position;
+
+            // Store the width of each layer for the wrapping calculation.
+            // This assumes each layer has a Renderer component (like a SpriteRenderer or MeshRenderer on a Quad).
+            _layerWidths = new float[layers.Length];
+            for (int i = 0; i < layers.Length; i++)
+            {
+                Renderer renderer = layers[i].transform.GetComponent<Renderer>();
+                if (renderer != null)
                 {
-                    // We create a new material instance to ensure each layer can offset
-                    // its texture independently without affecting other objects using the same material.
-                    layer.material = renderer.material;
+                    _layerWidths[i] = renderer.bounds.size.x;
                 }
                 else
                 {
-                     Debug.LogWarning($"Parallax layer '{layer.layerTransform.name}' is missing a Renderer component.", this);
+                    Debug.LogWarning($"Parallax layer '{layers[i].transform.name}' does not have a Renderer component. Wrapping may not work correctly.", layers[i].transform);
                 }
             }
         }
 
         private void LateUpdate()
         {
-            if (cameraTransform == null || layers == null) return;
+            // Calculate how much the camera has moved since the last frame
+            Vector3 deltaMovement = cameraTransform.position - _lastCameraPosition;
 
-            // Calculate the camera's travel distance from its starting point.
-            Vector3 cameraTravelDistance = cameraTransform.position - Vector3.zero; // Assuming camera starts at or near origin
-
-            foreach (var layer in layers)
+            // Move each layer and handle wrapping
+            for (int i = 0; i < layers.Length; i++)
             {
-                if (layer.layerTransform == null || layer.material == null) continue;
+                ParallaxLayer layer = layers[i];
+                if (layer.transform == null) continue;
 
-                // Calculate the parallax displacement. This is how far the layer should move.
-                float parallaxDisplacementX = cameraTravelDistance.x * layer.parallaxSpeed;
-                
-                // --- PIXEL PERFECT ADJUSTMENT ---
-                // This is the magic for pixel art. We need to know our "Pixels Per Unit" setting.
-                // Let's assume a common value like 64. You can make this a public field.
-                float pixelsPerUnit = 64.0f; 
-                // Calculate how many "world units" one pixel represents.
-                float pixelUnitSize = 1.0f / pixelsPerUnit;
-                // Round the displacement to the nearest pixel-perfect increment.
-                parallaxDisplacementX = (Mathf.Round(parallaxDisplacementX / pixelUnitSize) * pixelUnitSize);
-                // --- END OF PIXEL PERFECT ADJUSTMENT ---
+                // Move the layer by a fraction of the camera's movement
+                Vector3 parallaxMovement = deltaMovement * layer.parallaxFactor;
+                layer.transform.position += parallaxMovement;
 
-                // Move the layer transform itself for the primary parallax effect.
-                // This handles the Y-axis movement automatically.
-                float newY = layer.initialPosition.y + (cameraTravelDistance.y * layer.parallaxSpeed);
-                layer.layerTransform.position = new Vector3(layer.initialPosition.x + parallaxDisplacementX, newY, layer.layerTransform.position.z);
-
-                // Calculate the texture offset for infinite looping.
-                // This creates the illusion of an endless background by scrolling the texture itself.
-                float textureOffset = (parallaxDisplacementX / layer.layerTransform.localScale.x) % 1;
-                layer.material.mainTextureOffset = new Vector2(textureOffset, 0);
+                // --- Wrapping Logic ---
+                // If the layer has moved more than its width away from the camera, it needs to be repositioned
+                // to create an infinite scrolling effect.
+                float layerWidth = _layerWidths[i];
+                if (layerWidth > 0 && Mathf.Abs(cameraTransform.position.x - layer.transform.position.x) >= layerWidth)
+                {
+                    float offsetPositionX = (cameraTransform.position.x - layer.transform.position.x) % layerWidth;
+                    layer.transform.position = new Vector3(cameraTransform.position.x - offsetPositionX, layer.transform.position.y);
+                }
             }
+
+            // Update the last camera position for the next frame
+            _lastCameraPosition = cameraTransform.position;
         }
     }
 }
