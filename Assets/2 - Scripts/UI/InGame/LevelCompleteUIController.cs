@@ -3,174 +3,134 @@ using UnityEngine.UI;
 using System.Collections;
 using Scripts.Core;
 using Scripts.Core.Audio;
-using Scripts.Core.Checkpoint;
 using Scripts.Player.Core;
+using TMPro;
 
 namespace Scripts.UI.InGame
 {
     /// <summary>
-    /// Manages the "Level Complete" screen, which appears after the player reaches a level exit.
-    /// It handles the display sequence, audio feedback, and navigation options.
+    /// Manages the "Bounty Complete" screen, which appears after the final stage of a bounty.
+    /// It displays a victory message and a button to return to the main menu.
     /// </summary>
     public class LevelCompleteUIController : MonoBehaviour
     {
         [Header("UI Panel References")]
-        [Tooltip("The CanvasGroup for the entire Level Complete panel. Used for fading.")]
-        [SerializeField] private CanvasGroup levelCompleteCanvasGroup;
-        [Tooltip("GameObject containing the 'Victory' message text or image.")]
-        [SerializeField] private GameObject messageGroup;
-        [Tooltip("GameObject containing the navigation buttons.")]
-        [SerializeField] private GameObject buttonsGroup;
-        [Tooltip("Reference to the in-game HUD GameObject to be hidden.")]
+        [Tooltip("The CanvasGroup for the entire panel, used for fading.")]
+        [SerializeField] private CanvasGroup panelCanvasGroup;
+        [Tooltip("The TextMeshPro field to display the 'Bounty Complete: [Bounty Name]' message.")]
+        [SerializeField] private TMP_Text bountyNameText;
+        [Tooltip("The button that returns the player to the main menu.")]
+        [SerializeField] private Button returnToMenuButton;
+        [Tooltip("Reference to the in-game HUD GameObject to be hidden when this UI appears.")]
         [SerializeField] private GameObject inGameHUD;
 
         [Header("Timing & Animation")]
-        [Tooltip("Delay after the player's victory animation starts before this UI sequence begins.")]
+        [Tooltip("Delay after the victory event is fired before this UI sequence begins.")]
         [SerializeField] private float initialDelay = 1.0f;
         [Tooltip("Duration of the main panel fade-in.")]
         [SerializeField] private float fadeInDuration = 0.5f;
-        [Tooltip("Delay after the panel fades in before the 'Continue' button appears.")]
-        [SerializeField] private float buttonsDelay = 0.75f;
-
-        [Header("Button References")]
-        [SerializeField] private Button continueButton;
-        [SerializeField] private Button retryButton;
-        [SerializeField] private Button mainMenuButton;
-        [Tooltip("The button to be selected by default when the panel appears.")]
-        [SerializeField] private Button firstSelectedButton;
 
         [Header("Audio")]
         [SerializeField] private UIAudioFeedback uiSoundFeedback;
         [SerializeField] private Sounds victoryStingerSound;
         [SerializeField] private AudioSource uiAudioSource;
 
-        private string _completedLevelIdentifier;
         private Coroutine _showSequenceCoroutine;
 
         private void Awake()
         {
-            // Initial setup to ensure the panel is hidden correctly.
-            if (levelCompleteCanvasGroup != null)
+            // Ensure the panel is hidden on start.
+            if (panelCanvasGroup != null)
             {
-                levelCompleteCanvasGroup.alpha = 0f;
-                levelCompleteCanvasGroup.interactable = false;
-                levelCompleteCanvasGroup.blocksRaycasts = false;
-                levelCompleteCanvasGroup.gameObject.SetActive(false);
+                panelCanvasGroup.alpha = 0f;
+                panelCanvasGroup.interactable = false;
+                panelCanvasGroup.blocksRaycasts = false;
+                panelCanvasGroup.gameObject.SetActive(false);
             }
             if (uiAudioSource == null) uiAudioSource = GetComponent<AudioSource>();
         }
 
         private void OnEnable()
         {
-            PlayerEvents.OnLevelCompleted += HandleLevelCompleted;
-            continueButton?.onClick.AddListener(OnContinueClicked);
-            retryButton?.onClick.AddListener(OnRetryClicked);
-            mainMenuButton?.onClick.AddListener(OnMainMenuClicked);
+            // Subscribe to the event fired by LevelExit when a bounty is fully completed.
+            PlayerEvents.OnLevelCompleted += HandleBountyCompleted;
+            returnToMenuButton?.onClick.AddListener(OnReturnToMenuClicked);
         }
 
         private void OnDisable()
         {
-            PlayerEvents.OnLevelCompleted -= HandleLevelCompleted;
-            continueButton?.onClick.RemoveListener(OnContinueClicked);
-            retryButton?.onClick.RemoveListener(OnRetryClicked);
-            mainMenuButton?.onClick.RemoveListener(OnMainMenuClicked);
+            PlayerEvents.OnLevelCompleted -= HandleBountyCompleted;
+            returnToMenuButton?.onClick.RemoveListener(OnReturnToMenuClicked);
         }
 
-        private void HandleLevelCompleted(string levelId)
+        /// <summary>
+        /// This method is triggered by the OnLevelCompleted event.
+        /// It starts the UI sequence to show the "Bounty Complete" screen.
+        /// </summary>
+        /// <param name="completedBountyTitle">The title of the bounty that was just finished.</param>
+        private void HandleBountyCompleted(string completedBountyTitle)
         {
+            // Stop any previous sequence to prevent conflicts.
             if (_showSequenceCoroutine != null) StopCoroutine(_showSequenceCoroutine);
-            _completedLevelIdentifier = levelId;
+
+            // Hide the in-game HUD so it doesn't overlap with this screen.
             inGameHUD?.SetActive(false);
-            _showSequenceCoroutine = StartCoroutine(ShowLevelCompleteSequence());
+
+            _showSequenceCoroutine = StartCoroutine(ShowBountyCompleteSequence(completedBountyTitle));
         }
 
-        private IEnumerator ShowLevelCompleteSequence()
+        /// <summary>
+        /// The coroutine that handles the entire animation and display sequence for the panel.
+        /// </summary>
+        private IEnumerator ShowBountyCompleteSequence(string bountyTitle)
         {
-            // The LevelExit triggers the player's victory animation. This coroutine starts in parallel.
+            // Play a victory sound and ensure player controls are disabled.
             victoryStingerSound?.Play(uiAudioSource);
             InputManager.Instance?.DisableAllControls();
 
+            // Wait for a moment to let the player's victory animation or effect play out.
             yield return new WaitForSecondsRealtime(initialDelay);
 
-            // Activate and fade in the panel
-            levelCompleteCanvasGroup.gameObject.SetActive(true);
-            messageGroup?.SetActive(true);
+            // --- Animate Panel ---
+            // Update the text to show which bounty was completed.
+            if (bountyNameText != null)
+            {
+                bountyNameText.text = $"BOUNTY COMPLETE:\n<color=yellow>{bountyTitle}</color>";
+            }
             
+            // Activate the panel and fade it in.
+            panelCanvasGroup.gameObject.SetActive(true);
             float elapsedTime = 0f;
             while (elapsedTime < fadeInDuration)
             {
                 elapsedTime += Time.unscaledDeltaTime;
-                levelCompleteCanvasGroup.alpha = Mathf.Clamp01(elapsedTime / fadeInDuration);
+                panelCanvasGroup.alpha = Mathf.Clamp01(elapsedTime / fadeInDuration);
                 yield return null;
             }
 
-            yield return new WaitForSecondsRealtime(buttonsDelay);
-            
-            // Configure and show buttons
-            SetupButtons();
-            buttonsGroup?.SetActive(true);
-            
-            // Enable UI interaction
-            levelCompleteCanvasGroup.interactable = true;
-            levelCompleteCanvasGroup.blocksRaycasts = true;
+            // --- Enable Interaction ---
+            // Once faded in, make the panel interactive, enable UI controls,
+            // and automatically select the "Return to Menu" button.
+            panelCanvasGroup.interactable = true;
+            panelCanvasGroup.blocksRaycasts = true;
             InputManager.Instance?.EnableUIControls();
-            firstSelectedButton?.Select();
+            returnToMenuButton?.Select();
             
-            Time.timeScale = 0f; // Pause game time once UI is fully interactive
-        }
-
-        private void SetupButtons()
-        {
-            if (continueButton == null || SceneLoader.Instance?.levels == null)
-            {
-                continueButton?.gameObject.SetActive(false);
-                return;
-            }
-
-            int currentIndex = System.Array.IndexOf(SceneLoader.Instance.levels, _completedLevelIdentifier);
-            bool isThereNextLevel = currentIndex > -1 && currentIndex + 1 < SceneLoader.Instance.levels.Length;
-
-            continueButton.gameObject.SetActive(isThereNextLevel);
-
-            // Adjust default selection if "Continue" is hidden
-            if (!isThereNextLevel && firstSelectedButton == continueButton)
-            {
-                firstSelectedButton = retryButton;
-            }
+            // Pause game time. This is good practice in case any background animations are still running.
+            Time.timeScale = 0f;
         }
         
-        private void CleanupAndResume()
+        /// <summary>
+        /// Called when the "Return to Menu" button is clicked.
+        /// </summary>
+        private void OnReturnToMenuClicked()
         {
+            uiSoundFeedback?.PlayClick();
+            
+            // IMPORTANT: Reset the time scale before changing scenes.
             Time.timeScale = 1f;
-            if (levelCompleteCanvasGroup != null)
-            {
-                levelCompleteCanvasGroup.gameObject.SetActive(false);
-            }
-        }
 
-        private void OnContinueClicked()
-        {
-            uiSoundFeedback?.PlayClick();
-            CleanupAndResume();
-            
-            int currentIndex = System.Array.IndexOf(SceneLoader.Instance.levels, _completedLevelIdentifier);
-            string nextLevel = SceneLoader.Instance.levels[currentIndex + 1];
-            
-            SceneLoader.Instance.LoadLevelByName(nextLevel);
-        }
-
-        private void OnRetryClicked()
-        {
-            uiSoundFeedback?.PlayClick();
-            CleanupAndResume();
-            CheckpointManager.ResetCheckpointData();
-            SceneLoader.Instance.LoadLevelByName(_completedLevelIdentifier);
-        }
-
-        private void OnMainMenuClicked()
-        {
-            uiSoundFeedback?.PlayClick();
-            CleanupAndResume();
+            // Tell the SceneLoader to load the main menu.
             SceneLoader.Instance.LoadMenu();
         }
     }

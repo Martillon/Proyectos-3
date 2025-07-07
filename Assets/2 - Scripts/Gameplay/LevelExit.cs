@@ -1,65 +1,65 @@
-// En Scripts/Levels/LevelExit.cs
 using UnityEngine;
-using Scripts.Core; // Para GameConstants, InputManager
+using Scripts.Core;
+using Scripts.Core.Progression;
 using Scripts.Player.Core;
-using Scripts.Player.Visuals; // Para PlayerEvents
-using UnityEngine.SceneManagement; // Para SceneManager
 
 namespace Scripts.Levels
 {
     [RequireComponent(typeof(Collider2D))]
     public class LevelExit : MonoBehaviour
     {
-        private bool hasBeenTriggered = false;
-
         private void Awake()
         {
-            Collider2D col = GetComponent<Collider2D>();
-            if (col != null && !col.isTrigger)
-            {
-                Debug.LogWarning($"LevelExit on '{gameObject.name}': Collider is not set to 'Is Trigger'. Forcing it.", this);
-                col.isTrigger = true;
-            }
+            GetComponent<Collider2D>().isTrigger = true;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (hasBeenTriggered || !other.CompareTag(GameConstants.PlayerTag))
-            {
-                return;
-            }
+            if (!other.transform.root.CompareTag(GameConstants.PlayerTag)) return;
 
-            hasBeenTriggered = true;
-            Debug.Log($"LevelExit: Player '{other.name}' entered exit for level '{SceneManager.GetActiveScene().name}'.");
+            // Prevent being triggered multiple times
+            GetComponent<Collider2D>().enabled = false;
+            
+            // Disable player input
+            InputManager.Instance?.DisableAllControls();
 
-            // 2. Detener movimiento físico del jugador
-            Rigidbody2D playerRb = GetPlayerRigidbody(other);
-            if (playerRb != null)
-            {
-                Debug.Log($"LevelExit: Zeroing player Rigidbody velocity. Was: {playerRb.linearVelocity}");
-                playerRb.linearVelocity = Vector2.zero;
-                playerRb.angularVelocity = 0f;
-                // Opcional: Podrías intentar forzar al jugador a una posición "grounded" aquí si es necesario
-                // para la pose de victoria, pero suele ser mejor que la animación no lo requiera estrictamente.
-            }
-
-            // 3. Marcar nivel como completado
-            string currentLevelIdentifier = SceneManager.GetActiveScene().name;
-            LevelProgressionManager.Instance?.CompleteLevel(currentLevelIdentifier);
-
-            // 4. Lanzar el evento global de nivel completado
-            // La UI y otros sistemas reaccionarán a esto.
-            PlayerEvents.RaiseLevelCompleted(currentLevelIdentifier);
-
-            // Opcional: Desactivar este objeto para que no se pueda triggerear de nuevo en esta sesión del nivel
-            // gameObject.SetActive(false); 
+            HandleLevelCompletion();
         }
 
-        // Helper para obtener el Rigidbody del jugador de forma más robusta
-        private Rigidbody2D GetPlayerRigidbody(Collider2D playerCollider)
+        private void HandleLevelCompletion()
         {
-            if (playerCollider.attachedRigidbody != null) return playerCollider.attachedRigidbody;
-            return playerCollider.GetComponentInParent<Rigidbody2D>();
+            if (!SessionManager.IsOnBounty)
+            {
+                Debug.LogError("LevelExit triggered but no active bounty in SessionManager! Returning to menu.", this);
+                SceneLoader.Instance.LoadMenu();
+                return;
+            }
+            
+            Bounty currentBounty = SessionManager.ActiveBounty;
+            int nextLevelIndex = SessionManager.CurrentLevelIndex + 1;
+
+            if (nextLevelIndex < currentBounty.levelSceneNames.Length)
+            {
+                // THERE IS A NEXT STAGE
+                Debug.Log($"Stage {SessionManager.CurrentLevelIndex + 1}/{currentBounty.levelSceneNames.Length} of bounty '{currentBounty.title}' complete. Loading next stage.");
+                SessionManager.AdvanceToNextLevel();
+                string nextScene = currentBounty.levelSceneNames[nextLevelIndex];
+                SceneLoader.Instance.LoadLevelByName(nextScene);
+            }
+            else
+            {
+                // THIS WAS THE LAST STAGE! Bounty is complete.
+                Debug.Log($"Final stage of bounty '{currentBounty.title}' complete! Player returns to HQ.");
+                
+                // Update permanent progress file.
+                ProgressionManager.Instance.CompleteBounty(currentBounty.bountyID);
+                
+                // End the volatile session.
+                SessionManager.EndSession();
+                
+                // Fire the event to show the "Bounty Complete" UI.
+                PlayerEvents.RaiseLevelCompleted(currentBounty.title);
+            }
         }
     }
 }
