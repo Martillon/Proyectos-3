@@ -76,7 +76,7 @@ namespace Scripts.UI.MainMenu.Apps
             {
                 bool isUnlocked = saveData.isUnlocked;
                 bool isCompleted = saveData.isCompleted;
-                _button.interactable = isUnlocked && !isCompleted;
+                _button.interactable = isUnlocked;
                 UpdateVisuals(isUnlocked, isCompleted, false); // Not highlighted by default.
             }
         }

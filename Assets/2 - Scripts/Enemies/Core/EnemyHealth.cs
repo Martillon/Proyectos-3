@@ -27,10 +27,10 @@ namespace Scripts.Enemies.Core
         }
 
         // This is called by the spawner to inject stats
-        public void Configure(EnemyStats stats, string poolTag) // CHANGED
+        public void Configure(EnemyStats stats, string poolTag) 
         {
             this._stats = stats;
-            this._poolTag = poolTag; // CHANGED
+            this._poolTag = poolTag; 
         }
 
         // This is called by the ObjectPooler when this enemy is spawned
