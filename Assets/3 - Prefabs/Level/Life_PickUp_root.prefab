@@ -116,8 +116,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7775465933048488811}
   - component: {fileID: 6360577539325585094}
-  - component: {fileID: 6205679793970506679}
-  - component: {fileID: 5703134201874298659}
   - component: {fileID: 4588901682679839317}
   m_Layer: 9
   m_Name: Life_PickUp_visual
@@ -184,7 +182,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1054678025
   m_SortingLayer: 5
-  m_SortingOrder: 0
+  m_SortingOrder: 9
   m_Sprite: {fileID: -2008016102, guid: 1857cd97d0739994ea46960abd69aba9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -196,78 +194,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &6205679793970506679
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 1821539157214764407, guid: 0f24d9ffd4d887b4382c8ac35bc1d708, type: 3}
-  m_PrefabInstance: {fileID: 1316776269131463758}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4823234955578623690}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.359375, y: 0.375}
-    newSize: {x: 0.359375, y: 0.375}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.359375, y: 0.375}
-  m_EdgeRadius: 0
---- !u!114 &5703134201874298659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 5893415882471672172, guid: 0f24d9ffd4d887b4382c8ac35bc1d708, type: 3}
-  m_PrefabInstance: {fileID: 1316776269131463758}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4823234955578623690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 522ef00f2dc038c488417315c8952ba2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healAmount: 1
-  destroyOnHeal: 1
-  pickupVFX: {fileID: 0}
-  pickupSound:
-    name: 
-    clip: {fileID: 0}
-    loop: 0
-    randomPitch: 0
-    pitch: 1
-    pitchVariation: 0.1
-    randomVolume: 0
-    volume: 1
-    volumeVariation: 0.1
-  audioSource: {fileID: 0}
 --- !u!114 &4588901682679839317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,6 +223,10 @@ PrefabInstance:
     - target: {fileID: 852882951095148343, guid: 0f24d9ffd4d887b4382c8ac35bc1d708, type: 3}
       propertyPath: m_SortingLayer
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 852882951095148343, guid: 0f24d9ffd4d887b4382c8ac35bc1d708, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 852882951095148343, guid: 0f24d9ffd4d887b4382c8ac35bc1d708, type: 3}
       propertyPath: m_SortingLayerID
@@ -350,7 +280,8 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 0}
     m_RemovedGameObjects:
     - {fileID: 0}
     m_AddedGameObjects: []

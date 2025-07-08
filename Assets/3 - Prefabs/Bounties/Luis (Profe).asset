@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1237c94c3854291ae67a3e1844ad335, type: 3}
+  m_Name: Luis (Profe)
+  m_EditorClassIdentifier: 
+  bountyID: Filler_teach_0
+  title: Luis
+  reward: 
+  description: "Is a cunning dealmaker with a shady reputation across the galaxy.
+    Always one step ahead, he navigates Nexum\u2019s underworld with sarcasm, stealth,
+    and a teleporting trick up his sleeve."
+  wantedPosterArt: {fileID: 2234214198559850710, guid: 11682bf817eb1134392c736cf6782633, type: 3}
+  characterQuoteOnLaunch: 
+  levelSceneNames: []

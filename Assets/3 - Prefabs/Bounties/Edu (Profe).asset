@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1237c94c3854291ae67a3e1844ad335, type: 3}
+  m_Name: Edu (Profe)
+  m_EditorClassIdentifier: 
+  bountyID: Filler_Teach_1
+  title: Eduardo
+  reward: 3000
+  description: Methodical and curious mind who dissects every environment with scientific
+    precision. With a passion for technology, he thrives in uncovering hidden mechanics
+  wantedPosterArt: {fileID: 2974050324322777776, guid: 00de82bb2b182c64fb145d03a72a5c43, type: 3}
+  characterQuoteOnLaunch: 
+  levelSceneNames: []

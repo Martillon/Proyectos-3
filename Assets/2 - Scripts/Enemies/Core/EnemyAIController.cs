@@ -193,6 +193,27 @@ namespace Scripts.Enemies.Core
                 TryAttacking();
             }
         }
+        
+        /// <summary>
+        /// A command from an external source (like a BossController) to immediately
+        /// stop all actions, logic, and animations.
+        /// </summary>
+        public void ForceFreeze()
+        {
+            Debug.Log($"Freezing minion: {gameObject.name}");
+            
+            // 1. Stop the AI logic by disabling the 'CanAct' flag.
+            SetCanAct(false);
+
+            // 2. Stop the physical movement by disabling the movement component.
+            if (_movementComponent != null)
+            {
+                _movementComponent.enabled = false;
+            }
+
+            // 3. Stop the visual animation by calling the new method on the visual controller.
+            _visualController?.ForceIdleState();
+        }
 
         private void TryAttacking()
         {
