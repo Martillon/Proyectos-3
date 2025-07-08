@@ -659,7 +659,29 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      UI-Buttons_0: 671443458363001632
+      UI-Buttons_1: -2298006833645119747
+      UI-Buttons_10: 1036441203073881078
+      UI-Buttons_11: -7476835020571470566
+      UI-Buttons_12: 6033661089775949428
+      UI-Buttons_13: -14584734256086330
+      UI-Buttons_14: 4244982513986411871
+      UI-Buttons_15: 8962624584716347802
+      UI-Buttons_16: -9080785493401180521
+      UI-Buttons_17: 809225722679161043
+      UI-Buttons_18: 9155254338832399888
+      UI-Buttons_19: 3137622292507178664
+      UI-Buttons_2: -2678382671012801438
+      UI-Buttons_20: 8459577297025881407
+      UI-Buttons_21: 6735533170293170595
+      UI-Buttons_3: 2355951044665119706
+      UI-Buttons_4: 6335102828528086637
+      UI-Buttons_5: -1265728628164611607
+      UI-Buttons_6: -9093079853609885229
+      UI-Buttons_7: -1437645175562598066
+      UI-Buttons_8: 6721067283734714498
+      UI-Buttons_9: -2402276278176877474
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

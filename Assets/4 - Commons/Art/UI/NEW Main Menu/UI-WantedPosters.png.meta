@@ -209,7 +209,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      UI-WantedPosters_0: 8107504728533554152
+      UI-WantedPosters_1: -5136918121040977868
+      UI-WantedPosters_2: -3644684539666729783
+      UI-WantedPosters_3: 6569155124897992098
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
