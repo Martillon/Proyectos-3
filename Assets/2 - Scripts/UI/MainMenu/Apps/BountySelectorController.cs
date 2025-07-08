@@ -62,7 +62,8 @@ namespace Scripts.UI.MainMenu.Apps
 
         private int _currentPage = 0;
         private int _pageCount = 0;
-        private Coroutine _scrollingCoroutine;
+        private float _pageHeight = 0;
+        
 
         private void Start()
         {
@@ -132,75 +133,94 @@ namespace Scripts.UI.MainMenu.Apps
                     posterUI.Setup(bountyAsset, savedStatus, this);
                     _instantiatedPosters.Add(posterUI);
                 }
+                StartCoroutine(CalculateAndApplyPaging());
             }
         }
 
         // --- Paging Logic (Unchanged) ---
         // This section handles the math and animation for scrolling between pages.
         #region Paging
+        
+        /// <summary>
+        /// A coroutine that waits one frame for the layout to settle, then calculates
+        /// the page count and the height needed for each page turn.
+        /// </summary>
         private IEnumerator CalculateAndApplyPaging()
         {
+            // Wait a frame for the Grid Layout Group to finish arranging the posters.
             yield return null; 
 
-            _pageCount = (_instantiatedPosters.Count > 0) ? Mathf.CeilToInt((float)_instantiatedPosters.Count / itemsPerPage) : 0;
+            if (_instantiatedPosters.Count == 0)
+            {
+                _pageCount = 0;
+                _pageHeight = 0;
+            }
+            else
+            {
+                // Calculate how many pages are needed.
+                _pageCount = Mathf.CeilToInt((float)_instantiatedPosters.Count / itemsPerPage);
+
+                // Get the Grid Layout component to calculate the total height of one page.
+                GridLayoutGroup gridLayout = contentParent.GetComponent<GridLayoutGroup>();
+                if (gridLayout != null)
+                {
+                    // The height of one page is the height of N items plus the vertical spacing between them.
+                    _pageHeight = (gridLayout.cellSize.y + gridLayout.spacing.y) * 3 / _pageCount;
+                }
+                else
+                {
+                    Debug.LogError("BountySelectorController requires a GridLayoutGroup on the Content Parent!", this);
+                }
+            }
+            
             _currentPage = 0;
-            UpdatePaging(true);
+            // Instantly set the scroll position to the first page.
+            SetPagePosition();
         }
 
+        /// <summary>
+        /// Called by the 'pageUpButton'.
+        /// </summary>
         public void GoToPreviousPage()
         {
             uiAudioFeedback?.PlayClick();
             if (_currentPage > 0)
             {
                 _currentPage--;
-                UpdatePaging();
+                SetPagePosition();
             }
         }
 
+        /// <summary>
+        /// Called by the 'pageDownButton'.
+        /// </summary>
         public void GoToNextPage()
         {
             uiAudioFeedback?.PlayClick();
             if (_currentPage < _pageCount - 1)
             {
                 _currentPage++;
-                UpdatePaging();
+                SetPagePosition();
             }
         }
 
-        private void UpdatePaging(bool instant = false)
+        /// <summary>
+        /// The core logic. Instantly sets the position of the content panel
+        /// and updates the interactability of the paging buttons.
+        /// </summary>
+        private void SetPagePosition()
         {
+            // Update the state of the Up/Down buttons.
             pageUpButton.interactable = (_currentPage > 0);
             pageDownButton.interactable = (_currentPage < _pageCount - 1);
 
-            float targetScrollPos = _pageCount > 1 ? (float)_currentPage / (_pageCount - 1) : 0;
+            // Calculate the target Y position. To show items further down the list,
+            // the content panel must move UP, so its anchoredPosition.y is positive.
+            float targetY = _currentPage * _pageHeight;
+            Vector2 targetPosition = new Vector2(contentParent.anchoredPosition.x, targetY);
             
-            if (_scrollingCoroutine != null) StopCoroutine(_scrollingCoroutine);
-
-            if (instant)
-            {
-                // The scroll position is normalized 0-1, but 1 is the top and 0 is the bottom.
-                scrollRect.horizontalNormalizedPosition = targetScrollPos;
-            }
-            else
-            {
-                _scrollingCoroutine = StartCoroutine(SmoothScrollTo(targetScrollPos));
-            }
-        }
-
-        private IEnumerator SmoothScrollTo(float target)
-        {
-            float elapsedTime = 0f;
-            float duration = 0.3f;
-            float start = scrollRect.horizontalNormalizedPosition;
-
-            while (elapsedTime < duration)
-            {
-                elapsedTime += Time.unscaledDeltaTime;
-                float t = Mathf.SmoothStep(0, 1, elapsedTime / duration);
-                scrollRect.horizontalNormalizedPosition = Mathf.Lerp(start, target, t);
-                yield return null;
-            }
-            scrollRect.horizontalNormalizedPosition = target;
+            // This is the key: we INSTANTLY set the position. No animations, no fades.
+            contentParent.anchoredPosition = targetPosition;
         }
         #endregion
 

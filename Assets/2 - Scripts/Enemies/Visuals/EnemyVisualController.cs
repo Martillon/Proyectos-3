@@ -33,6 +33,7 @@ namespace Scripts.Enemies.Visuals
         private readonly int _animIsMovingHash = Animator.StringToHash("isMoving");
         private readonly int _animMeleeAttackHash = Animator.StringToHash(GameConstants.AnimMeleeAttackTrigger);
         private readonly int _animDieHash = Animator.StringToHash(GameConstants.AnimDieTrigger);
+        private readonly int _animForceIdleTrigger = Animator.StringToHash("forceIdle");
         // Window Enemy Hashes
         private readonly int _animWindowPlayerDetectedHash = Animator.StringToHash("isPlayerDetected");
         private readonly int _animWindowAttackHash = Animator.StringToHash(GameConstants.AnimWindowAttack);
@@ -63,6 +64,20 @@ namespace Scripts.Enemies.Visuals
                 bool isMoving = Mathf.Abs(_rb.linearVelocity.x) > 0.1f;
                 bodyAnimator.SetBool(_animIsMovingHash, isMoving);
             }
+        }
+        
+        /// <summary>
+        /// Called by the AI Controller to visually freeze the enemy.
+        /// It stops the movement animation and forces the animator into an idle state.
+        /// </summary>
+        public void ForceIdleState()
+        {
+            // Ensure the 'isMoving' parameter is false to stop any walking/running animations.
+            bodyAnimator.SetBool(_animIsMovingHash, false);
+
+            // Set a trigger that can be used in the Animator to transition
+            // from any state (like an attack wind-up) back to the Idle state.
+            bodyAnimator.SetTrigger(_animForceIdleTrigger);
         }
         
         public void FlipVisuals(bool faceRight)

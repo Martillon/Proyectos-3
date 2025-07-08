@@ -14,5 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allBounties:
   - {fileID: 11400000, guid: 857487b47a5335645bcd5345906c4a9d, type: 2}
-  - {fileID: 11400000, guid: 464abed4afcdd72428a114431feab93d, type: 2}
+  - {fileID: 11400000, guid: 056b90aa3bfc02e4eadeff294ce20958, type: 2}
   - {fileID: 11400000, guid: d68d2864f8c05b341a66f6c4c54a0610, type: 2}
+  - {fileID: 11400000, guid: 30661c818831881449fec54096d066d8, type: 2}
+  - {fileID: 11400000, guid: 464abed4afcdd72428a114431feab93d, type: 2}
+  - {fileID: 11400000, guid: e57678346a3baa74680347f5a3e1a691, type: 2}
+  - {fileID: 11400000, guid: 1eb98cc29661ca64c9c6243fcc2fb071, type: 2}
+  - {fileID: 11400000, guid: 2e501e6caf48bfd46bb39cbc73c13b37, type: 2}
