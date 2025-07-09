@@ -330,6 +330,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Barrel_Rust
       objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1845,6 +1857,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8225999515115165619, guid: b8d63d85373a05e4482c874910616c54, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 5cd2e7afe4b9cfb47a52c8553aa18c41, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10794,6 +10810,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16022,6 +16046,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8225999515115165619, guid: b8d63d85373a05e4482c874910616c54, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 5cd2e7afe4b9cfb47a52c8553aa18c41, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -19137,6 +19165,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -19522,6 +19558,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8225999515115165619, guid: b8d63d85373a05e4482c874910616c54, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 5cd2e7afe4b9cfb47a52c8553aa18c41, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20555,6 +20595,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Barrel_Rust
       objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -21406,6 +21458,18 @@ PrefabInstance:
     - target: {fileID: 6224766890623875902, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
       propertyPath: m_Name
       value: Barrel_Rust
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -30396,6 +30460,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Balcony
       objectReference: {fileID: 0}
+    - target: {fileID: 6599735746198839584, guid: f3b9b215efd384843997fdcd0dc58a82, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 9bd0405fc97358d41873e149346b7cae, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -30900,6 +30968,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Barrel_Rust
       objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -31093,6 +31173,18 @@ PrefabInstance:
     - target: {fileID: 6224766890623875902, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
       propertyPath: m_Name
       value: Barrel_Rust
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8766392409485400371, guid: b345655637066064d9bbd8dd85ed875d, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -33544,6 +33636,14 @@ PrefabInstance:
     - target: {fileID: 4543166448924116471, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -68813,6 +68913,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -68874,6 +68982,14 @@ PrefabInstance:
     - target: {fileID: 4543166448924116471, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -70953,6 +71069,14 @@ PrefabInstance:
     - target: {fileID: 4543166448924116471, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5307167678425925618, guid: 621cd7256aa29ba4392cd5973bca746b, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -222047431
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
