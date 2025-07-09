@@ -528,7 +528,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.287
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -3531,6 +3531,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3102580422432515292, guid: f0f583b5a6e07924e804634f85a4d4c9, type: 3}
   m_PrefabInstance: {fileID: 301669595}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &341810296
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 341810297}
+  m_Layer: 0
+  m_Name: Enemy Spawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &341810297
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 341810296}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6.06, y: -7.33, z: 0.44862962}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &369938481
 GameObject:
   m_ObjectHideFlags: 0
@@ -3660,6 +3691,8 @@ MonoBehaviour:
   hazardPrefabs:
   - {fileID: 6954147447877102023, guid: 1156ce26358c1c1458a6ac3e30022d77, type: 3}
   - {fileID: 6581534438675488613, guid: fae325e7d6ba34344bb8bf077b270563, type: 3}
+  - {fileID: 8404507807512168632, guid: 5bd29774b2f269e44a84e744b7cee6d1, type: 3}
+  - {fileID: 3518578035467582261, guid: 244582c0a32006f4bac3ec85331e4faf, type: 3}
   powerupPrefabs:
   - {fileID: 2434590308859764211, guid: 30d529fe9e0947f419cfd8c9e3be8131, type: 3}
   - {fileID: 8374664114470279847, guid: 5ca838a9ea8f8a84da0d977b1446aca5, type: 3}
@@ -7286,7 +7319,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   activationType: 1
   bossToActivate: {fileID: 1885743067}
-  minionWaves: []
+  minionWaves:
+  - waveName: 1
+    spawnInstructions:
+    - enemyPoolTag: 1
+      enemyStats: {fileID: 11400000, guid: 00a74091044e93f40b9d45c6b43d7262, type: 2}
+      count: 3
+      spawnPoint: {fileID: 341810297}
+      spawnRadius: 2
+      spawnDelay: 0.5
   randomSpawnPoints: []
   cameraConfiner: {fileID: 0}
   objectsToActivateOnStart: []
@@ -8739,7 +8780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3a0f55312934718b378cca4612b916f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 300
   phaseHealthThresholds:
   - 0.75
   - 0.5
@@ -8765,7 +8806,7 @@ MonoBehaviour:
   meleeSwipeAttack: {fileID: 14305367}
   rushAttack: {fileID: 2007835481}
   groundSmashAttack: {fileID: 417070145}
-  meleeRange: 2
+  meleeRange: 1
   groundSmashPosition: {fileID: 124828320}
   rushPositionLeft: {fileID: 975750507}
   rushPositionRight: {fileID: 2102328580}
@@ -9334,7 +9375,7 @@ MonoBehaviour:
   audioSource: {fileID: 1885743069}
   roarSound:
     name: 
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 900d58978ad129d44830b6a3c63f0392, type: 3}
     loop: 0
     randomPitch: 0
     pitch: 1
@@ -9344,7 +9385,7 @@ MonoBehaviour:
     volumeVariation: 0.1
   groundSmashImpactSound:
     name: 
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: f8371c2a020c18f41bf7f1161d9d62e0, type: 3}
     loop: 0
     randomPitch: 0
     pitch: 1
@@ -9374,7 +9415,7 @@ MonoBehaviour:
     volumeVariation: 0.1
   footstepSound:
     name: 
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: ae4924efe9940c84d9056f1697331056, type: 3}
     loop: 0
     randomPitch: 0
     pitch: 1
@@ -9638,7 +9679,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f45c1df9a3942308c5b3b4807ce1895, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pools: []
+  pools:
+  - tag: 1
+    prefab: {fileID: 3747311238477250152, guid: c51282c96668fb24ca6bf2b2c60dd73c, type: 3}
+    size: 5
 --- !u!4 &2042949419
 Transform:
   m_ObjectHideFlags: 0
@@ -10068,3 +10112,4 @@ SceneRoots:
   - {fileID: 2091489819}
   - {fileID: 1713871030}
   - {fileID: 137428010}
+  - {fileID: 341810297}
