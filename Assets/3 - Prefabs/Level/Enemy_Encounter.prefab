@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 3004967936489171832}
   - component: {fileID: 5499024083761529542}
   - component: {fileID: 6105724733201759823}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Enemy_Encounter
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -63,7 +63,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
