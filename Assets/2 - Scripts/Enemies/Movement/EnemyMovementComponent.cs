@@ -67,6 +67,11 @@ namespace Scripts.Enemies.Movement
 
             // Get steering output from the active behavior.
             SteeringOutput steering = _activeSteeringBehavior?.GetSteering(this) ?? SteeringOutput.Zero;
+            
+            if (Time.frameCount % 60 == 0) // Log once per second to avoid spam
+            {
+                Debug.Log($"[MovementComponent] Behavior: {_activeSteeringBehavior?.GetType().Name}, DesiredVel: {steering.DesiredVelocity}, IsNearWall: {IsNearWall}, IsNearEdge: {IsNearEdge}", this.gameObject);
+            }
 
             // Apply steering to rigidbody.
             _rb.linearVelocity = new Vector2(steering.DesiredVelocity.x, _rb.linearVelocity.y);
@@ -90,6 +95,8 @@ namespace Scripts.Enemies.Movement
             
             Vector2 edgeCheckPos = position + new Vector2(edgeCheckOffset.x * facingSign, edgeCheckOffset.y);
             IsNearEdge = !PerformRaycastCheck(edgeCheckPos, Vector2.down, edgeCheckDistance, groundLayer);
+            
+            //Debug.Log($"Environment Detection Updated: Grounded: {IsGrounded}, Near Wall: {IsNearWall}, Near Edge: {IsNearEdge}");
         }
         
         private bool PerformRaycastCheck(Vector2 origin, Vector2 direction, float distance, LayerMask mask)

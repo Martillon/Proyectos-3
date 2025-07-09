@@ -37,6 +37,7 @@ namespace Scripts.Enemies.Core
         // --- Injected & Cached Data ---
         private EnemyStats _stats;
         private Transform _playerTarget;
+        private Rigidbody2D _rb;
 
         // --- State ---
         private bool _isPlayerDetected = false;
@@ -51,8 +52,11 @@ namespace Scripts.Enemies.Core
             _attacker = GetComponentInChildren<IEnemyAttack>();
             _movementComponent = GetComponentInChildren<EnemyMovementComponent>();
             _statReceivers = GetComponentsInChildren<IEnemyStatReceiver>(true).ToList();
+            _rb = GetComponent<Rigidbody2D>();
             
             _stayStillBehavior = new StayStillBehavior();
+            
+            if(_movementComponent == null) Debug.LogError($"EnemyAIController on {name} requires an EnemyMovementComponent!", this);
         }
 
         // Called by the Spawner to inject the stats asset and configure all child components
@@ -72,9 +76,16 @@ namespace Scripts.Enemies.Core
         // Called by the Object Pooler to reset the enemy to a pristine state
         public void OnObjectSpawn()
         {
+            Debug.Log("EnemyAIController: OnObjectSpawn called for " + name);
+            
             IsDead = false;
             enabled = true;
             SetCanAct(true);
+
+            if (_rb != null)
+            {
+                _rb.bodyType = RigidbodyType2D.Dynamic;
+            }
 
             if (_playerTarget == null)
             {
@@ -91,6 +102,7 @@ namespace Scripts.Enemies.Core
             // Configure movement based on stats
             if (!_stats.isStatic && _movementComponent != null)
             {
+                Debug.Log("EnemyAIController: Configuring movement component for " + name);
                 _movementComponent.enabled = true;
                 _patrolBehavior = new PatrolBehavior(_stats.moveSpeed, patrolWaitTime, patrolMoveTime);
                 _chaseBehavior = new ChaseBehavior(_stats.moveSpeed, _playerTarget, _stats.engagementRange);
@@ -99,25 +111,41 @@ namespace Scripts.Enemies.Core
             {
                 _movementComponent.enabled = false;
             }
-            
-            // Tell all other pooled components to reset themselves
-            var pooledComponents = GetComponentsInChildren<IPooledObject>(true);
-            foreach(var component in pooledComponents)
-            {
-                if((EnemyAIController)component != this) component.OnObjectSpawn();
-            }
         }
         
         // Called by EnemyHealth when the enemy dies
         public void NotifyOfDeath()
         {
+            if (IsDead) return; // Prevent this from running multiple times
             IsDead = true;
+
+            // Stop the AI brain.
+            enabled = false;
+            
+            // Stop all physical movement.
             if (_movementComponent) _movementComponent.enabled = false;
-            enabled = false; // Disable this AI brain component
+            
+            // Tell the visual controller to play the death animation.
+            _visualController?.TriggerDeathAnimation();
+            
+            if (_rb != null)
+            {
+                _rb.linearVelocity = Vector2.zero; // Stop any existing movement instantly.
+                _rb.bodyType = RigidbodyType2D.Kinematic;
+            }
         }
 
         private void Update()
         {
+            if (_playerTarget == null)
+            {
+                var playerGO = GameObject.FindGameObjectWithTag(GameConstants.PlayerTag);
+                if (playerGO != null) _playerTarget = playerGO.transform;
+                
+                // If we still can't find one, don't do anything else this frame.
+                if (_playerTarget == null) return;
+            }
+            
             if (IsDead || !CanAct || _playerTarget == null || _stats == null)
             {
                 if (_movementComponent && !_stats.isStatic) _movementComponent.SetSteeringBehavior(_stayStillBehavior);
@@ -254,5 +282,38 @@ namespace Scripts.Enemies.Core
             if (_attacker is EnemyAttackMelee melee) melee.OnAttackFinished();
             if (_attacker is EnemyAttackRanged ranged) ranged.OnAttackFinished();
         }
+        
+#if UNITY_EDITOR
+        /// <summary>
+        /// This method is called by the Unity Editor to draw debug visuals in the Scene view.
+        /// It will only draw when the GameObject this script is attached to is selected.
+        /// </summary>
+        private void OnDrawGizmosSelected()
+        {
+            // We need to get the stats to know the ranges. If the game isn't running,
+            // we might not have them yet, so we add a null check.
+            if (_stats == null)
+            {
+                // This is a common trick: if the stats are null (because the game isn't playing),
+                // try to find the component that would hold the stats asset. This isn't perfect,
+                // but can help visualize ranges before pressing Play.
+                // For a more robust solution, you'd need a custom editor script, but this is great for now.
+                return; // Let's keep it simple: only draw if stats are loaded.
+            }
+
+            // Store the current position for cleaner code.
+            Vector3 currentPosition = transform.position;
+
+            // --- Draw the Detection Range ---
+            // This is the larger circle where the enemy first "notices" the player.
+            Gizmos.color = Color.yellow; // Yellow is a common color for detection.
+            Gizmos.DrawWireSphere(currentPosition, _stats.detectionRange);
+
+            // --- Draw the Engagement Range ---
+            // This is the smaller, inner circle where the enemy will stop chasing and start attacking.
+            Gizmos.color = Color.red; // Red is a common color for attack ranges.
+            Gizmos.DrawWireSphere(currentPosition, _stats.engagementRange);
+        }
+#endif // UNITY_EDITOR
     }
 }

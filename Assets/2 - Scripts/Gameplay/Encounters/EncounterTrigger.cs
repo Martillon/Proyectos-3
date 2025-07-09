@@ -182,7 +182,14 @@ namespace Scripts.Gameplay.Encounters
                 Vector3 spawnPosition = finalSpawnPoint.position;
                 if (instruction.spawnRadius > 0)
                 {
-                    spawnPosition += (Vector3)Random.insideUnitCircle * instruction.spawnRadius;
+                    // Calculate a random offset ONLY on the X-axis.
+                    float randomXOffset = Random.Range(-instruction.spawnRadius, instruction.spawnRadius);
+                    
+                    // Create the offset vector with Y and Z as zero.
+                    Vector3 offset = new Vector3(randomXOffset, 0, 0);
+                    
+                    // Add the horizontal offset to the base spawn position.
+                    spawnPosition += offset;
                 }
 
                 GameObject enemyInstance = ObjectPooler.Instance.SpawnFromPool(
@@ -195,9 +202,18 @@ namespace Scripts.Gameplay.Encounters
                 
                 if (enemyInstance.TryGetComponent<EnemyHealth>(out var health))
                 {
+                    // 1. CONFIGURE FIRST: Give all components the data they need.
                     var aiController = enemyInstance.GetComponent<EnemyAIController>();
                     aiController?.Configure(instruction.enemyStats);
-
+                    health.Configure(instruction.enemyStats, instruction.enemyPoolTag);
+            
+                    // 2. RESET SECOND: Now that they have their data, tell them to run their OnObjectSpawn logic.
+                    var pooledComponents = enemyInstance.GetComponentsInChildren<IPooledObject>(true);
+                    foreach(var component in pooledComponents)
+                    {
+                        component.OnObjectSpawn();
+                    }
+                    
                     _activeEnemies.Add(health);
                     health.OnDeath += OnTrackedEnemyDied;
                 }

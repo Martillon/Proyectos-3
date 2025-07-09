@@ -59,12 +59,6 @@ namespace Scripts.Core.Pooling
             objectToSpawn.transform.position = position;
             objectToSpawn.transform.rotation = rotation;
 
-            // Call a method on the object to reset its state, if it has one
-            IPooledObject pooledObj = objectToSpawn.GetComponent<IPooledObject>();
-            pooledObj?.OnObjectSpawn();
-
-            _poolDictionary[tag].Enqueue(objectToSpawn); // Add it back to the end of the queue for reuse
-
             return objectToSpawn;
         }
         

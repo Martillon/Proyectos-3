@@ -63,8 +63,15 @@ namespace Scripts.Player.Core
 
         private void Start()
         {
-            // On level start, ensure the UI reflects the current state from the SO.
-            // The actual values are persistent and should not be reset here.
+            if (!playerStats.IsInitialized())
+            {
+                // If not, this is likely a test run or the first ever run.
+                // Run the reset method to ensure stats are at their default values.
+                Debug.LogWarning("PlayerStats were not initialized. Resetting for new run as a fallback.");
+                playerStats.ResetForNewRun();
+            }
+        
+            // Now that we are GUARANTEED to have correct values, update the UI.
             PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
         }
 
@@ -74,42 +81,50 @@ namespace Scripts.Player.Core
 
             int damage = Mathf.FloorToInt(amount);
             if (damage <= 0) return;
-
-            // --- NEW MECHANIC: Lose Weapon on Armor Hit ---
-            bool lostArmor = playerStats.currentArmor > 0 && damage > 0;
-            if (lostArmor)
-            {
-                weaponBase.RevertToDefaultWeapon();
-            }
-            // --- END OF NEW MECHANIC ---
-
+            
+            // Check if we had armor before taking the hit.
+            bool hadArmor = playerStats.currentArmor > 0;
+            
+            // Apply damage to armor first.
             playerStats.currentArmor -= damage;
 
+            // Fire the event immediately to update the UI armor value.
+            PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
+
+            // If we had armor, this was an "armor hit".
+            if (hadArmor)
+            {
+                // Revert the weapon as per your mechanic.
+                weaponBase.RevertToDefaultWeapon();
+                
+                // Start the simple armor hit sequence (flinch, knockback).
+                if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
+                _activeCoroutine = StartCoroutine(ArmorHitSequence());
+            }
+            
+            // Now, check if the damage BROKE the armor and spilled over to health.
             if (playerStats.currentArmor < 0)
             {
+                // Enter the critical sequence for losing a life.
                 _isProcessingCriticalSequence = true;
                 playerStats.currentLives--;
-                
+
+                // Check for game over.
                 if (playerStats.currentLives < 0)
                 {
-                    playerStats.currentLives = 0; // Don't show negative lives
-                    PlayerEvents.RaiseHealthChanged(playerStats.currentLives, 0);
+                    playerStats.currentLives = 0; // Clamp to 0 for UI.
+                    PlayerEvents.RaiseHealthChanged(playerStats.currentLives, 0); // Update UI one last time.
                     if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
                     _activeCoroutine = StartCoroutine(FinalDeathSequence());
                 }
-                else
+                else // We lost a life but are not game over.
                 {
+                    // Reset armor to full for the next life.
                     playerStats.currentArmor = playerStats.maxArmor;
-                    PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
+                    // The respawn sequence will update the UI again after the fade.
                     if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
                     _activeCoroutine = StartCoroutine(LoseLifeAndRespawnSequence());
                 }
-            }
-            else
-            {
-                PlayerEvents.RaiseHealthChanged(playerStats.currentLives, playerStats.currentArmor);
-                if (_activeCoroutine != null) StopCoroutine(_activeCoroutine);
-                _activeCoroutine = StartCoroutine(ArmorHitSequence());
             }
         }
 
