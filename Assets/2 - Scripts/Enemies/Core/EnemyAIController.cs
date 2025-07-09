@@ -249,7 +249,8 @@ namespace Scripts.Enemies.Core
             {
                 _attacker.TryAttack(_playerTarget);
                 if (_stats.isStatic) _visualController?.TriggerWindowAttack();
-                else _visualController?.TriggerMeleeAttack(); // Assuming mobile enemies trigger this way
+                else if (_stats.isRanged) _visualController?.TriggerRangedAttack(); 
+                else _visualController?.TriggerMeleeAttack();
             }
         }
 

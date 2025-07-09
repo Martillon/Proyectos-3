@@ -32,6 +32,7 @@ namespace Scripts.Enemies.Visuals
         // --- Animator Hashes ---
         private readonly int _animIsMovingHash = Animator.StringToHash("isMoving");
         private readonly int _animMeleeAttackHash = Animator.StringToHash(GameConstants.AnimMeleeAttackTrigger);
+        private readonly int _animRangedAttackHash = Animator.StringToHash(GameConstants.AnimRangedAttackTrigger);
         private readonly int _animDieHash = Animator.StringToHash(GameConstants.AnimDieTrigger);
         private readonly int _animForceIdleTrigger = Animator.StringToHash("forceIdle");
         // Window Enemy Hashes
@@ -138,6 +139,7 @@ namespace Scripts.Enemies.Visuals
         #region Animation Triggers
         
         public void TriggerMeleeAttack() => bodyAnimator.SetTrigger(_animMeleeAttackHash);
+        public void TriggerRangedAttack() => bodyAnimator.SetTrigger(_animRangedAttackHash);
         public void TriggerDeathAnimation() => bodyAnimator.SetTrigger(_animDieHash);
         
         // --- Window Enemy Specific ---

@@ -173,7 +173,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   lifetime: 5
-  damage: 10
+  damage: 1
   impactVFX: {fileID: 0}
 --- !u!50 &8865961063724823256
 Rigidbody2D:
