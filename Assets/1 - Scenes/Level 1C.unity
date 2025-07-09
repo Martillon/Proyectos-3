@@ -26807,10 +26807,10 @@ MonoBehaviour:
   pools:
   - tag: Primero
     prefab: {fileID: 3747311238477250152, guid: c51282c96668fb24ca6bf2b2c60dd73c, type: 3}
-    size: 5
+    size: 20
   - tag: Segundo
     prefab: {fileID: 468523327413216011, guid: d45cbbda27bed2d4ca96bb92bbd265ca, type: 3}
-    size: 5
+    size: 20
 --- !u!4 &1310770308
 Transform:
   m_ObjectHideFlags: 0

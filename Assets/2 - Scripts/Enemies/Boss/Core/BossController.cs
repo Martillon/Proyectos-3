@@ -81,6 +81,7 @@ namespace Scripts.Enemies.Boss.Core
                 float moveDirection = _isFacingRight ? 1f : -1f;
                 GetComponent<Rigidbody2D>().linearVelocity = new Vector2(moveDirection * repositionSpeed, GetComponent<Rigidbody2D>().linearVelocity.y);
             }
+            
         }
         
         public void StartFight()
@@ -107,16 +108,23 @@ namespace Scripts.Enemies.Boss.Core
                 case BossState.Idle: break;
                 case BossState.Intro: bossHealth.SetInvulnerability(true); break;
                 case BossState.Fighting:
+                    bossHealth.SetInvulnerability(false);
+                    bossHealth.SetVulnerability(true);
                     visualController.SetWalking(false);
                     GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
                     _activeLogicCoroutine = StartCoroutine(AttackPattern());
                     break;
-                case BossState.Repositioning: visualController.SetWalking(true); break;
+                case BossState.Repositioning: 
+                    bossHealth.SetInvulnerability(false);
+                    bossHealth.SetVulnerability(true);
+                    visualController.SetWalking(true); 
+                    break;
                 case BossState.PhaseTransition:
                     bossHealth.SetInvulnerability(true);
                     _activeLogicCoroutine = StartCoroutine(PhaseTransitionSequence());
                     break;
                 case BossState.Dizzy:
+                    bossHealth.SetInvulnerability(false);
                     bossHealth.SetVulnerability(true);
                     _activeLogicCoroutine = StartCoroutine(DizzySequence());
                     break;
@@ -125,6 +133,8 @@ namespace Scripts.Enemies.Boss.Core
                     FreezeAllMinions();
                     break;
                 case BossState.Chase:
+                    bossHealth.SetInvulnerability(false);
+                    bossHealth.SetVulnerability(true);
                     visualController.SetWalking(true);
                     break;
             }
@@ -187,6 +197,7 @@ namespace Scripts.Enemies.Boss.Core
         public void FacePlayer()
         {
             if (_playerTarget == null || visualController == null) return;
+            
             bool playerIsToTheRight = (_playerTarget.position.x > transform.position.x);
             if (playerIsToTheRight != _isFacingRight)
             {

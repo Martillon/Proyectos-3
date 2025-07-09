@@ -82,7 +82,7 @@ namespace Scripts.Enemies.Boss.Core.Visuals
         /// <param name="faceRight">True if the boss should face right, false for left.</param>
         public void Flip(bool faceRight)
         {
-            float targetScaleX = faceRight ? 1f : -1f;
+            float targetScaleX = faceRight ? -1f : 1f;
             visualsContainer.localScale = new Vector3(targetScaleX, 1f, 1f);
         }
     
