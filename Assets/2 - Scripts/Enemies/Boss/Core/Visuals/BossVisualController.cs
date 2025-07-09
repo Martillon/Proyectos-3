@@ -40,6 +40,18 @@ namespace Scripts.Enemies.Boss.Core.Visuals
         // --- PUBLIC COMMAND METHODS ---
 
         /// <summary>
+        /// Sets the playback speed of the boss's animator.
+        /// </summary>
+        /// <param name="speedMultiplier">1 is normal speed, 1.5 is 50% faster, etc.</param>
+        public void SetAnimatorSpeed(float speedMultiplier)
+        {
+            if (bodyAnimator != null)
+            {
+                bodyAnimator.speed = speedMultiplier;
+            }
+        }
+        
+        /// <summary>
         /// Flips the boss's visual representation horizontally.
         /// </summary>
         /// <param name="faceRight">True if the boss should face right, false for left.</param>

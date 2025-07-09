@@ -113,22 +113,25 @@ namespace Scripts.Enemies.Boss.Attacks.Smash
 
             // --- 4. "Weaponize" or "Activate" the Object ---
             // Add a Rigidbody so it can fall.
+            Collider2D col = newInstance.GetComponent<Collider2D>();
+            if (col == null)
+            {
+                // If it doesn't have one, add a simple BoxCollider2D as a fallback.
+                col = newInstance.AddComponent<BoxCollider2D>();
+                Debug.LogWarning($"Prefab '{objectPrefab.name}' was missing a Collider2D. A BoxCollider2D was added automatically.", newInstance);
+            }
+            
             Rigidbody2D rb = newInstance.AddComponent<Rigidbody2D>();
             rb.gravityScale = 3f; // A good default gravity.
 
             if (isHazard)
             {
-                // If it's a hazard, add the FallingHazard component and call Drop.
                 FallingHazard hazardScript = newInstance.AddComponent<FallingHazard>();
                 hazardScript.Drop(fallSpeed, lifetime);
             }
             else // It's a power-up
             {
-                // If it's a power-up, add the FallingPowerup component and call Drop.
-                // Ensure the power-up prefab has a trigger collider for pickup.
-                var col = newInstance.GetComponent<Collider2D>();
-                if(col) col.isTrigger = true;
-                
+                col.isTrigger = true; // Make sure the collider is a trigger for pickup.
                 FallingPowerup powerupScript = newInstance.AddComponent<FallingPowerup>();
                 powerupScript.Drop(fallSpeed, lifetime);
             }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using Scripts.Enemies.Boss.Core;
 using Scripts.Enemies.Boss.Core.Visuals;
+using Scripts.Enemies.Melee;
 using UnityEngine;
 
 namespace Scripts.Enemies.Boss.Attacks.Rush
@@ -71,7 +72,7 @@ namespace Scripts.Enemies.Boss.Attacks.Rush
             // 3. Execution Phase
             // Activate the damage hitbox for the duration of the rush.
             // In a real game, you might pass damage to the hitbox here.
-            rushHitbox?.SetActive(true);
+            rushHitbox?.GetComponent<EnemyMeleeHitbox>()?.Activate(damage);
 
             // Determine the direction of the rush based on where the boss is facing.
             float rushDirection = _bossController.transform.localScale.x > 0 ? 1f : -1f; // A simple way to check facing direction
@@ -99,7 +100,7 @@ namespace Scripts.Enemies.Boss.Attacks.Rush
             // Stop all movement.
             _rb.linearVelocity = Vector2.zero;
             // Deactivate the hitbox.
-            rushHitbox?.SetActive(false);
+            rushHitbox?.GetComponent<EnemyMeleeHitbox>()?.Deactivate();
 
             // --- THE CRITICAL HANDOVER ---
             // Tell the main BossController to enter its Dizzy state.

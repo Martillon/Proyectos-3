@@ -149,6 +149,26 @@ namespace Scripts.Enemies.Boss.Core
                 _remainingThresholds.RemoveAt(0);
             }
         }
+        
+        /// <summary>
+        /// Forcibly sets the boss's health to a specific percentage of its maximum.
+        /// Used for loading from a phase checkpoint.
+        /// </summary>
+        /// <param name="percentage">The target health percentage (e.g., 0.75 for 75%).</param>
+        public void SetHealthToPercentage(float percentage)
+        {
+            _currentHealth = maxHealth * Mathf.Clamp01(percentage);
+            OnHealthChanged?.Invoke(_currentHealth, maxHealth);
+
+            // Re-evaluate which phase thresholds have been passed.
+            // We clear the remaining list and rebuild it.
+            _remainingThresholds.Clear();
+            _remainingThresholds = new List<float>(phaseHealthThresholds);
+            _remainingThresholds.Sort((a, b) => b.CompareTo(a)); 
+
+            // Remove thresholds that are higher than our new health percentage.
+            _remainingThresholds.RemoveAll(t => t >= percentage);
+        }
 
         /// <summary>
         /// Handles the death of the boss.
