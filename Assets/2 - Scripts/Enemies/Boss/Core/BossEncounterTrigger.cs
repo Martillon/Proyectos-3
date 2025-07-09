@@ -156,7 +156,11 @@ namespace Scripts.Enemies.Boss.Core
         public void SpawnMinionWave(int waveIndex)
         {
             if (!_isEncounterActive) return;
-            if (waveIndex < 0 || waveIndex >= minionWaves.Count) return;
+            if (waveIndex < 0 || waveIndex >= minionWaves.Count)
+            {
+                Debug.LogWarning($"Attempted to spawn invalid minion wave index: {waveIndex}", this);
+                return;
+            }
 
             Debug.Log($"Boss is commanding minion wave '{minionWaves[waveIndex].waveName}' to spawn.");
 
@@ -166,6 +170,7 @@ namespace Scripts.Enemies.Boss.Core
                 StartCoroutine(SpawnEnemyRoutine(instruction));
             }
         }
+
 
         // This coroutine is largely the same as the original EncounterTrigger.
         private IEnumerator SpawnEnemyRoutine(SpawnInstruction instruction)
@@ -183,31 +188,38 @@ namespace Scripts.Enemies.Boss.Core
 
                 Vector3 spawnPosition = spawnPoint.position + (Vector3)(Random.insideUnitCircle * instruction.spawnRadius);
 
+                // 1. GET the object from the pool. The pooler no longer calls OnObjectSpawn.
                 GameObject enemyInstance = ObjectPooler.Instance.SpawnFromPool(instruction.enemyPoolTag, spawnPosition, spawnPoint.rotation);
                 if (enemyInstance == null) continue;
 
-                // --- MODIFIED: Configure and track the minion ---
-                if (enemyInstance.TryGetComponent<EnemyAIController>(out var aiController))
+                if (enemyInstance.TryGetComponent<EnemyHealth>(out var health))
                 {
-                    // Configure stats and health.
-                    aiController.Configure(instruction.enemyStats);
-                    if (enemyInstance.TryGetComponent<EnemyHealth>(out var health))
+                    var aiController = enemyInstance.GetComponent<EnemyAIController>();
+
+                    // 2. CONFIGURE all components with the necessary data first.
+                    aiController?.Configure(instruction.enemyStats);
+                    health.Configure(instruction.enemyStats, instruction.enemyPoolTag);
+
+                    // 3. RESET the object now that its data is ready.
+                    // We find all components that implement IPooledObject and call their reset method.
+                    var pooledComponents = enemyInstance.GetComponentsInChildren<IPooledObject>(true);
+                    foreach (var component in pooledComponents)
                     {
-                        health.Configure(instruction.enemyStats, instruction.enemyPoolTag);
-                        health.OnDeath += (deadEnemy) => OnMinionDied(aiController);
+                        component.OnObjectSpawn();
                     }
-                
-                    // Add the new minion to our tracking list.
-                    _activeMinions.Add(aiController);
+
+                    // 4. TRACK the minion for freezing and completion logic.
+                    _activeMinions.Add(aiController); // We track the AI controller to call Freeze().
+                    health.OnDeath += (deadEnemy) => OnMinionDied(aiController);
                 }
             }
         }
         
-        private void OnMinionDied(EnemyAIController deadMinion)
+        private void OnMinionDied(EnemyAIController deadMinionAI)
         {
-            if (_activeMinions.Contains(deadMinion))
+            if (_activeMinions.Contains(deadMinionAI))
             {
-                _activeMinions.Remove(deadMinion);
+                _activeMinions.Remove(deadMinionAI);
             }
         }
         

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Scripts.Core;
+using Scripts.Enemies.Boss.Core.Visuals;
 
 namespace Scripts.Enemies.Boss.Core
 {
@@ -23,8 +24,8 @@ namespace Scripts.Enemies.Boss.Core
         [Header("Component References")]
         [Tooltip("Reference to the BossHealth component.")]
         [SerializeField] private BossHealth bossHealth;
-        [Tooltip("Reference to the boss's main Animator component.")]
-        [SerializeField] private Animator animator;
+        [Tooltip("Reference to the boss's main visual controller.")]
+        [SerializeField] private BossVisualController visualController;
         // We will add references to the attack scripts here later.
         // [SerializeField] private BossAttack_Rush rushAttack;
         // [SerializeField] private BossAttack_GroundSmash groundSmashAttack;
@@ -39,13 +40,8 @@ namespace Scripts.Enemies.Boss.Core
         private BossState _currentState;
         private int _currentPhase = 1;
         private Coroutine _attackPatternCoroutine;
-        
-        // Animator parameter IDs for performance.
-        private readonly int _isWalkingParam = Animator.StringToHash("IsWalking");
-        private readonly int _doRoarParam = Animator.StringToHash("DoRoar");
-        private readonly int _doStunParam = Animator.StringToHash("DoStun");
-        private readonly int _endStunParam = Animator.StringToHash("EndStun");
-        private readonly int _doDeathParam = Animator.StringToHash("DoDeath");
+        private Transform _playerTarget;
+        private bool _isFacingRight = true;
 
         /// <summary>
         /// Awake is used for setting up references and initial state.
@@ -76,6 +72,19 @@ namespace Scripts.Enemies.Boss.Core
         {
             // Prevent the fight from starting more than once.
             if (_currentState != BossState.Idle) return;
+            
+            var playerGO = GameObject.FindGameObjectWithTag(GameConstants.PlayerTag);
+            if (playerGO != null)
+            {
+                _playerTarget = playerGO.transform;
+            }
+            else
+            {
+                Debug.LogError("BossController could not find the Player! The fight cannot start correctly.", this);
+                // In a real game, you might want to handle this more gracefully.
+                return;
+            }
+
             
             Debug.Log("BOSS FIGHT HAS STARTED!");
 
@@ -138,7 +147,7 @@ namespace Scripts.Enemies.Boss.Core
                     break;
                 case BossState.Defeated:
                     if (_attackPatternCoroutine != null) StopCoroutine(_attackPatternCoroutine);
-                    animator.SetTrigger(_doDeathParam);
+                    visualController.PlayDeathAnimation();
                     // Here we would also tell all active minions to freeze.
                     break;
             }
@@ -154,8 +163,8 @@ namespace Scripts.Enemies.Boss.Core
             // --- PLACEHOLDER for entrance animation ---
             Debug.Log("Playing entrance animation...");
             yield return new WaitForSeconds(2.0f); // Simulate animation duration
-
-            animator.SetTrigger(_doRoarParam);
+            
+            visualController.PlayRoarAnimation();
             Debug.Log("Playing intro roar...");
             yield return new WaitForSeconds(1.5f); // Simulate roar duration
 
@@ -166,7 +175,7 @@ namespace Scripts.Enemies.Boss.Core
         {
             bossHealth.SetInvulnerability(true);
 
-            animator.SetTrigger(_doRoarParam);
+            visualController.PlayRoarAnimation();
             Debug.Log($"PHASE {_currentPhase} START! Roaring and spawning minions.");
             
             if (encounterTrigger != null)
@@ -182,20 +191,19 @@ namespace Scripts.Enemies.Boss.Core
             // After transition, go back to fighting with upgraded attacks.
             ChangeState(BossState.Fighting);
         }
-
+        
         private IEnumerator DizzySequence()
         {
-            Debug.Log("Boss is DIZZY! Attacking now deals full damage.");
+            Debug.Log("Boss is DIZZY!");
             bossHealth.SetVulnerability(true);
-            animator.SetTrigger(_doStunParam);
+            visualController.PlayStunBeginAnimation(); 
 
             yield return new WaitForSeconds(stunDuration);
 
-            Debug.Log("Boss has recovered from being dizzy.");
+            Debug.Log("Boss has recovered.");
             bossHealth.SetVulnerability(false);
-            animator.SetTrigger(_endStunParam);
+            visualController.PlayStunEndAnimation(); 
 
-            // Give a brief moment before resuming attacks.
             yield return new WaitForSeconds(1.0f); 
 
             ChangeState(BossState.Fighting);
@@ -224,6 +232,45 @@ namespace Scripts.Enemies.Boss.Core
                 // The Rush attack itself would trigger the Dizzy state, breaking this loop.
                 // For now, we'll just add a delay and loop again.
                 yield return new WaitForSeconds(delayBetweenAttacks);
+            }
+        }
+        
+        /// <summary>
+        /// A public method that can be called by other components (like an attack script)
+        /// to force the boss into the Dizzy state.
+        /// </summary>
+        public void EnterDizzyState()
+        {
+            // We only want to enter the dizzy state if we are currently in the middle of a fight.
+            // This prevents weird states if, for example, the boss dies mid-rush.
+            if (_currentState == BossState.Fighting)
+            {
+                ChangeState(BossState.Dizzy);
+            }
+        }
+
+        
+        /// <summary>
+        /// Checks the player's position and tells the Visual Controller to flip if necessary.
+        /// The logic for *deciding* to flip is here. The logic for *how* to flip is in the visual controller.
+        /// </summary>
+        public void FacePlayer()
+        {
+            if (_playerTarget == null || visualController == null) return;
+
+            bool playerIsToTheRight = (_playerTarget.position.x > transform.position.x);
+
+            if (playerIsToTheRight && !_isFacingRight)
+            {
+                // We've decided to flip right. Tell the visual controller to execute it.
+                _isFacingRight = true;
+                visualController.Flip(true); // Command: Face Right
+            }
+            else if (!playerIsToTheRight && _isFacingRight)
+            {
+                // We've decided to flip left.
+                _isFacingRight = false;
+                visualController.Flip(false); // Command: Face Left
             }
         }
 

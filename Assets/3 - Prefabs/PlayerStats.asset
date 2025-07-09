@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
   defaultLives: 3
-  maxArmor: 2
+  maxArmor: 3
   defaultWeapon: {fileID: 11400000, guid: 17d24bdf7b9c83d45a9b62ac8fa5b28c, type: 2}
-  currentLives: 0
-  currentArmor: 0
-  currentWeapon: {fileID: 0}
+  currentLives: 3
+  currentArmor: 3
+  currentWeapon: {fileID: 11400000, guid: 17d24bdf7b9c83d45a9b62ac8fa5b28c, type: 2}

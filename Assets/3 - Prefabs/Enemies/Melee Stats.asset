@@ -17,9 +17,9 @@ MonoBehaviour:
   isRanged: 0
   canPatrol: 1
   maxHealth: 10
-  moveSpeed: 3
-  detectionRange: 12
-  engagementRange: 2
-  attackDamage: 15
+  moveSpeed: 5
+  detectionRange: 5
+  engagementRange: 1
+  attackDamage: 1
   attackCooldown: 1.5
   aimingStyle: 0
