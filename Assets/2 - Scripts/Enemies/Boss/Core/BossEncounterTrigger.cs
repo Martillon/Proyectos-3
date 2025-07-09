@@ -257,7 +257,7 @@ namespace Scripts.Enemies.Boss.Core
                 // This is a good example of decoupling; this script doesn't need to know
                 // about a specific "PlayerAnimationController" script.
                 Animator playerAnimator = player.GetComponentInChildren<Animator>();
-                playerAnimator?.SetTrigger("TriggerVictory");
+                playerAnimator?.SetTrigger("Victory");
                 Debug.Log("Triggering player victory animation.");
             }
 

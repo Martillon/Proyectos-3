@@ -129,6 +129,20 @@ namespace Scripts.Enemies.Boss.Core
                     _activeLogicCoroutine = StartCoroutine(DizzySequence());
                     break;
                 case BossState.Defeated:
+                    if (GetComponent<Rigidbody2D>() != null)
+                    {
+                        var rb = GetComponent<Rigidbody2D>();
+                        rb.linearVelocity = Vector2.zero;
+                        rb.bodyType = RigidbodyType2D.Kinematic; // Makes it ignore physics forces.
+                    }
+    
+                    // 3. Disable the main collider so it can't be hit or bump into the player.
+                    if (GetComponent<Collider2D>() != null)
+                    {
+                        GetComponent<Collider2D>().enabled = false;
+                    }
+    
+                    // --- Your existing logic is still correct ---
                     visualController.PlayDeathAnimation();
                     FreezeAllMinions();
                     break;
@@ -233,6 +247,7 @@ namespace Scripts.Enemies.Boss.Core
         private void HandleDeath()
         {
             ChangeState(BossState.Defeated);
+            
             if (bossHealth != null)
             {
                 bossHealth.OnPhaseThresholdReached -= HandlePhaseTransition;
