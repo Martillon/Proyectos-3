@@ -1,25 +1,19 @@
 fileFormatVersion: 2
-guid: 142f06428bfa05e419d40b95664b2225
+guid: c9527acd109943e48b0506bfbc5bbb36
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9166825397310151823
-    second: MinibossTired_0
+      213: -1502663461688090158
+    second: Exclamations_0
   - first:
-      213: -2918489009902359825
-    second: MinibossTired_1
+      213: 658377799035384407
+    second: Exclamations_1
   - first:
-      213: 1803463115595457407
-    second: MinibossTired_2
+      213: -7663616387427756341
+    second: Exclamations_2
   - first:
-      213: 2637110413587711025
-    second: MinibossTired_3
-  - first:
-      213: 6073405886520319707
-    second: MinibossTired_4
-  - first:
-      213: -7332881872674620194
-    second: MinibossTired_5
+      213: 3023408767027244628
+    second: Exclamations_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,111 +109,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MinibossTired_0
+      name: Exclamations_0
       rect:
         serializedVersion: 2
-        x: 11
-        y: 0
-        width: 86
-        height: 101
-      alignment: 9
-      pivot: {x: 0.49492043, y: -0.0038802426}
+        x: 26
+        y: 16
+        width: 12
+        height: 38
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 173ac4b7ed4e8c080800000000000000
-      internalID: -9166825397310151823
+      spriteID: 2d16f150b87752be0800000000000000
+      internalID: -1502663461688090158
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_1
+      name: Exclamations_1
       rect:
         serializedVersion: 2
-        x: 140
-        y: 0
-        width: 85
-        height: 102
-      alignment: 9
-      pivot: {x: 0.49486083, y: 0.0010596028}
+        x: 90
+        y: 16
+        width: 12
+        height: 37
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fea63e355b17f77d0800000000000000
-      internalID: -2918489009902359825
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MinibossTired_2
-      rect:
-        serializedVersion: 2
-        x: 268
-        y: 0
-        width: 85
-        height: 104
-      alignment: 9
-      pivot: {x: 0.49743006, y: -0.006146797}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f7326920620370910800000000000000
-      internalID: 1803463115595457407
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MinibossTired_3
-      rect:
-        serializedVersion: 2
-        x: 396
-        y: 0
-        width: 85
-        height: 108
-      alignment: 9
-      pivot: {x: 0.5, y: 0.0004648915}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 134016bf2f5e89420800000000000000
-      internalID: 2637110413587711025
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MinibossTired_4
-      rect:
-        serializedVersion: 2
-        x: 523
-        y: 0
-        width: 86
-        height: 113
-      alignment: 9
-      pivot: {x: 0.5, y: -0.00062684354}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: bde5fcab972194450800000000000000
-      internalID: 6073405886520319707
+      spriteID: 752f187be17032900800000000000000
+      internalID: 658377799035384407
       vertices: []
       indices: 
       edges: []
@@ -228,7 +156,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 6bbba02e552774b4ab42f29e63d0d750
+    spriteID: 324af75de76ba3946b3f30363853accd
     internalID: 0
     vertices: []
     indices: 
@@ -238,12 +166,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MinibossTired_0: -9166825397310151823
-      MinibossTired_1: -2918489009902359825
-      MinibossTired_2: 1803463115595457407
-      MinibossTired_3: 2637110413587711025
-      MinibossTired_4: 6073405886520319707
-      MinibossTired_5: -7332881872674620194
+      Exclamations_0: -1502663461688090158
+      Exclamations_1: 658377799035384407
+      Exclamations_2: -7663616387427756341
+      Exclamations_3: 3023408767027244628
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

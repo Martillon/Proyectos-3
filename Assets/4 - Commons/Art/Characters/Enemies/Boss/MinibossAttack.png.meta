@@ -1,25 +1,19 @@
 fileFormatVersion: 2
-guid: 142f06428bfa05e419d40b95664b2225
+guid: 75d47c424eec289498172921c6f0433f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9166825397310151823
-    second: MinibossTired_0
+      213: 5023848835674675341
+    second: MinibossAttack_0
   - first:
-      213: -2918489009902359825
-    second: MinibossTired_1
+      213: -8455079177448339848
+    second: MinibossAttack_1
   - first:
-      213: 1803463115595457407
-    second: MinibossTired_2
+      213: -6657152968045052152
+    second: MinibossAttack_2
   - first:
-      213: 2637110413587711025
-    second: MinibossTired_3
-  - first:
-      213: 6073405886520319707
-    second: MinibossTired_4
-  - first:
-      213: -7332881872674620194
-    second: MinibossTired_5
+      213: 4292522355443157686
+    second: MinibossAttack_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,111 +109,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MinibossTired_0
+      name: MinibossAttack_0
       rect:
         serializedVersion: 2
         x: 11
         y: 0
         width: 86
-        height: 101
-      alignment: 9
-      pivot: {x: 0.49492043, y: -0.0038802426}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 173ac4b7ed4e8c080800000000000000
-      internalID: -9166825397310151823
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MinibossTired_1
-      rect:
-        serializedVersion: 2
-        x: 140
-        y: 0
-        width: 85
-        height: 102
-      alignment: 9
-      pivot: {x: 0.49486083, y: 0.0010596028}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fea63e355b17f77d0800000000000000
-      internalID: -2918489009902359825
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MinibossTired_2
-      rect:
-        serializedVersion: 2
-        x: 268
-        y: 0
-        width: 85
         height: 104
       alignment: 9
-      pivot: {x: 0.49743006, y: -0.006146797}
+      pivot: {x: 0.5, y: 0.0017302788}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f7326920620370910800000000000000
-      internalID: 1803463115595457407
+      spriteID: d8816a706eb48b540800000000000000
+      internalID: 5023848835674675341
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_3
+      name: MinibossAttack_1
       rect:
         serializedVersion: 2
-        x: 396
+        x: 127
         y: 0
-        width: 85
-        height: 108
+        width: 98
+        height: 104
       alignment: 9
-      pivot: {x: 0.5, y: 0.0004648915}
+      pivot: {x: 0.5023091, y: 0.0039059957}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 134016bf2f5e89420800000000000000
-      internalID: 2637110413587711025
+      spriteID: 876c368f84689aa80800000000000000
+      internalID: -8455079177448339848
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_4
+      name: MinibossAttack_2
       rect:
         serializedVersion: 2
-        x: 523
+        x: 282
         y: 0
-        width: 86
-        height: 113
+        width: 70
+        height: 127
       alignment: 9
-      pivot: {x: 0.5, y: -0.00062684354}
+      pivot: {x: 0.49353507, y: 0.0010963738}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bde5fcab972194450800000000000000
-      internalID: 6073405886520319707
+      spriteID: 80fbc3c85aa0d93a0800000000000000
+      internalID: -6657152968045052152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MinibossAttack_3
+      rect:
+        serializedVersion: 2
+        x: 386
+        y: 0
+        width: 95
+        height: 103
+      alignment: 9
+      pivot: {x: 0.49523604, y: -0.0009103709}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bacc9ae65a129b30800000000000000
+      internalID: 4292522355443157686
       vertices: []
       indices: 
       edges: []
@@ -228,7 +200,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 6bbba02e552774b4ab42f29e63d0d750
+    spriteID: c137896e032b8f54bbc80605b403f3c7
     internalID: 0
     vertices: []
     indices: 
@@ -238,12 +210,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MinibossTired_0: -9166825397310151823
-      MinibossTired_1: -2918489009902359825
-      MinibossTired_2: 1803463115595457407
-      MinibossTired_3: 2637110413587711025
-      MinibossTired_4: 6073405886520319707
-      MinibossTired_5: -7332881872674620194
+      MinibossAttack_0: 5023848835674675341
+      MinibossAttack_1: -8455079177448339848
+      MinibossAttack_2: -6657152968045052152
+      MinibossAttack_3: 4292522355443157686
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

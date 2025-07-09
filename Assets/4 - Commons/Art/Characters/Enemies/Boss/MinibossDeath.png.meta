@@ -1,25 +1,28 @@
 fileFormatVersion: 2
-guid: 142f06428bfa05e419d40b95664b2225
+guid: ab01b87c1d1bb3e41b1f0de8381d035e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9166825397310151823
-    second: MinibossTired_0
+      213: -7355074739650370590
+    second: MinibossDeath_0
   - first:
-      213: -2918489009902359825
-    second: MinibossTired_1
+      213: 1924978020223017296
+    second: MinibossDeath_1
   - first:
-      213: 1803463115595457407
-    second: MinibossTired_2
+      213: -7736055591683539449
+    second: MinibossDeath_2
   - first:
-      213: 2637110413587711025
-    second: MinibossTired_3
+      213: -7684107874086260006
+    second: MinibossDeath_3
   - first:
-      213: 6073405886520319707
-    second: MinibossTired_4
+      213: 5692584838246302832
+    second: MinibossDeath_4
   - first:
-      213: -7332881872674620194
-    second: MinibossTired_5
+      213: 3095833060667238465
+    second: MinibossDeath_5
+  - first:
+      213: 7379352498152839951
+    second: MinibossDeath_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,111 +118,155 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MinibossTired_0
+      name: MinibossDeath_0
       rect:
         serializedVersion: 2
         x: 11
         y: 0
         width: 86
-        height: 101
-      alignment: 9
-      pivot: {x: 0.49492043, y: -0.0038802426}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 173ac4b7ed4e8c080800000000000000
-      internalID: -9166825397310151823
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MinibossTired_1
-      rect:
-        serializedVersion: 2
-        x: 140
-        y: 0
-        width: 85
-        height: 102
-      alignment: 9
-      pivot: {x: 0.49486083, y: 0.0010596028}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fea63e355b17f77d0800000000000000
-      internalID: -2918489009902359825
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MinibossTired_2
-      rect:
-        serializedVersion: 2
-        x: 268
-        y: 0
-        width: 85
         height: 104
       alignment: 9
-      pivot: {x: 0.49743006, y: -0.006146797}
+      pivot: {x: 0.5, y: -0.0036499859}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f7326920620370910800000000000000
-      internalID: 1803463115595457407
+      spriteID: 2e3e0be3e768de990800000000000000
+      internalID: -7355074739650370590
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_3
+      name: MinibossDeath_1
       rect:
         serializedVersion: 2
-        x: 396
+        x: 139
         y: 0
-        width: 85
-        height: 108
+        width: 87
+        height: 116
       alignment: 9
-      pivot: {x: 0.5, y: 0.0004648915}
+      pivot: {x: 0.5, y: 0.00031687637}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 134016bf2f5e89420800000000000000
-      internalID: 2637110413587711025
+      spriteID: 051e3d77f45e6ba10800000000000000
+      internalID: 1924978020223017296
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_4
+      name: MinibossDeath_2
       rect:
         serializedVersion: 2
-        x: 523
+        x: 255
         y: 0
-        width: 86
-        height: 113
+        width: 119
+        height: 121
       alignment: 9
-      pivot: {x: 0.5, y: -0.00062684354}
+      pivot: {x: 0.49776554, y: -0.0010089085}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bde5fcab972194450800000000000000
-      internalID: 6073405886520319707
+      spriteID: 70e370f3d6204a490800000000000000
+      internalID: -7736055591683539449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MinibossDeath_3
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 0
+        width: 102
+        height: 120
+      alignment: 9
+      pivot: {x: 0.49739313, y: -0.0007525902}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad27e45c9909c5590800000000000000
+      internalID: -7684107874086260006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MinibossDeath_4
+      rect:
+        serializedVersion: 2
+        x: 521
+        y: 0
+        width: 102
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.003678781}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0740271ffbf100f40800000000000000
+      internalID: 5692584838246302832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MinibossDeath_5
+      rect:
+        serializedVersion: 2
+        x: 649
+        y: 0
+        width: 102
+        height: 120
+      alignment: 9
+      pivot: {x: 0.49739343, y: 0.001462994}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1482bf824cb96fa20800000000000000
+      internalID: 3095833060667238465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MinibossDeath_6
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 0
+        width: 96
+        height: 60
+      alignment: 9
+      pivot: {x: 0.4972299, y: 0.0036789863}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0b9ac4eff9b86660800000000000000
+      internalID: 7379352498152839951
       vertices: []
       indices: 
       edges: []
@@ -228,7 +275,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 6bbba02e552774b4ab42f29e63d0d750
+    spriteID: bfb78803bbd74024a8e43d31eccc996b
     internalID: 0
     vertices: []
     indices: 
@@ -238,12 +285,13 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MinibossTired_0: -9166825397310151823
-      MinibossTired_1: -2918489009902359825
-      MinibossTired_2: 1803463115595457407
-      MinibossTired_3: 2637110413587711025
-      MinibossTired_4: 6073405886520319707
-      MinibossTired_5: -7332881872674620194
+      MinibossDeath_0: -7355074739650370590
+      MinibossDeath_1: 1924978020223017296
+      MinibossDeath_2: -7736055591683539449
+      MinibossDeath_3: -7684107874086260006
+      MinibossDeath_4: 5692584838246302832
+      MinibossDeath_5: 3095833060667238465
+      MinibossDeath_6: 7379352498152839951
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

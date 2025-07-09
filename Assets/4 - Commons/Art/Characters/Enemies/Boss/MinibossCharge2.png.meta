@@ -1,25 +1,22 @@
 fileFormatVersion: 2
-guid: 142f06428bfa05e419d40b95664b2225
+guid: 7327db84f970fd54194102176ae1eafa
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9166825397310151823
-    second: MinibossTired_0
+      213: -2086867350107522765
+    second: MinibossCharge2_0
   - first:
-      213: -2918489009902359825
-    second: MinibossTired_1
+      213: 73259429101492886
+    second: MinibossCharge2_1
   - first:
-      213: 1803463115595457407
-    second: MinibossTired_2
+      213: -607896666414532525
+    second: MinibossCharge2_2
   - first:
-      213: 2637110413587711025
-    second: MinibossTired_3
+      213: -8213603286940387750
+    second: MinibossCharge2_3
   - first:
-      213: 6073405886520319707
-    second: MinibossTired_4
-  - first:
-      213: -7332881872674620194
-    second: MinibossTired_5
+      213: 8876213965017659561
+    second: MinibossCharge2_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,111 +112,111 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MinibossTired_0
+      name: MinibossCharge2_0
       rect:
         serializedVersion: 2
-        x: 11
+        x: 8
         y: 0
-        width: 86
-        height: 101
-      alignment: 9
-      pivot: {x: 0.49492043, y: -0.0038802426}
+        width: 105
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 173ac4b7ed4e8c080800000000000000
-      internalID: -9166825397310151823
+      spriteID: 339fa77a335f903e0800000000000000
+      internalID: -2086867350107522765
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_1
+      name: MinibossCharge2_1
       rect:
         serializedVersion: 2
-        x: 140
+        x: 143
         y: 0
-        width: 85
-        height: 102
-      alignment: 9
-      pivot: {x: 0.49486083, y: 0.0010596028}
+        width: 95
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fea63e355b17f77d0800000000000000
-      internalID: -2918489009902359825
+      spriteID: 69ada080015440100800000000000000
+      internalID: 73259429101492886
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_2
+      name: MinibossCharge2_2
       rect:
         serializedVersion: 2
-        x: 268
+        x: 267
         y: 0
-        width: 85
-        height: 104
-      alignment: 9
-      pivot: {x: 0.49743006, y: -0.006146797}
+        width: 90
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f7326920620370910800000000000000
-      internalID: 1803463115595457407
+      spriteID: 358b732e3315097f0800000000000000
+      internalID: -607896666414532525
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_3
+      name: MinibossCharge2_3
       rect:
         serializedVersion: 2
-        x: 396
+        x: 395
         y: 0
-        width: 85
-        height: 108
-      alignment: 9
-      pivot: {x: 0.5, y: 0.0004648915}
+        width: 113
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 134016bf2f5e89420800000000000000
-      internalID: 2637110413587711025
+      spriteID: a56ffebf35b630e80800000000000000
+      internalID: -8213603286940387750
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MinibossTired_4
+      name: MinibossCharge2_4
       rect:
         serializedVersion: 2
         x: 523
         y: 0
-        width: 86
-        height: 113
-      alignment: 9
-      pivot: {x: 0.5, y: -0.00062684354}
+        width: 116
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bde5fcab972194450800000000000000
-      internalID: 6073405886520319707
+      spriteID: 9a83d3fa295ae2b70800000000000000
+      internalID: 8876213965017659561
       vertices: []
       indices: 
       edges: []
@@ -228,7 +225,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 6bbba02e552774b4ab42f29e63d0d750
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -238,12 +235,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MinibossTired_0: -9166825397310151823
-      MinibossTired_1: -2918489009902359825
-      MinibossTired_2: 1803463115595457407
-      MinibossTired_3: 2637110413587711025
-      MinibossTired_4: 6073405886520319707
-      MinibossTired_5: -7332881872674620194
+      MinibossCharge2_0: -2086867350107522765
+      MinibossCharge2_1: 73259429101492886
+      MinibossCharge2_2: -607896666414532525
+      MinibossCharge2_3: -8213603286940387750
+      MinibossCharge2_4: 8876213965017659561
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

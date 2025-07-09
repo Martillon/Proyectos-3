@@ -29,6 +29,9 @@ TextureImporter:
   - first:
       213: 4120137395210788161
     second: MinibossIntro_8
+  - first:
+      213: 6798808865483507913
+    second: MinibossIntro_9
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -131,8 +134,8 @@ TextureImporter:
         y: 0
         width: 86
         height: 104
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.4972213, y: -0.0032076393}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -149,12 +152,12 @@ TextureImporter:
       name: MinibossIntro_1
       rect:
         serializedVersion: 2
-        x: 139
+        x: 146
         y: 0
-        width: 95
-        height: 118
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 79
+        height: 108
+      alignment: 9
+      pivot: {x: 0.4969747, y: -0.0022714513}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -171,12 +174,12 @@ TextureImporter:
       name: MinibossIntro_2
       rect:
         serializedVersion: 2
-        x: 261
+        x: 267
         y: 0
-        width: 92
-        height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 86
+        height: 101
+      alignment: 9
+      pivot: {x: 0.4972211, y: -0.0015925324}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -197,8 +200,8 @@ TextureImporter:
         y: 0
         width: 92
         height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.4948047, y: 0.0027570839}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -219,8 +222,8 @@ TextureImporter:
         y: 0
         width: 92
         height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: -0.0020704416}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -241,8 +244,8 @@ TextureImporter:
         y: 0
         width: 92
         height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.4948047, y: -0.0020702207}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -263,8 +266,8 @@ TextureImporter:
         y: 0
         width: 92
         height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.4974027, y: -0.0020702207}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -285,8 +288,8 @@ TextureImporter:
         y: 0
         width: 92
         height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5051946, y: -0.0044840937}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -307,8 +310,8 @@ TextureImporter:
         y: 0
         width: 92
         height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0003434316}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -321,11 +324,33 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: MinibossIntro_9
+      rect:
+        serializedVersion: 2
+        x: 1157
+        y: 0
+        width: 92
+        height: 99
+      alignment: 9
+      pivot: {x: 0.5, y: -0.0020702207}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c8cbea34a83a5e50800000000000000
+      internalID: 6798808865483507913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: caf414ce55796804cb48aa316114ef47
+    spriteID: 46c6f2453d84f634687ca90690daa4cf
     internalID: 0
     vertices: []
     indices: 
@@ -344,6 +369,7 @@ TextureImporter:
       MinibossIntro_6: -3392313134070673324
       MinibossIntro_7: -5938183827344938655
       MinibossIntro_8: 4120137395210788161
+      MinibossIntro_9: 6798808865483507913
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

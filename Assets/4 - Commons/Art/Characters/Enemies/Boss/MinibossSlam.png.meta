@@ -26,6 +26,9 @@ TextureImporter:
   - first:
       213: 5689987313175768965
     second: MinibossSlam_7
+  - first:
+      213: 2522791549864390178
+    second: MinibossSlam_8
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -124,12 +127,12 @@ TextureImporter:
       name: MinibossSlam_0
       rect:
         serializedVersion: 2
-        x: 11
+        x: 8
         y: 0
-        width: 86
+        width: 89
         height: 104
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -146,12 +149,12 @@ TextureImporter:
       name: MinibossSlam_1
       rect:
         serializedVersion: 2
-        x: 136
+        x: 127
         y: 0
-        width: 89
-        height: 104
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 98
+        height: 103
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -168,12 +171,12 @@ TextureImporter:
       name: MinibossSlam_2
       rect:
         serializedVersion: 2
-        x: 255
+        x: 283
         y: 0
-        width: 98
-        height: 104
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 70
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -190,12 +193,12 @@ TextureImporter:
       name: MinibossSlam_3
       rect:
         serializedVersion: 2
-        x: 411
+        x: 383
         y: 0
-        width: 70
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 98
+        height: 106
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -212,12 +215,12 @@ TextureImporter:
       name: MinibossSlam_4
       rect:
         serializedVersion: 2
-        x: 511
+        x: 519
         y: 0
-        width: 98
-        height: 115
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 90
+        height: 79
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -234,12 +237,12 @@ TextureImporter:
       name: MinibossSlam_5
       rect:
         serializedVersion: 2
-        x: 639
+        x: 642
         y: 0
-        width: 98
-        height: 97
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 96
+        height: 62
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -259,9 +262,9 @@ TextureImporter:
         x: 770
         y: 0
         width: 96
-        height: 76
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        height: 62
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -278,12 +281,12 @@ TextureImporter:
       name: MinibossSlam_7
       rect:
         serializedVersion: 2
-        x: 907
+        x: 903
         y: 0
-        width: 86
-        height: 104
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 90
+        height: 79
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -296,11 +299,33 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: MinibossSlam_8
+      rect:
+        serializedVersion: 2
+        x: 1035
+        y: 0
+        width: 86
+        height: 104
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22e260c5c81c20320800000000000000
+      internalID: 2522791549864390178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 758995757f61d774cb337f1d9f980b0d
     internalID: 0
     vertices: []
     indices: 
@@ -318,6 +343,7 @@ TextureImporter:
       MinibossSlam_5: 8338071215334747019
       MinibossSlam_6: -7914366409353208160
       MinibossSlam_7: 5689987313175768965
+      MinibossSlam_8: 2522791549864390178
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
