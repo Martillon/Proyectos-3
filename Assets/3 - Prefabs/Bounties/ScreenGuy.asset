@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ScreenGuy
   m_EditorClassIdentifier: 
   bountyID: Filler_0
-  title: 
-  reward: 
+  title: Screen Guy
+  reward: 0,5
   description: 
   wantedPosterArt: {fileID: -638127408341900163, guid: b5bab8a8a4e47174688ee3be8299d383, type: 3}
   characterQuoteOnLaunch: 
