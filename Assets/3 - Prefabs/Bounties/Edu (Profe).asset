@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bountyID: Filler_Teach_1
   title: Eduardo
-  reward: 3000
+  reward: 3000$
   description: Methodical and curious mind who dissects every environment with scientific
     precision. With a passion for technology, he thrives in uncovering hidden mechanics
   wantedPosterArt: {fileID: 2974050324322777776, guid: 00de82bb2b182c64fb145d03a72a5c43, type: 3}

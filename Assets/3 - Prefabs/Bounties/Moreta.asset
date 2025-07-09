@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Moreta
   m_EditorClassIdentifier: 
   bountyID: Filler_Dev_4
-  title: Moreta
-  reward: 
+  title: Sergio "Moreta" Di Angelo
+  reward: 1000
   description: 
   wantedPosterArt: {fileID: 1870225615131078058, guid: 329bf74a3614973419417d7c2488222c, type: 3}
   characterQuoteOnLaunch: 
