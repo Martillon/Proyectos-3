@@ -15,7 +15,11 @@ MonoBehaviour:
   bountyID: Filler_0
   title: Screen Guy
   reward: 0,5
-  description: 
+  description: 'Former undercover agent, master of disguise and manipulation. After
+    betraying his allies for a suitcase full of nothing, he now lives in the shadows.
+    Keep an eye on him.
+
+'
   wantedPosterArt: {fileID: -638127408341900163, guid: b5bab8a8a4e47174688ee3be8299d383, type: 3}
   characterQuoteOnLaunch: 
   levelSceneNames: []

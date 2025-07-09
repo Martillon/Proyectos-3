@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Moreta
   m_EditorClassIdentifier: 
   bountyID: Filler_Dev_4
-  title: Sergio "Moreta" Di Angelo
-  reward: 1000
-  description: 
+  title: Sergio "Il Capo" Moreta
+  reward: 800006
+  description: 'Ex-Italian mafia boss, expert negotiator, lost his entire empire
+    betting on green. Not to be trusted.
+
+'
   wantedPosterArt: {fileID: 1870225615131078058, guid: 329bf74a3614973419417d7c2488222c, type: 3}
   characterQuoteOnLaunch: 
   levelSceneNames: []
