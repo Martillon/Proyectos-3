@@ -8736,10 +8736,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1156308609}
     m_Modifications:
-    - target: {fileID: 219694929080857885, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
-      propertyPath: damageAmountIfNotInstakill
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 1672024329233195963, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Name
       value: DeathZone _ TrapFall
@@ -8747,6 +8743,10 @@ PrefabInstance:
     - target: {fileID: 1672024329233195963, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1672024329233195963, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2565649272516636389, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8790,7 +8790,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3773763507591276641, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Size.x
-      value: 2.0605469
+      value: 4.03325
       objectReference: {fileID: 0}
     - target: {fileID: 3773763507591276641, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Size.y
@@ -8798,7 +8798,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3773763507591276641, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Offset.x
-      value: 0.023055077
+      value: 1.0094066
       objectReference: {fileID: 0}
     - target: {fileID: 3773763507591276641, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Offset.y
@@ -8937,7 +8937,7 @@ Transform:
   m_GameObject: {fileID: 1015037941}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.79, y: -7.65, z: 0}
+  m_LocalPosition: {x: 21.38, y: -7.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9281,10 +9281,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1156308609}
     m_Modifications:
-    - target: {fileID: 219694929080857885, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
-      propertyPath: damageAmountIfNotInstakill
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 1672024329233195963, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Name
       value: DeathZone _ TrapFall (3)
@@ -9292,6 +9288,10 @@ PrefabInstance:
     - target: {fileID: 1672024329233195963, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1672024329233195963, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2565649272516636389, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9335,7 +9335,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3773763507591276641, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Size.x
-      value: 2.0605469
+      value: 2.998784
       objectReference: {fileID: 0}
     - target: {fileID: 3773763507591276641, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Size.y
@@ -9343,7 +9343,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3773763507591276641, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Offset.x
-      value: 0.023055077
+      value: 0.49217367
       objectReference: {fileID: 0}
     - target: {fileID: 3773763507591276641, guid: ff189d333b3abed4ea72a2599c37d6f7, type: 3}
       propertyPath: m_Offset.y
@@ -10079,9 +10079,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1156308609}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: DeathZone
-  m_TagString: Untagged
+  m_TagString: Hittable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12441,19 +12441,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5499024083761529542, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: m_Size.x
-      value: 10.802673
+      value: 11.7409115
       objectReference: {fileID: 0}
     - target: {fileID: 5499024083761529542, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: m_Size.y
-      value: 1.8218594
+      value: 2.3751788
       objectReference: {fileID: 0}
     - target: {fileID: 5499024083761529542, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: m_Offset.x
-      value: -0.03344536
+      value: -0.50256443
       objectReference: {fileID: 0}
     - target: {fileID: 5499024083761529542, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: m_Offset.y
-      value: -0.0982914
+      value: 0.17836833
       objectReference: {fileID: 0}
     - target: {fileID: 5499024083761529542, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: m_IsTrigger
@@ -13848,7 +13848,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: -222047431
-  m_SortingOrder: 9
+  m_SortingOrder: 3
   m_TargetDisplay: 0
 --- !u!224 &1911452701
 RectTransform:
@@ -13989,7 +13989,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].count
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[1].count
@@ -14006,7 +14006,7 @@ PrefabInstance:
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].spawnPoint
       value: 
-      objectReference: {fileID: 1015037942}
+      objectReference: {fileID: 346723629}
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[1].enemyStats
       value: 
@@ -14021,7 +14021,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].spawnRadius
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].enemyPoolTag
