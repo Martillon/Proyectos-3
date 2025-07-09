@@ -32483,7 +32483,7 @@ PrefabInstance:
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].enemyStats
       value: 
-      objectReference: {fileID: 11400000, guid: 00a74091044e93f40b9d45c6b43d7262, type: 2}
+      objectReference: {fileID: 11400000, guid: f9de8e353d7469140acb3e8b2e28842d, type: 2}
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].spawnDelay
       value: 0.5
@@ -32498,7 +32498,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].enemyPoolTag
-      value: Primero
+      value: Segundo
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -68937,7 +68937,7 @@ PrefabInstance:
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].enemyStats
       value: 
-      objectReference: {fileID: 11400000, guid: f9de8e353d7469140acb3e8b2e28842d, type: 2}
+      objectReference: {fileID: 11400000, guid: 00a74091044e93f40b9d45c6b43d7262, type: 2}
     - target: {fileID: 6105724733201759823, guid: 603998fc624fbb941a7131a66e1abb2d, type: 3}
       propertyPath: waves.Array.data[0].spawnInstructions.Array.data[0].spawnDelay
       value: 0.5

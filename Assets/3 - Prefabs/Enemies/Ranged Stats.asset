@@ -15,8 +15,8 @@ MonoBehaviour:
   enemyName: Range
   isStatic: 0
   isRanged: 1
-  canPatrol: 1
-  maxHealth: 100
+  canPatrol: 0
+  maxHealth: 20
   moveSpeed: 3
   detectionRange: 12
   engagementRange: 2
