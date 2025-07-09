@@ -143,7 +143,7 @@ MonoBehaviour:
   m_text: Mission Complete
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6242881d75042b1408a4bde670cfecd4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 7156400940486083266, guid: 6242881d75042b1408a4bde670cfecd4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -167,7 +167,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 100.15
+  m_fontSize: 94.3
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1427,17 +1427,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e20770808dbc446bd7ebe796f74016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelCompleteCanvasGroup: {fileID: 1489827461346402434}
-  messageGroup: {fileID: 424369207050932515}
-  buttonsGroup: {fileID: 5581111107732344652}
+  panelCanvasGroup: {fileID: 1489827461346402434}
+  bountyNameText: {fileID: 8178366057235631740}
+  returnToMenuButton: {fileID: 6360597819717132505}
   inGameHUD: {fileID: 3241619042829254349}
   initialDelay: 1
   fadeInDuration: 0.5
-  buttonsDelay: 0.75
-  continueButton: {fileID: 2207879659996254763}
-  retryButton: {fileID: 3483681919985748394}
-  mainMenuButton: {fileID: 6360597819717132505}
-  firstSelectedButton: {fileID: 2207879659996254763}
   uiSoundFeedback: {fileID: 4748830244338056988}
   victoryStingerSound:
     name: 
@@ -1581,7 +1576,7 @@ MonoBehaviour:
   m_text: Retry level
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6242881d75042b1408a4bde670cfecd4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 7156400940486083266, guid: 6242881d75042b1408a4bde670cfecd4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1646,7 +1641,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &3862537754972031034
@@ -1804,10 +1799,10 @@ RectTransform:
   - {fileID: 2074718860050387303}
   m_Father: {fileID: 697737712478129805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 318.22098, y: -424.20425}
-  m_SizeDelta: {x: 616.44196, y: 149.6817}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4146957999316042287
 CanvasRenderer:
@@ -2294,7 +2289,7 @@ MonoBehaviour:
   m_text: Back to menu
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6242881d75042b1408a4bde670cfecd4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 7156400940486083266, guid: 6242881d75042b1408a4bde670cfecd4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2359,7 +2354,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &4972120715084534452
@@ -2430,7 +2425,7 @@ MonoBehaviour:
   m_text: Resume
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6242881d75042b1408a4bde670cfecd4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 7156400940486083266, guid: 6242881d75042b1408a4bde670cfecd4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2495,7 +2490,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &5011296240721985098
@@ -2516,7 +2511,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &502348278467288811
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2534,8 +2529,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 318.22098, y: -84.84085}
-  m_SizeDelta: {x: 616.44196, y: 149.6817}
+  m_AnchoredPosition: {x: 318.22098, y: -127.261284}
+  m_SizeDelta: {x: 616.44196, y: 234.52257}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1953143056530719172
 CanvasRenderer:
@@ -2719,10 +2714,10 @@ RectTransform:
   - {fileID: 219894837735528481}
   m_Father: {fileID: 5048856099426293508}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.33452085, y: 0.254}
-  m_AnchorMax: {x: 0.666, y: 0.7498812}
-  m_AnchoredPosition: {x: -0.0010070801, y: -13.229004}
-  m_SizeDelta: {x: 0.002, y: -26.457}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -69}
+  m_SizeDelta: {x: 637.002, y: -571.45703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &6884057609437238462
 CanvasGroup:
@@ -3230,7 +3225,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &37132641068773369
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3953,7 +3948,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5048856099426293508
 RectTransform:
   m_ObjectHideFlags: 0

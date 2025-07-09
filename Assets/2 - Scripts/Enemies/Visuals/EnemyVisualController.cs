@@ -34,7 +34,6 @@ namespace Scripts.Enemies.Visuals
         private readonly int _animMeleeAttackHash = Animator.StringToHash(GameConstants.AnimMeleeAttackTrigger);
         private readonly int _animRangedAttackHash = Animator.StringToHash(GameConstants.AnimRangedAttackTrigger);
         private readonly int _animDieHash = Animator.StringToHash(GameConstants.AnimDieTrigger);
-        private readonly int _animForceIdleTrigger = Animator.StringToHash("forceIdle");
         // Window Enemy Hashes
         private readonly int _animWindowPlayerDetectedHash = Animator.StringToHash("isPlayerDetected");
         private readonly int _animWindowAttackHash = Animator.StringToHash(GameConstants.AnimWindowAttack);
@@ -78,7 +77,6 @@ namespace Scripts.Enemies.Visuals
 
             // Set a trigger that can be used in the Animator to transition
             // from any state (like an attack wind-up) back to the Idle state.
-            bodyAnimator.SetTrigger(_animForceIdleTrigger);
         }
         
         public void FlipVisuals(bool faceRight)

@@ -34,29 +34,35 @@ namespace Scripts.Levels
                 SceneLoader.Instance.LoadMenu();
                 return;
             }
-            
+    
             Bounty currentBounty = SessionManager.ActiveBounty;
-            int nextLevelIndex = SessionManager.CurrentLevelIndex + 1;
 
-            if (nextLevelIndex < currentBounty.levelSceneNames.Length)
+            // --- THE FIX ---
+            // First, try to advance the level index.
+            SessionManager.AdvanceToNextLevel();
+
+            // Now, get the NEW index after advancing.
+            int newLevelIndex = SessionManager.CurrentLevelIndex;
+
+            // Check if this new index is still within the bounds of our level list.
+            if (newLevelIndex < currentBounty.levelSceneNames.Length)
             {
                 // THERE IS A NEXT STAGE
-                Debug.Log($"Stage {SessionManager.CurrentLevelIndex + 1}/{currentBounty.levelSceneNames.Length} of bounty '{currentBounty.title}' complete. Loading next stage.");
-                SessionManager.AdvanceToNextLevel();
-                string nextScene = currentBounty.levelSceneNames[nextLevelIndex];
+                string nextScene = currentBounty.levelSceneNames[newLevelIndex];
+                Debug.Log($"Stage complete. Loading next stage at index {newLevelIndex}: {nextScene}.");
                 SceneLoader.Instance.LoadLevelByName(nextScene);
             }
             else
             {
-                // THIS WAS THE LAST STAGE! Bounty is complete.
+                // THIS WAS THE LAST STAGE! The new index is out of bounds. Bounty is complete.
                 Debug.Log($"Final stage of bounty '{currentBounty.title}' complete! Player returns to HQ.");
-                
+        
                 // Update permanent progress file.
                 ProgressionManager.Instance.CompleteBounty(currentBounty.bountyID);
-                
+        
                 // End the volatile session.
                 SessionManager.EndSession();
-                
+        
                 // Fire the event to show the "Bounty Complete" UI.
                 PlayerEvents.RaiseLevelCompleted(currentBounty.title);
             }
