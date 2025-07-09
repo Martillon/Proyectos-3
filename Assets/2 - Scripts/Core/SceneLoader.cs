@@ -163,6 +163,7 @@ namespace Scripts.Core
             if (newScene.IsValid())
             {
                 SceneManager.SetActiveScene(newScene);
+                _currentSceneName = sceneNameToLoad; // <-- ADD THIS LINE
                 CurrentGameplaySceneName = sceneNameToLoad;
             }
             else

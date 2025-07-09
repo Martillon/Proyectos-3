@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace Scripts.Enemies.Boss.Core.Visuals
 {
@@ -13,6 +14,19 @@ namespace Scripts.Enemies.Boss.Core.Visuals
         [SerializeField] private Transform visualsContainer;
         [Tooltip("The main Animator for the boss.")]
         [SerializeField] private Animator bodyAnimator;
+        
+        [Header("Feedback")]
+        [Tooltip("The color the boss's sprite will flash to when hit.")]
+        [SerializeField] private Color hitFlashColor = Color.white;
+        [Tooltip("How many times the sprite will flash on a single hit.")]
+        [SerializeField] private int hitFlashCount = 2;
+        [Tooltip("The total duration of the hit flash effect.")]
+        [SerializeField] private float hitFlashDuration = 0.2f;
+        
+        // --- Private State for Flashing ---
+        private SpriteRenderer[] _spriteRenderers;
+        private Color[] _originalSpriteColors;
+        private Coroutine _hitFlashCoroutine;
         
         // We store hash IDs for performance instead of using strings every time.
         private readonly int _isWalkingParam = Animator.StringToHash("IsWalking");
@@ -34,6 +48,17 @@ namespace Scripts.Enemies.Boss.Core.Visuals
             if (bodyAnimator == null)
             {
                 bodyAnimator = GetComponent<Animator>();
+            }
+            
+            _spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+            _originalSpriteColors = new Color[_spriteRenderers.Length];
+            for (int i = 0; i < _spriteRenderers.Length; i++)
+            {
+                // We store the original color of each sprite so we can revert back to it after the flash.
+                if (_spriteRenderers[i] != null)
+                {
+                    _originalSpriteColors[i] = _spriteRenderers[i].color;
+                }
             }
         }
     
@@ -123,6 +148,49 @@ namespace Scripts.Enemies.Boss.Core.Visuals
         public void PlayDeathAnimation()
         {
             bodyAnimator.SetTrigger(_doDeathParam);
+        }
+        
+        /// <summary>
+        /// Starts the hit flash visual feedback sequence.
+        /// </summary>
+        public void StartHitFlash()
+        {
+            // If a flash is already happening, stop it before starting a new one.
+            if (_hitFlashCoroutine != null) StopCoroutine(_hitFlashCoroutine);
+            _hitFlashCoroutine = StartCoroutine(HitFlashSequence());
+        }
+
+        private IEnumerator HitFlashSequence()
+        {
+            // Calculate how long each individual flash/revert cycle should last.
+            float flashDuration = hitFlashDuration / (hitFlashCount * 2f);
+            
+            for (int i = 0; i < hitFlashCount; i++)
+            {
+                SetAllSpriteColors(hitFlashColor);
+                yield return new WaitForSeconds(flashDuration);
+                RestoreOriginalSpriteColors();
+                yield return new WaitForSeconds(flashDuration);
+            }
+        }
+
+        private void SetAllSpriteColors(Color color)
+        {
+            foreach(var renderer in _spriteRenderers)
+            {
+                if (renderer != null) renderer.color = color;
+            }
+        }
+
+        private void RestoreOriginalSpriteColors()
+        {
+            for (int i = 0; i < _spriteRenderers.Length; i++)
+            {
+                if (_spriteRenderers[i] != null)
+                {
+                    _spriteRenderers[i].color = _originalSpriteColors[i];
+                }
+            }
         }
     }
 }

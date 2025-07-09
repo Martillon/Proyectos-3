@@ -41,9 +41,6 @@ namespace Scripts.Enemies.Boss.Attacks
         public IEnumerator Execute()
         {
             Debug.Log("Executing Melee Swipe Attack...");
-
-            // Ensure the boss is facing the player before swiping.
-            _bossController.FacePlayer();
             
             // Tell the animator to start the swipe animation.
             _bossController.GetComponentInChildren<BossVisualController>().PlayMeleeSwipeAnimation();

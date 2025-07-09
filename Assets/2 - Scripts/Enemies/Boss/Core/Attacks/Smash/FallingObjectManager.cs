@@ -12,14 +12,14 @@ namespace Scripts.Enemies.Boss.Attacks.Smash
     /// </summary>
     public class FallingObjectManager : MonoBehaviour
     {
-        // Singleton pattern for easy access from any script.
+        // Singleton pattern for easy access from any script (e.g., FallingObjectManager.Instance).
         public static FallingObjectManager Instance { get; private set; }
 
         [Header("Core Prefabs")]
-        [Tooltip("The prefab for the warning indicator that appears on the ground.")]
+        [Tooltip("The prefab for the warning indicator that appears on the ground to signal a hazard.")]
         [SerializeField] private GameObject warningIndicatorPrefab;
-        [Tooltip("The prefab for the power-up indicator that appears on the ground.")]
-        [SerializeField] private GameObject powerupIndicatorPrefab;
+        // You could add a different indicator for power-ups if desired.
+        // [SerializeField] private GameObject powerupIndicatorPrefab;
 
         [Header("Default Drop Settings")]
         [Tooltip("How long the warning indicator is visible before the object drops.")]
@@ -32,12 +32,14 @@ namespace Scripts.Enemies.Boss.Attacks.Smash
         /// </summary>
         private void Awake()
         {
+            // If an instance already exists and it's not this one, destroy this new one.
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
             }
             else
             {
+                // Otherwise, set this as the one and only instance.
                 Instance = this;
             }
         }
@@ -45,16 +47,16 @@ namespace Scripts.Enemies.Boss.Attacks.Smash
         // --- PUBLIC SPAWNING METHODS ---
 
         /// <summary>
-        /// Initiates a volley of dangerous falling hazards.
+        /// Initiates a volley of dangerous falling hazards. This is the method the boss attack script will call.
         /// </summary>
         /// <param name="hazardPrefabs">A list of possible decoration prefabs to use as hazards.</param>
         /// <param name="spawnPoints">A list of potential ceiling locations to drop from.</param>
-        /// <param name="count">How many hazards to drop.</param>
+        /// <param name="count">How many hazards to drop in this volley.</param>
         /// <param name="fallSpeed">How fast the hazards will fall.</param>
         /// <param name="lifetime">Max lifetime of the hazard if it hits nothing.</param>
         public void SpawnHazardVolley(List<GameObject> hazardPrefabs, List<Transform> spawnPoints, int count, float fallSpeed, float lifetime)
         {
-            // This is a "wrapper" method that validates the input and then starts the generic spawning process.
+            // This method simply calls the generic internal method, telling it that these are hazards.
             SpawnObjectVolley(hazardPrefabs, spawnPoints, count, fallSpeed, lifetime, true);
         }
 
@@ -63,6 +65,7 @@ namespace Scripts.Enemies.Boss.Attacks.Smash
         /// </summary>
         public void SpawnPowerupVolley(List<GameObject> powerupPrefabs, List<Transform> spawnPoints, int count, float fallSpeed, float lifetime)
         {
+            // This method calls the same internal method, but tells it these are NOT hazards (i.e., they are power-ups).
             SpawnObjectVolley(powerupPrefabs, spawnPoints, count, fallSpeed, lifetime, false);
         }
         
@@ -73,17 +76,17 @@ namespace Scripts.Enemies.Boss.Attacks.Smash
         /// </summary>
         private void SpawnObjectVolley(List<GameObject> prefabs, List<Transform> spawnPoints, int count, float fallSpeed, float lifetime, bool isHazard)
         {
-            // Validate all inputs to prevent errors.
+            // Validate all inputs to prevent errors from misconfiguration in the Inspector.
             if (prefabs == null || prefabs.Count == 0) { Debug.LogError("Spawn Volley called with no prefabs!", this); return; }
             if (spawnPoints == null || spawnPoints.Count == 0) { Debug.LogError("Spawn Volley called with no spawn points!", this); return; }
             
-            // Randomly select a subset of the available spawn points.
+            // This is a clean way to get a random subset of spawn points without duplicates.
             List<Transform> chosenSpawnPoints = spawnPoints.OrderBy(x => Random.value).Take(count).ToList();
             
-            // Start a separate coroutine for each object so they all drop concurrently.
+            // Start a separate coroutine for each object so they all drop concurrently and independently.
             foreach (Transform spawnPoint in chosenSpawnPoints)
             {
-                // Randomly pick a prefab from the provided list for this specific drop.
+                // Randomly pick a prefab from the provided list for this specific drop (e.g., a crate or a pipe).
                 GameObject prefabToSpawn = prefabs[Random.Range(0, prefabs.Count)];
                 StartCoroutine(HandleSingleFallingObject(prefabToSpawn, spawnPoint, fallSpeed, lifetime, isHazard));
             }
@@ -94,46 +97,53 @@ namespace Scripts.Enemies.Boss.Attacks.Smash
         /// </summary>
         private IEnumerator HandleSingleFallingObject(GameObject objectPrefab, Transform spawnPoint, float fallSpeed, float lifetime, bool isHazard)
         {
-            // --- 1. Find Landing Spot & Telegraph ---
+            // --- 1. FIND LANDING SPOT & TELEGRAPH ---
             Vector3 landingPosition = spawnPoint.position;
+            // Raycast downwards from the ceiling spawn point to find the exact landing spot on the ground.
             RaycastHit2D hit = Physics2D.Raycast(spawnPoint.position, Vector2.down, 100f, groundLayer);
             if (hit.collider != null)
             {
                 landingPosition = hit.point;
             }
 
+            // Instantiate the warning indicator at the landing spot.
+            // Note: You could use a different prefab for power-ups here if desired.
             GameObject indicatorInstance = Instantiate(warningIndicatorPrefab, landingPosition, Quaternion.identity);
 
-            // --- 2. Wait for Telegraph Duration ---
+            // --- 2. WAIT FOR TELEGRAPH DURATION ---
             yield return new WaitForSeconds(defaultWarningDuration);
             
-            // --- 3. Cleanup Warning & Spawn Object ---
+            // --- 3. CLEANUP WARNING & SPAWN OBJECT ---
             Destroy(indicatorInstance);
             GameObject newInstance = Instantiate(objectPrefab, spawnPoint.position, spawnPoint.rotation);
 
-            // --- 4. "Weaponize" or "Activate" the Object ---
-            // Add a Rigidbody so it can fall.
-            Collider2D col = newInstance.GetComponent<Collider2D>();
-            if (col == null)
-            {
-                // If it doesn't have one, add a simple BoxCollider2D as a fallback.
-                col = newInstance.AddComponent<BoxCollider2D>();
-                Debug.LogWarning($"Prefab '{objectPrefab.name}' was missing a Collider2D. A BoxCollider2D was added automatically.", newInstance);
-            }
-            
-            Rigidbody2D rb = newInstance.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 3f; // A good default gravity.
+            // --- 4. ACTIVATE THE OBJECT ---
+            // This is where the logic splits based on whether we're spawning a hazard or a power-up.
 
             if (isHazard)
             {
+                // "Weaponize" the harmless decoration prefab.
+                newInstance.AddComponent<Rigidbody2D>().gravityScale = 3f;
                 FallingHazard hazardScript = newInstance.AddComponent<FallingHazard>();
                 hazardScript.Drop(fallSpeed, lifetime);
             }
             else // It's a power-up
             {
-                col.isTrigger = true; // Make sure the collider is a trigger for pickup.
-                FallingPowerup powerupScript = newInstance.AddComponent<FallingPowerup>();
-                powerupScript.Drop(fallSpeed, lifetime);
+                // The power-up is already set up. We just need to give it physics to make it fall.
+                if (newInstance.TryGetComponent<Rigidbody2D>(out var rb))
+                {
+                    rb.linearVelocity = Vector2.down * fallSpeed;
+                }
+                else
+                {
+                    // As a safety fallback, add a Rigidbody if the prefab is missing one.
+                    rb = newInstance.AddComponent<Rigidbody2D>();
+                    rb.gravityScale = 3f;
+                    rb.linearVelocity = Vector2.down * fallSpeed;
+                }
+                
+                // Set a lifetime so it disappears if the player misses it.
+                Destroy(newInstance, lifetime);
             }
         }
     }

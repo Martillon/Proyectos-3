@@ -68,7 +68,6 @@ namespace Scripts.Enemies.Boss.Attacks.Smash
             Debug.Log("Executing Ground Smash Attack...");
 
             // Ensure the boss is facing the player before attacking.
-            _bossController.FacePlayer();
             
             // Set the animator speed for this attack. Faster in later phases.
             // _visualController.SetAnimatorSpeed(_currentAnimationSpeed); // We will add this method later.

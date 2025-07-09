@@ -65,7 +65,7 @@ public class BossAnimationEventRelay : MonoBehaviour
     public void Animation_PlayFootstepSound()
     {
         // We would add a PlayFootstep() method to BossAudioFeedback for this to work.
-        // bossAudio?.PlayFootstep();
+        bossAudio?.PlayFootstep();
         Debug.Log("Animation Event: PlayFootstepSound");
     }
 
